@@ -954,8 +954,8 @@ abstract class S {
   /// Used by the yield card to explain to the user how the yield is calculated in form of a tooltip
   ///
   /// In en, this message translates to:
-  /// **'Estimated yearly yield derived from the fees distributed to the liquidity providers.'**
-  String get yieldCardYieldExplanation;
+  /// **'Estimated annual yield based on {timeframeLabel} of data from fees distributed to liquidity providers.'**
+  String yieldCardYieldExplanation({required String timeframeLabel});
 
   /// Used by the yield card to show a title for the yield based on the time frame selected
   ///

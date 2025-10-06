@@ -24,8 +24,6 @@ import 'package:zup_app/abis/uniswap_v3_position_manager.abi.g.dart';
 import 'package:zup_app/abis/uniswap_v4_position_manager.abi.g.dart';
 import 'package:zup_app/abis/uniswap_v4_state_view.abi.g.dart';
 import 'package:zup_app/app/app_cubit/app_cubit.dart';
-import 'package:zup_app/app/create/deposit/deposit_cubit.dart';
-import 'package:zup_app/app/create/deposit/widgets/preview_deposit_modal/preview_deposit_modal_cubit.dart';
 import 'package:zup_app/app/create/yields/yields_cubit.dart';
 import 'package:zup_app/core/app_cache.dart';
 import 'package:zup_app/core/debouncer.dart';
@@ -51,8 +49,6 @@ class BuildContextMock extends Mock implements BuildContext {}
 class AppCacheMock extends Mock implements AppCache {}
 
 class DebouncerMock extends Mock implements Debouncer {}
-
-class DepositCubitMock extends Mock implements DepositCubit {}
 
 class Erc20ImplMock extends Mock implements Erc20Impl {}
 
@@ -123,8 +119,6 @@ class ZupCachedImageMock extends Mock implements ZupCachedImage {}
 class ZupNavigatorMock extends Mock implements ZupNavigator {}
 
 class ZupSingletonCacheMock extends Mock implements ZupSingletonCache {}
-
-class PreviewDepositModalCubitMock extends Mock implements PreviewDepositModalCubit {}
 
 class ZupLinksMock extends Mock implements ZupLinks {}
 

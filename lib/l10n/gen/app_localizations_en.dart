@@ -525,8 +525,9 @@ class SEn extends S {
   }
 
   @override
-  String get yieldCardYieldExplanation =>
-      'Estimated yearly yield derived from the fees distributed to the liquidity providers.';
+  String yieldCardYieldExplanation({required String timeframeLabel}) {
+    return 'Estimated annual yield based on $timeframeLabel of data from fees distributed to liquidity providers.';
+  }
 
   @override
   String yieldCardTimeframeYield({required String timeframe}) {

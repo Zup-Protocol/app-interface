@@ -15,7 +15,6 @@ import '../golden_config.dart';
 import '../mocks.dart';
 
 void main() {
-  autoUpdateGoldenFiles = true;
   setUp(() {
     inject.registerFactory<ZupCachedImage>(() => mockZupCachedImage());
     inject.registerFactory<bool>(() => false, instanceName: InjectInstanceNames.infinityAnimationAutoPlay);
@@ -35,9 +34,10 @@ void main() {
         height: 310,
         width: 340,
         child: YieldCard(
-          isHotestYield: false,
+          showHotestYieldAnimation: false,
           yieldPool: yieldPool ?? YieldDto.fixture(),
           yieldTimeFrame: yieldTimeFrame ?? YieldTimeFrame.day,
+          onClickDeposit: () {},
         ),
       ),
     ),

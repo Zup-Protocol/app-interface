@@ -304,8 +304,14 @@
             }
         }
     },
-    "yieldCardYieldExplanation": "Estimated yearly yield derived from the fees distributed to the liquidity providers.",
+    "yieldCardYieldExplanation": "Estimated annual yield based on {timeframeLabel} of data from fees distributed to liquidity providers.",
     "@yieldCardYieldExplanation": {
+        "placeholders": {
+            "timeframeLabel": {
+                "description": "The timeframe for which the yield is calculated (24h, 7d, etc.)",
+                "type": "String"
+            }
+        },
         "description": "Used by the yield card to explain to the user how the yield is calculated in form of a tooltip"
     },
     "yieldCardTimeframeYield": "{timeframe} Yield",

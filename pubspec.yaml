@@ -13,7 +13,7 @@ dependencies:
   flutter_svg: ^2.2.0
   routefly:
     git:
-      url: https://github.com/RyanHolanda/routefly.git # TODO: Issue sent to the original repo, to fix vercel build (https://github.com/Flutterando/routefly/issues/28`)
+      url:  https://github.com/RyanHolanda/routefly.git # TODO: Issue sent to the original repo, to fix vercel build (https://github.com/Flutterando/routefly/issues/28`)
       ref: hotfix-vercel
   flutter_web_plugins:
     sdk: flutter
@@ -53,14 +53,15 @@ dependencies:
   firebase_analytics: ^11.4.5
   envied: ^1.1.1
   async: ^2.13.0
+  
 
-# dependency_overrides:
-#   zup_core:
-#     path: ../zup-core
-#   web3kit:
-#     path: ../web3kit
-#   zup_ui_kit:
-#     path: ../zup-ui-kit
+dependency_overrides:
+  zup_core:
+    path: ../zup-core
+  web3kit:
+    path: ../web3kit
+  zup_ui_kit:
+    path: ../zup-ui-kit
 
 dev_dependencies:
   flutter_test:

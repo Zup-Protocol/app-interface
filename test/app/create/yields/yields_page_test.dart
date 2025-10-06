@@ -103,7 +103,7 @@ void main() {
     """When initializing the page, it should call the app cubit
     to set the app network for the one defined in the url params""",
     (tester) async {
-      when(() => navigator.getParam(YieldsRouteParamsNames().network)).thenReturn(AppNetworks.base.name);
+      when(() => navigator.getQueryParam(YieldsRouteParamsNames().network)).thenReturn(AppNetworks.base.name);
 
       await tester.runAsync(() async {
         await tester.pumpDeviceBuilder(await goldenBuilder());
@@ -124,10 +124,10 @@ void main() {
       const group0Id = "121";
       const group1Id = "gta1";
 
-      when(() => navigator.getParam(YieldsRouteParamsNames().token0)).thenReturn(token0Id);
-      when(() => navigator.getParam(YieldsRouteParamsNames().token1)).thenReturn(token1Id);
-      when(() => navigator.getParam(YieldsRouteParamsNames().group0)).thenReturn(group0Id);
-      when(() => navigator.getParam(YieldsRouteParamsNames().group1)).thenReturn(group1Id);
+      when(() => navigator.getQueryParam(YieldsRouteParamsNames().token0)).thenReturn(token0Id);
+      when(() => navigator.getQueryParam(YieldsRouteParamsNames().token1)).thenReturn(token1Id);
+      when(() => navigator.getQueryParam(YieldsRouteParamsNames().group0)).thenReturn(group0Id);
+      when(() => navigator.getQueryParam(YieldsRouteParamsNames().group1)).thenReturn(group1Id);
 
       await tester.runAsync(() async {
         await tester.pumpDeviceBuilder(await goldenBuilder());
@@ -181,10 +181,10 @@ void main() {
       const group0Id = "gorpo-1";
       const group1Id = "gorpo-2";
 
-      when(() => navigator.getParam(YieldsRouteParamsNames().token0)).thenReturn(token0Id);
-      when(() => navigator.getParam(YieldsRouteParamsNames().token1)).thenReturn(token1Id);
-      when(() => navigator.getParam(YieldsRouteParamsNames().group0)).thenReturn(group0Id);
-      when(() => navigator.getParam(YieldsRouteParamsNames().group1)).thenReturn(group1Id);
+      when(() => navigator.getQueryParam(YieldsRouteParamsNames().token0)).thenReturn(token0Id);
+      when(() => navigator.getQueryParam(YieldsRouteParamsNames().token1)).thenReturn(token1Id);
+      when(() => navigator.getQueryParam(YieldsRouteParamsNames().group0)).thenReturn(group0Id);
+      when(() => navigator.getQueryParam(YieldsRouteParamsNames().group1)).thenReturn(group1Id);
 
       when(() => cubit.state).thenReturn(const YieldsState.error("", ""));
 
@@ -245,10 +245,10 @@ void main() {
       const group0Id = "gpo-44";
       const group1Id = "gorpo-75";
 
-      when(() => navigator.getParam(YieldsRouteParamsNames().token0)).thenReturn(token0Id);
-      when(() => navigator.getParam(YieldsRouteParamsNames().token1)).thenReturn(token1Id);
-      when(() => navigator.getParam(YieldsRouteParamsNames().group0)).thenReturn(group0Id);
-      when(() => navigator.getParam(YieldsRouteParamsNames().group1)).thenReturn(group1Id);
+      when(() => navigator.getQueryParam(YieldsRouteParamsNames().token0)).thenReturn(token0Id);
+      when(() => navigator.getQueryParam(YieldsRouteParamsNames().token1)).thenReturn(token1Id);
+      when(() => navigator.getQueryParam(YieldsRouteParamsNames().group0)).thenReturn(group0Id);
+      when(() => navigator.getQueryParam(YieldsRouteParamsNames().group1)).thenReturn(group1Id);
       when(
         () => cubit.state,
       ).thenReturn(const YieldsState.noYields(filtersApplied: PoolSearchFiltersDto(minTvlUsd: 12517821)));
@@ -658,10 +658,10 @@ void main() {
       const group0Id = "iuyip";
       const group1Id = "sayiji";
 
-      when(() => navigator.getParam(YieldsRouteParamsNames().token0)).thenReturn(token0Id);
-      when(() => navigator.getParam(YieldsRouteParamsNames().token1)).thenReturn(token1Id);
-      when(() => navigator.getParam(YieldsRouteParamsNames().group0)).thenReturn(group0Id);
-      when(() => navigator.getParam(YieldsRouteParamsNames().group1)).thenReturn(group1Id);
+      when(() => navigator.getQueryParam(YieldsRouteParamsNames().token0)).thenReturn(token0Id);
+      when(() => navigator.getQueryParam(YieldsRouteParamsNames().token1)).thenReturn(token1Id);
+      when(() => navigator.getQueryParam(YieldsRouteParamsNames().group0)).thenReturn(group0Id);
+      when(() => navigator.getQueryParam(YieldsRouteParamsNames().group1)).thenReturn(group1Id);
 
       when(() => cubit.state).thenReturn(
         YieldsState.success(
@@ -719,10 +719,10 @@ void main() {
       const group0Id = "iuyip";
       const group1Id = "sayiji";
 
-      when(() => navigator.getParam(YieldsRouteParamsNames().token0)).thenReturn(token0Id);
-      when(() => navigator.getParam(YieldsRouteParamsNames().token1)).thenReturn(token1Id);
-      when(() => navigator.getParam(YieldsRouteParamsNames().group0)).thenReturn(group0Id);
-      when(() => navigator.getParam(YieldsRouteParamsNames().group1)).thenReturn(group1Id);
+      when(() => navigator.getQueryParam(YieldsRouteParamsNames().token0)).thenReturn(token0Id);
+      when(() => navigator.getQueryParam(YieldsRouteParamsNames().token1)).thenReturn(token1Id);
+      when(() => navigator.getQueryParam(YieldsRouteParamsNames().group0)).thenReturn(group0Id);
+      when(() => navigator.getQueryParam(YieldsRouteParamsNames().group1)).thenReturn(group1Id);
 
       when(() => appCache.getPoolSearchSettings()).thenReturn(PoolSearchSettingsDto(minLiquidityUSD: 122));
       when(() => cubit.state).thenReturn(

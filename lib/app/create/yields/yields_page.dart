@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -13,12 +12,14 @@ import 'package:zup_app/core/enums/yield_timeframe.dart';
 import 'package:zup_app/core/enums/zup_navigator_paths.dart';
 import 'package:zup_app/core/extensions/num_extension.dart';
 import 'package:zup_app/core/injections.dart';
+import 'package:zup_app/core/mixins/keys_mixin.dart';
 import 'package:zup_app/core/repositories/yield_repository.dart';
 import 'package:zup_app/core/zup_analytics.dart';
 import 'package:zup_app/core/zup_navigator.dart';
 import 'package:zup_app/core/zup_route_params_names.dart';
 import 'package:zup_app/gen/assets.gen.dart';
 import 'package:zup_app/l10n/gen/app_localizations.dart';
+import 'package:zup_app/widgets/timeframe_selector.dart';
 import 'package:zup_app/widgets/yield_card.dart';
 import 'package:zup_app/widgets/zup_page_title.dart';
 import 'package:zup_core/extensions/extensions.dart';
@@ -29,7 +30,7 @@ import 'package:zup_ui_kit/zup_ui_kit.dart';
 Route routeBuilder(BuildContext context, RouteSettings settings) {
   return PageRouteBuilder(
     settings: settings,
-    transitionDuration: const Duration(milliseconds: 500),
+    transitionDuration: const Duration(milliseconds: 700),
     pageBuilder: (_, a1, a2) => BlocProvider(
       create: (context) =>
           YieldsCubit(inject<AppCubit>(), inject<AppCache>(), inject<YieldRepository>(), inject<ZupAnalytics>()),
@@ -49,7 +50,7 @@ class YieldsPage extends StatefulWidget {
   State<YieldsPage> createState() => _YieldsPageState();
 }
 
-class _YieldsPageState extends State<YieldsPage> with DeviceInfoMixin, SingleTickerProviderStateMixin {
+class _YieldsPageState extends State<YieldsPage> with DeviceInfoMixin, SingleTickerProviderStateMixin, KeysMixin {
   final navigator = inject<ZupNavigator>();
   final appCubit = inject<AppCubit>();
   final appCache = inject<AppCache>();
@@ -67,19 +68,19 @@ class _YieldsPageState extends State<YieldsPage> with DeviceInfoMixin, SingleTic
   YieldsCubit get cubit => context.read<YieldsCubit>();
 
   String? get token0QueryParam {
-    return navigator.getParam(ZupNavigatorPaths.yields.routeParamsNames<YieldsRouteParamsNames>().token0);
+    return navigator.getQueryParam(ZupNavigatorPaths.yields.routeParamsNames<YieldsRouteParamsNames>().token0);
   }
 
   String? get token1QueryParam {
-    return navigator.getParam(ZupNavigatorPaths.yields.routeParamsNames<YieldsRouteParamsNames>().token1);
+    return navigator.getQueryParam(ZupNavigatorPaths.yields.routeParamsNames<YieldsRouteParamsNames>().token1);
   }
 
   String? get group0QueryParam {
-    return navigator.getParam(ZupNavigatorPaths.yields.routeParamsNames<YieldsRouteParamsNames>().group0);
+    return navigator.getQueryParam(ZupNavigatorPaths.yields.routeParamsNames<YieldsRouteParamsNames>().group0);
   }
 
   String? get group1QueryParam {
-    return navigator.getParam(ZupNavigatorPaths.yields.routeParamsNames<YieldsRouteParamsNames>().group1);
+    return navigator.getQueryParam(ZupNavigatorPaths.yields.routeParamsNames<YieldsRouteParamsNames>().group1);
   }
 
   YieldTimeFrame selectedYieldTimeFrame = YieldTimeFrame.day;
@@ -87,7 +88,7 @@ class _YieldsPageState extends State<YieldsPage> with DeviceInfoMixin, SingleTic
   bool isYieldsPageGoingBackwards = false;
 
   void resetScrollAndFetch({bool ignoreMinLiquidity = false}) {
-    appScrollController.jumpTo(0);
+    appScrollController.animateTo(0, duration: const Duration(milliseconds: 500), curve: Curves.decelerate);
 
     cubit.fetchYields(
       token0AddressOrId: token0QueryParam,
@@ -101,7 +102,7 @@ class _YieldsPageState extends State<YieldsPage> with DeviceInfoMixin, SingleTic
   @override
   void initState() {
     final currentNetworkFromUrl =
-        navigator.getParam(ZupNavigatorPaths.yields.routeParamsNames<YieldsRouteParamsNames>().network) ?? "";
+        navigator.getQueryParam(ZupNavigatorPaths.yields.routeParamsNames<YieldsRouteParamsNames>().network) ?? "";
 
     if (currentNetworkFromUrl.isNotEmpty) {
       final currentNetwork = AppNetworks.fromValue(currentNetworkFromUrl);
@@ -206,7 +207,15 @@ class _YieldsPageState extends State<YieldsPage> with DeviceInfoMixin, SingleTic
                             style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: ZupColors.gray),
                           ),
                           const SizedBox(height: 10),
-                          _buildTimeframeSelector,
+                          TimeframeSelector(
+                            selectedTimeframe: selectedYieldTimeFrame,
+                            onTimeframeSelected: (timeframe) {
+                              setState(() {
+                                pageController.jumpTo(0);
+                                selectedYieldTimeFrame = timeframe ?? YieldTimeFrame.day;
+                              });
+                            },
+                          ),
                         ],
                       ),
                     ),
@@ -262,7 +271,7 @@ class _YieldsPageState extends State<YieldsPage> with DeviceInfoMixin, SingleTic
     final poolsSortedByTimeframe = yields.poolsSortedByTimeframe(selectedYieldTimeFrame);
 
     return SizedBox(
-      height: 310,
+      height: 315,
       child: PageView.builder(
         physics: isMobileSize(context) ? const BouncingScrollPhysics() : const NeverScrollableScrollPhysics(),
         controller: pageController,
@@ -292,11 +301,33 @@ class _YieldsPageState extends State<YieldsPage> with DeviceInfoMixin, SingleTic
                   }();
 
                   return Flexible(
-                    child: YieldCard(
-                      key: Key("yield-card-${yieldItem.poolAddress}"),
-                      yieldPool: yieldItem,
-                      yieldTimeFrame: selectedYieldTimeFrame,
-                      isHotestYield: yieldItem.equals(poolsSortedByTimeframe.first),
+                    child: Center(
+                      child: Hero(
+                        flightShuttleBuilder:
+                            (
+                              BuildContext _,
+                              Animation<double> _,
+                              HeroFlightDirection _,
+                              BuildContext fromHeroContext,
+                              BuildContext _,
+                            ) {
+                              return Align(alignment: Alignment.topRight, child: fromHeroContext.widget);
+                            },
+                        tag: yieldCardHeroKey(yieldItem.poolAddress),
+                        child: YieldCard(
+                          key: Key("yield-card-${yieldItem.poolAddress}"),
+                          yieldPool: yieldItem,
+                          yieldTimeFrame: selectedYieldTimeFrame,
+                          showHotestYieldAnimation: yieldItem.equals(poolsSortedByTimeframe.first),
+                          onClickDeposit: () {
+                            //   navigator.navigateToDeposit(
+                            //   yieldPool: yieldItem,
+                            //   selectedTimeframe: selectedYieldTimeFrame,
+                            //   parseWrappedToNative: yieldItem.isToken0Native || yieldItem.isToken1Native,
+                            // );
+                          },
+                        ),
+                      ),
                     ),
                   ).animate(
                     autoPlay: true,
@@ -324,67 +355,6 @@ class _YieldsPageState extends State<YieldsPage> with DeviceInfoMixin, SingleTic
       ),
     );
   }
-
-  Widget get _buildTimeframeSelector => Container(
-    padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 10),
-    decoration: BoxDecoration(borderRadius: BorderRadius.circular(12)),
-    child: Wrap(
-      runSpacing: 10,
-      crossAxisAlignment: WrapCrossAlignment.center,
-      children: [
-        Text(
-          S.of(context).yieldsPageTimeframeSelectorTitle,
-          style: TextStyle(
-            color: ZupThemeColors.primaryText.themed(context.brightness),
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        const SizedBox(width: 10),
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            CupertinoSlidingSegmentedControl<YieldTimeFrame>(
-              proportionalWidth: true,
-              onValueChanged: (timeframe) async {
-                setState(() {
-                  pageController.jumpTo(0);
-                  selectedYieldTimeFrame = timeframe ?? YieldTimeFrame.day;
-                });
-              },
-              groupValue: selectedYieldTimeFrame,
-              children: Map.fromEntries(
-                YieldTimeFrame.values.map(
-                  (timeframe) => MapEntry(
-                    timeframe,
-                    IgnorePointer(
-                          key: Key("${timeframe.name}-timeframe-button"),
-                          child: Text(
-                            timeframe.compactDaysLabel(context),
-                            style: TextStyle(
-                              color: ZupThemeColors.primaryText.themed(context.brightness),
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        )
-                        .animatedHover(animationValue: 0.2, type: ZupAnimatedHoverType.opacity)
-                        .animatedHover(animationValue: 0.95, type: ZupAnimatedHoverType.scale),
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(width: 10),
-            ZupTooltip.text(
-              key: const Key("timeframe-tooltip"),
-              message: S.of(context).yieldsPageTimeframeExplanation,
-              child: Assets.icons.infoCircle.svg(colorFilter: const ColorFilter.mode(ZupColors.gray, BlendMode.srcIn)),
-            ),
-          ],
-        ),
-      ],
-    ),
-  );
 
   List<Widget> _buildMinTvlFilterAlert({required num currentMinTVLUSD}) => [
     if (currentMinTVLUSD > 0) ...[

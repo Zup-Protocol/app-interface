@@ -13,6 +13,7 @@ import 'package:zup_app/app/create/deposit/widgets/deposit_settings_dropdown_chi
 import 'package:zup_app/app/create/deposit/widgets/preview_deposit_modal/preview_deposit_modal.dart';
 import 'package:zup_app/app/create/deposit/widgets/range_selector.dart';
 import 'package:zup_app/app/create/deposit/widgets/token_amount_input_card/token_amount_input_card.dart';
+import 'package:zup_app/app/create/deposit/widgets/yield_card_temp.dart';
 import 'package:zup_app/core/cache.dart';
 import 'package:zup_app/core/concentrated_liquidity_utils/cl_pool_constants.dart';
 import 'package:zup_app/core/concentrated_liquidity_utils/cl_pool_conversors_mixin.dart';
@@ -38,7 +39,6 @@ import 'package:zup_app/core/zup_navigator.dart';
 import 'package:zup_app/core/zup_route_params_names.dart';
 import 'package:zup_app/gen/assets.gen.dart';
 import 'package:zup_app/l10n/gen/app_localizations.dart';
-import 'package:zup_app/widgets/yield_card.dart';
 import 'package:zup_app/widgets/zup_page_title.dart';
 import 'package:zup_core/zup_core.dart';
 import 'package:zup_ui_kit/zup_ui_kit.dart';
@@ -98,19 +98,19 @@ class _DepositPageState extends State<DepositPage>
   AppCubit get _appCubit => inject<AppCubit>();
 
   String? get token0Id {
-    return _navigator.getParam(ZupNavigatorPaths.deposit.routeParamsNames<ZupDepositRouteParamsNames>().token0);
+    return _navigator.getQueryParam(ZupNavigatorPaths.deposit.routeParamsNames<DepositRouteParamsNames>().token0);
   }
 
   String? get token1Id {
-    return _navigator.getParam(ZupNavigatorPaths.deposit.routeParamsNames<ZupDepositRouteParamsNames>().token1);
+    return _navigator.getQueryParam(ZupNavigatorPaths.deposit.routeParamsNames<DepositRouteParamsNames>().token1);
   }
 
   String? get group0Id {
-    return _navigator.getParam(ZupNavigatorPaths.deposit.routeParamsNames<ZupDepositRouteParamsNames>().group0);
+    return _navigator.getQueryParam(ZupNavigatorPaths.deposit.routeParamsNames<DepositRouteParamsNames>().group0);
   }
 
   String? get group1Id {
-    return _navigator.getParam(ZupNavigatorPaths.deposit.routeParamsNames<ZupDepositRouteParamsNames>().group1);
+    return _navigator.getQueryParam(ZupNavigatorPaths.deposit.routeParamsNames<DepositRouteParamsNames>().group1);
   }
 
   TokenDto get baseToken {
@@ -365,7 +365,7 @@ class _DepositPageState extends State<DepositPage>
     _cubit.setup();
 
     final currentNetworkFromUrl =
-        _navigator.getParam(ZupNavigatorPaths.deposit.routeParamsNames<ZupDepositRouteParamsNames>().network) ?? "";
+        _navigator.getQueryParam(ZupNavigatorPaths.deposit.routeParamsNames<DepositRouteParamsNames>().network) ?? "";
 
     yieldsPageController.addListener(() {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -759,7 +759,7 @@ class _DepositPageState extends State<DepositPage>
                   children: yieldsInThisPage
                       .map(
                         (yieldItem) => Expanded(
-                          child: YieldCard(
+                          child: YieldCardTemp(
                             key: Key("yield-card-${yieldItem.poolAddress}"),
                             isHotestYield: yieldItem.equals(
                               yields.poolsSortedByTimeframe(selectedYieldTimeFrame).first,

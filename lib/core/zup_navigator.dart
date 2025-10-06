@@ -8,32 +8,66 @@ class ZupNavigator {
   Listenable get listenable => Routefly.listenable;
   String get currentRoute => Routefly.currentUri.path;
 
-  String? getParam(String paramName) => Routefly.query.params[paramName];
+  String? getQueryParam(String paramName) => Routefly.query.params[paramName];
 
-  Future<void> back(BuildContext context) async => Routefly.pop(context);
+  String? getQuery(String queryName) => Routefly.query[queryName].toString();
+
+  Map<String, dynamic> get currentPageArguments => Routefly.query.arguments ?? {};
+
+  void back(BuildContext context) async => Routefly.pop(context);
+
+  bool canBack(BuildContext context) => Navigator.of(context).canPop();
 
   Future<void> navigateToNewPosition() async => await Routefly.navigate(ZupNavigatorPaths.newPosition.path);
 
-  Future<void> navigateToDeposit({
+  Future<void> navigateToYields({
     required String? token0,
     required String? token1,
     required String? group0,
     required String? group1,
     required AppNetworks network,
   }) async {
-    const depositPath = ZupNavigatorPaths.deposit;
-    final depositPathParams = depositPath.routeParamsNames<ZupDepositRouteParamsNames>();
+    const yieldsPath = ZupNavigatorPaths.yields;
+    final yieldsPathParamNames = yieldsPath.routeParamsNames<YieldsRouteParamsNames>();
 
-    final token0UrlParam = token0 != null ? "${depositPathParams.token0}=$token0" : "";
-    final token1UrlParam = token1 != null ? "${depositPathParams.token1}=$token1" : "";
-    final group0UrlParam = group0 != null ? "${depositPathParams.group0}=$group0" : "";
-    final group1UrlParam = group1 != null ? "${depositPathParams.group1}=$group1" : "";
-    final networkUrlParam = "${depositPathParams.network}=${network.name}";
+    final token0UrlParam = token0 != null ? _buildUrlParam(yieldsPathParamNames.token0, token0) : "";
+    final token1UrlParam = token1 != null ? _buildUrlParam(yieldsPathParamNames.token1, token1) : "";
+    final group0UrlParam = group0 != null ? _buildUrlParam(yieldsPathParamNames.group0, group0) : "";
+    final group1UrlParam = group1 != null ? _buildUrlParam(yieldsPathParamNames.group1, group1) : "";
+    final networkUrlParam = _buildUrlParam(yieldsPathParamNames.network, network.name);
 
-    await Routefly.pushNavigate(
-      "${depositPath.path}?$token0UrlParam&$token1UrlParam&$group0UrlParam&$group1UrlParam&$networkUrlParam",
+    return await Routefly.pushNavigate(
+      "${yieldsPath.path}?$token0UrlParam&$token1UrlParam&$group0UrlParam&$group1UrlParam&$networkUrlParam",
     );
   }
 
   Future<void> navigateToInitial() async => await Routefly.navigate(ZupNavigatorPaths.initial.path);
+
+  // Future<void> navigateToDeposit({
+  //   required YieldDto yieldPool,
+  //   required YieldTimeFrame selectedTimeframe,
+  //   required bool parseWrappedToNative,
+  // }) async {
+  //   final depositPathParamNames = ZupNavigatorPaths.deposit.routeParamsNames<DepositRouteParamsNames>();
+
+  //   final appNetworkUrlParam = _buildUrlParam(depositPathParamNames.network, yieldPool.network.name);
+  //   final timeframeUrlParam = _buildUrlParam(depositPathParamNames.timeframe, selectedTimeframe.name);
+  //   final parseWrappedToNativeParam = _buildUrlParam(
+  //     depositPathParamNames.parseWrappedToNative,
+  //     parseWrappedToNative.toString(),
+  //   );
+
+  //   final rawPath = ZupNavigatorPaths.deposit.path(
+  //     pathParams: DepositPagePathParamsDto(poolAddress: yieldPool.poolAddress).toJson().cast<String, String>(),
+  //   );
+
+  //   await Routefly.pushNavigate(
+  //     "$rawPath?$appNetworkUrlParam&$timeframeUrlParam&$parseWrappedToNativeParam",
+  //     arguments: DepositPageArgumentsDto(yieldPool: yieldPool).toJson(),
+  //   );
+  // }
+
+  String _buildUrlParam(String paramName, String paramValue) {
+    return "$paramName=$paramValue";
+  }
 }

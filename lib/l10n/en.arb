@@ -317,6 +317,10 @@
             }
         }
     },
+    "yieldsPageBackButtonTitle": "Select Pair",
+    "@yieldsPageBackButtonTitle": {
+        "description": "Used by the yields page as title for the back button, to go back to the previous step"
+    },
     "positionsPageMyPositions": "My Positions",
     "appHeaderMyPositions": "My Positions (Soon)",
     "appHeaderNewPosition": "New Position",
@@ -386,5 +390,170 @@
     "createPageShowMeTheMoney": "Show me the money!",
     "createPageDescription": "Ready to dive in? First, pick the dynamic duo of tokens you want to team up in the pool. Just choose your pair right below and you’re set to make some magic!",
     "letsGiveItAnotherGo": "Let’s give it another go, because why not?",
-    "letsGiveItAnotherShot": "Let’s give it another shot"
+    "letsGiveItAnotherShot": "Let’s give it another shot",
+    "yieldCardAverageYieldYearly": "Average Yearly Yield",
+    "yieldCardDeposit": "Deposit",
+    "@yieldCardDeposit": {
+        "description": "Used by the yield card to proceed to the deposit page with the selected yield card",
+        "type": "text"
+    },
+    "yieldCardThisPoolIsAtNetwork": "This pool is at {network}",
+    "@yieldCardThisPoolIsAtNetwork": {
+        "description": "Used by the yield card to explain to the user that the pool is at the {network}, in form of a tooltip",
+        "placeholders": {
+            "network": {
+                "type": "String"
+            }
+        }
+    },
+    "yieldCardTimeFrameBest": "{timeFrame} best",
+    "@yieldCardTimeFrameBest": {
+        "placeholders": {
+            "timeFrame": {
+                "type": "String"
+            }
+        }
+    },
+    "yieldCardVisitProtocol": "Visit {protocolName}",
+    "@yieldCardVisitProtocol": {
+        "placeholders": {
+            "protocolName": {
+                "type": "String"
+            }
+        }
+    },
+    "yieldCardYearlyYield": "Yearly Yield",
+    "@yieldCardYearlyYield": {
+        "description": "Used by the yield card as title for the percentage of yearly yield"
+    },
+    "yieldsPageEmptyStateDescription": "Seems like that there are no pools matching your defined settings at the moment. Would you like to either change your settings or try another combination?",
+    "@yieldsPageEmptyStateDescription": {
+        "description": "Used by the yields page as description for the empty state when no pools are found for the selected pair"
+    },
+    "yieldsPageEmptyStateHelperButtonTitle": "Go Back to New Position",
+    "@yieldsPageEmptyStateHelperButtonTitle": {
+        "description": "Used by the yields page as title for the helper button in the empty state when no pools are found for the selected pair, useful for going back or doing something else"
+    },
+    "yieldsPageEmptyStateMinTVLAlert": "Searched only for liquidity pools with more than {tvlUSD} TVL",
+    "@yieldsPageEmptyStateMinTVLAlert": {
+        "description": "Used in the empty state on the Yields page to alert the user that their search was limited to pools with more than the specified TVL. This may explain why no pools were found",
+        "placeholders": {
+            "tvlUSD": {
+                "description": "The min total value locked USD set for the search formatted as USD",
+                "type": "String"
+            }
+        }
+    },
+    "yieldCardYieldExplanation": "Estimated annual yield based on {timeframeLabel} of data from fees distributed to liquidity providers.",
+    "@yieldCardYieldExplanation": {
+        "placeholders": {
+            "timeframeLabel": {
+                "description": "The timeframe for which the yield is calculated (24h, 7d, etc.)",
+                "type": "String"
+            }
+        },
+        "description": "Used by the yield card to explain to the user how the yield is calculated in form of a tooltip"
+    },
+    "yieldCardTimeframeYield": "{timeframe} Yield",
+    "@yieldCardTimeframeYield": {
+        "description": "Used by the yield card to show a title for the yield based on the time frame selected",
+        "placeholders": {
+            "timeframe": {
+                "description": "The timeframe for which the yield is calculated (24h, 7d, etc.)",
+                "type": "String"
+            }
+        }
+    },
+    "yieldsPageDisplayingPoolsWithMinTvlAlert": "Displaying only liquidity pools with more than {tvlUSD} TVL.",
+    "@yieldsPageDisplayingPoolsWithMinTvlAlert": {
+        "description": "Used by the yields page to alert the user that their search was limited to pools with more than the specified TVL",
+        "placeholders": {
+            "tvlUSD": {
+                "description": "The min tvl USD set for the search formatted as USD",
+                "type": "String"
+            }
+        }
+    },
+    "yieldsPageApplyTvlFilterButtonTitle": "Show only pools with more than {tvlUSD} TVL.",
+    "@yieldsPageApplyTvlFilterButtonTitle": {
+        "description": "Used by the yields page as title for the button to search only for pools with more than the specified TVL",
+        "placeholders": {
+            "tvlUSD": {
+                "description": "The min tvl USD set for the search formatted as USD",
+                "type": "String"
+            }
+        }
+    },
+    "yieldsPageDisplayingAllPoolsAlert": "Displaying all liquidity pools.",
+    "@yieldsPageDisplayingAllPoolsAlert": {
+        "description": "Used by the yields page to alert the user that their search was made to find any pool, ignoring user-set filters"
+    },
+    "yieldsPageTimeframeExplanation": "Each time frame shows yields based on past performance. Shorter windows (24h, 7d) highlight recent trends for quick moves. Longer windows (30d, 90d) provide a broader view for mid to long-term decisions",
+    "@yieldsPageTimeframeExplanation": {
+        "description": "Used by by the yields page to explain what are the time frames and how they differ from each other"
+    },
+    "yieldsPageTimeframeSelectorTitle": "Best yields in",
+    "@yieldsPageTimeframeSelectorTitle": {
+        "description": "Used by the yields page as a title for the timeframe selector, to show yields based in the selected timeframe"
+    },
+    "yieldsPageTitle": "Choose a pool for you",
+    "@yieldsPageTitle": {
+        "description": "The main title of the yield page"
+    },
+    "yieldsPageDescription": "Select the yield that most suits your needs and deposit to start earning",
+    "@yieldsPageDescription": {
+        "description": "The description of the yield page"
+    },
+    "yieldsPageBackButtonTitle": "Select Pair",
+    "@yieldsPageBackButtonTitle": {
+        "description": "Used by the yields page as title for the back button, to go back to the previous step"
+    },
+    "yieldsPageEmptyStateTitle": "No Pools Found",
+    "@yieldsPageEmptyStateTitle": {
+        "description": "Used by the yields page as title for the empty state when no pools are found for the selected pair"
+    },
+    "yieldsPageErrorStateDescription": "We ran into a issue while trying to find the best pool. Give it another shot, and if it keeps happening, don’t hesitate to reach out to us!",
+    "@yieldsPageErrorStateDescription": {
+        "description": "Used by the yields page as description for the error state when something went wrong while trying to find the yields for the selected pair"
+    },
+    "yieldsPageErrorStateTitle": "Oops! Something went wrong!",
+    "@yieldsPageErrorStateTitle": {
+        "description": "Used by the yields page as title for the error state when something went wrong while trying to find the yields for the selected pair"
+    },
+    "yieldsPageLoadingStep1Description": "Pairing Token A and Token B to kick off the search for top yields!",
+    "@yieldsPageLoadingStep1Description": {
+        "description": "Used by the yields page as description for the first loading step when searching for the best yield for the selected pair"
+    },
+    "yieldsPageLoadingStep1Title": "Matching Tokens...",
+    "@yieldsPageLoadingStep1Title": {
+        "description": "Used by the yields page as title for the first loading step when searching for the best yield for the selected pair"
+    },
+    "yieldsPageLoadingStep2Description": "Searching through more than a thousand pool combos… so you don't have to",
+    "@yieldsPageLoadingStep2Description": {
+        "description": "Used by the yields page as description for the second loading step when searching for the best yield for the selected pair"
+    },
+    "yieldsPageLoadingStep3Description": "Scanning pools, calculating returns, and filtering the noise",
+    "@yieldsPageLoadingStep3Description": {
+        "description": "Used by the yields page as description for the third loading step when searching for the best yield for the selected pair"
+    },
+    "yieldsPageLoadingStep3Title": "Yield optimizer at work…",
+    "@yieldsPageLoadingStep3Title": {
+        "description": "Used by the yields page as title for the third loading step when searching for the best yield for the selected pair"
+    },
+    "yieldsPageLoadingStep4Description": "Hang tight, we're filtering and organizing the best pools for you",
+    "@yieldsPageLoadingStep4Description": {
+        "description": "Used by the yields page as description for the fourth loading step when searching for the best yield for the selected pair"
+    },
+    "yieldsPageLoadingStep4Title": "Organizing the best pools for you…",
+    "@yieldsPageLoadingStep4Title": {
+        "description": "Used by the yields page as title for the fourth loading step when searching for the best yield for the selected pair"
+    },
+    "yieldsPageSearchAllPools": "Search all pools",
+    "@yieldsPageSearchAllPools": {
+        "description": "Used by the yields page as a button to search all pools, ignoring user-set filters"
+    },
+    "yieldsPageLoadingStep2Title": "Pair hunting…",
+    "@yieldsPageLoadingStep2Title": {
+        "description": "Used by the yields page as title for the second loading step when searching for the best yield for the selected pair"
+    }
 }

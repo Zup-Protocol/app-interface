@@ -442,13 +442,13 @@ abstract class S {
   /// **'{timeFrame} best'**
   String yieldCardTimeFrameBest({required String timeFrame});
 
-  /// No description provided for @yieldCardThisPoolIsAtNetwork.
+  /// Used by the yield card to explain to the user that the pool is at the {network}, in form of a tooltip
   ///
   /// In en, this message translates to:
   /// **'This pool is at {network}'**
   String yieldCardThisPoolIsAtNetwork({required String network});
 
-  /// No description provided for @yieldCardYearlyYield.
+  /// Used by the yield card as title for the percentage of yearly yield
   ///
   /// In en, this message translates to:
   /// **'Yearly Yield'**
@@ -950,6 +950,12 @@ abstract class S {
     required String token1Symbol,
   });
 
+  /// Used by the yields page as title for the back button, to go back to the previous step
+  ///
+  /// In en, this message translates to:
+  /// **'Select Pair'**
+  String get yieldsPageBackButtonTitle;
+
   /// No description provided for @positionsPageMyPositions.
   ///
   /// In en, this message translates to:
@@ -1188,6 +1194,156 @@ abstract class S {
   /// In en, this message translates to:
   /// **'Let’s give it another shot'**
   String get letsGiveItAnotherShot;
+
+  /// Used by the yield card to proceed to the deposit page with the selected yield card
+  ///
+  /// In en, this message translates to:
+  /// **'Deposit'**
+  String get yieldCardDeposit;
+
+  /// Used by the yields page as description for the empty state when no pools are found for the selected pair
+  ///
+  /// In en, this message translates to:
+  /// **'Seems like that there are no pools matching your defined settings at the moment. Would you like to either change your settings or try another combination?'**
+  String get yieldsPageEmptyStateDescription;
+
+  /// Used by the yields page as title for the helper button in the empty state when no pools are found for the selected pair, useful for going back or doing something else
+  ///
+  /// In en, this message translates to:
+  /// **'Go Back to New Position'**
+  String get yieldsPageEmptyStateHelperButtonTitle;
+
+  /// Used in the empty state on the Yields page to alert the user that their search was limited to pools with more than the specified TVL. This may explain why no pools were found
+  ///
+  /// In en, this message translates to:
+  /// **'Searched only for liquidity pools with more than {tvlUSD} TVL'**
+  String yieldsPageEmptyStateMinTVLAlert({required String tvlUSD});
+
+  /// Used by the yield card to explain to the user how the yield is calculated in form of a tooltip
+  ///
+  /// In en, this message translates to:
+  /// **'Estimated annual yield based on {timeframeLabel} of data from fees distributed to liquidity providers.'**
+  String yieldCardYieldExplanation({required String timeframeLabel});
+
+  /// Used by the yield card to show a title for the yield based on the time frame selected
+  ///
+  /// In en, this message translates to:
+  /// **'{timeframe} Yield'**
+  String yieldCardTimeframeYield({required String timeframe});
+
+  /// Used by the yields page to alert the user that their search was limited to pools with more than the specified TVL
+  ///
+  /// In en, this message translates to:
+  /// **'Displaying only liquidity pools with more than {tvlUSD} TVL.'**
+  String yieldsPageDisplayingPoolsWithMinTvlAlert({required String tvlUSD});
+
+  /// Used by the yields page as title for the button to search only for pools with more than the specified TVL
+  ///
+  /// In en, this message translates to:
+  /// **'Show only pools with more than {tvlUSD} TVL.'**
+  String yieldsPageApplyTvlFilterButtonTitle({required String tvlUSD});
+
+  /// Used by the yields page to alert the user that their search was made to find any pool, ignoring user-set filters
+  ///
+  /// In en, this message translates to:
+  /// **'Displaying all liquidity pools.'**
+  String get yieldsPageDisplayingAllPoolsAlert;
+
+  /// Used by by the yields page to explain what are the time frames and how they differ from each other
+  ///
+  /// In en, this message translates to:
+  /// **'Each time frame shows yields based on past performance. Shorter windows (24h, 7d) highlight recent trends for quick moves. Longer windows (30d, 90d) provide a broader view for mid to long-term decisions'**
+  String get yieldsPageTimeframeExplanation;
+
+  /// Used by the yields page as a title for the timeframe selector, to show yields based in the selected timeframe
+  ///
+  /// In en, this message translates to:
+  /// **'Best yields in'**
+  String get yieldsPageTimeframeSelectorTitle;
+
+  /// The main title of the yield page
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a pool for you'**
+  String get yieldsPageTitle;
+
+  /// The description of the yield page
+  ///
+  /// In en, this message translates to:
+  /// **'Select the yield that most suits your needs and deposit to start earning'**
+  String get yieldsPageDescription;
+
+  /// Used by the yields page as title for the empty state when no pools are found for the selected pair
+  ///
+  /// In en, this message translates to:
+  /// **'No Pools Found'**
+  String get yieldsPageEmptyStateTitle;
+
+  /// Used by the yields page as description for the error state when something went wrong while trying to find the yields for the selected pair
+  ///
+  /// In en, this message translates to:
+  /// **'We ran into a issue while trying to find the best pool. Give it another shot, and if it keeps happening, don’t hesitate to reach out to us!'**
+  String get yieldsPageErrorStateDescription;
+
+  /// Used by the yields page as title for the error state when something went wrong while trying to find the yields for the selected pair
+  ///
+  /// In en, this message translates to:
+  /// **'Oops! Something went wrong!'**
+  String get yieldsPageErrorStateTitle;
+
+  /// Used by the yields page as description for the first loading step when searching for the best yield for the selected pair
+  ///
+  /// In en, this message translates to:
+  /// **'Pairing Token A and Token B to kick off the search for top yields!'**
+  String get yieldsPageLoadingStep1Description;
+
+  /// Used by the yields page as title for the first loading step when searching for the best yield for the selected pair
+  ///
+  /// In en, this message translates to:
+  /// **'Matching Tokens...'**
+  String get yieldsPageLoadingStep1Title;
+
+  /// Used by the yields page as description for the second loading step when searching for the best yield for the selected pair
+  ///
+  /// In en, this message translates to:
+  /// **'Searching through more than a thousand pool combos… so you don\'t have to'**
+  String get yieldsPageLoadingStep2Description;
+
+  /// Used by the yields page as description for the third loading step when searching for the best yield for the selected pair
+  ///
+  /// In en, this message translates to:
+  /// **'Scanning pools, calculating returns, and filtering the noise'**
+  String get yieldsPageLoadingStep3Description;
+
+  /// Used by the yields page as title for the third loading step when searching for the best yield for the selected pair
+  ///
+  /// In en, this message translates to:
+  /// **'Yield optimizer at work…'**
+  String get yieldsPageLoadingStep3Title;
+
+  /// Used by the yields page as description for the fourth loading step when searching for the best yield for the selected pair
+  ///
+  /// In en, this message translates to:
+  /// **'Hang tight, we\'re filtering and organizing the best pools for you'**
+  String get yieldsPageLoadingStep4Description;
+
+  /// Used by the yields page as title for the fourth loading step when searching for the best yield for the selected pair
+  ///
+  /// In en, this message translates to:
+  /// **'Organizing the best pools for you…'**
+  String get yieldsPageLoadingStep4Title;
+
+  /// Used by the yields page as a button to search all pools, ignoring user-set filters
+  ///
+  /// In en, this message translates to:
+  /// **'Search all pools'**
+  String get yieldsPageSearchAllPools;
+
+  /// Used by the yields page as title for the second loading step when searching for the best yield for the selected pair
+  ///
+  /// In en, this message translates to:
+  /// **'Pair hunting…'**
+  String get yieldsPageLoadingStep2Title;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

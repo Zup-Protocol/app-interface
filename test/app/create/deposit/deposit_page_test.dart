@@ -178,10 +178,10 @@ void main() {
       const group0Id = "0xGroup0";
       const group1Id = "0xGroup1";
 
-      when(() => navigator.getParam(ZupDepositRouteParamsNames().group0)).thenReturn(group0Id);
-      when(() => navigator.getParam(ZupDepositRouteParamsNames().group1)).thenReturn(group1Id);
-      when(() => navigator.getParam(ZupDepositRouteParamsNames().token0)).thenReturn(token0Address);
-      when(() => navigator.getParam(ZupDepositRouteParamsNames().token1)).thenReturn(token1Address);
+      when(() => navigator.getQueryParam(DepositRouteParamsNames().group0)).thenReturn(group0Id);
+      when(() => navigator.getQueryParam(DepositRouteParamsNames().group1)).thenReturn(group1Id);
+      when(() => navigator.getQueryParam(DepositRouteParamsNames().token0)).thenReturn(token0Address);
+      when(() => navigator.getQueryParam(DepositRouteParamsNames().token1)).thenReturn(token1Address);
 
       await tester.runAsync(() async {
         await tester.pumpDeviceBuilder(await goldenBuilder());
@@ -320,10 +320,10 @@ void main() {
       const group0Id = "0xGroup0";
       const group1Id = "0xGroup1";
 
-      when(() => navigator.getParam(ZupDepositRouteParamsNames().group0)).thenReturn(group0Id);
-      when(() => navigator.getParam(ZupDepositRouteParamsNames().group1)).thenReturn(group1Id);
-      when(() => navigator.getParam(ZupDepositRouteParamsNames().token0)).thenReturn(token0Address);
-      when(() => navigator.getParam(ZupDepositRouteParamsNames().token1)).thenReturn(token1Address);
+      when(() => navigator.getQueryParam(DepositRouteParamsNames().group0)).thenReturn(group0Id);
+      when(() => navigator.getQueryParam(DepositRouteParamsNames().group1)).thenReturn(group1Id);
+      when(() => navigator.getQueryParam(DepositRouteParamsNames().token0)).thenReturn(token0Address);
+      when(() => navigator.getQueryParam(DepositRouteParamsNames().token1)).thenReturn(token1Address);
       when(() => cubit.state).thenReturn(const DepositState.error());
 
       await tester.pumpDeviceBuilder(await goldenBuilder());
@@ -2772,7 +2772,7 @@ void main() {
   zGoldenTest(
     "When loading the screen, and the network in the path param is different from the selected one, it should switch the network",
     (tester) async {
-      when(() => navigator.getParam(any())).thenAnswer((_) => AppNetworks.scroll.name);
+      when(() => navigator.getQueryParam(any())).thenAnswer((_) => AppNetworks.scroll.name);
 
       await tester.runAsync(() async => await tester.pumpDeviceBuilder(await goldenBuilder()));
       await tester.pumpAndSettle();
@@ -2784,7 +2784,7 @@ void main() {
   zGoldenTest(
     "When loading the screen, and the network in the path param is equal from the selected one, it should not switch the network",
     (tester) async {
-      when(() => navigator.getParam(any())).thenAnswer((_) => appCubit.selectedNetwork.name);
+      when(() => navigator.getQueryParam(any())).thenAnswer((_) => appCubit.selectedNetwork.name);
 
       await tester.runAsync(() async => await tester.pumpDeviceBuilder(await goldenBuilder()));
       await tester.pumpAndSettle();

@@ -537,6 +537,9 @@ class SEn extends S {
   }
 
   @override
+  String get yieldsPageBackButtonTitle => 'Select Pair';
+
+  @override
   String get positionsPageMyPositions => 'My Positions';
 
   @override
@@ -676,4 +679,99 @@ class SEn extends S {
 
   @override
   String get letsGiveItAnotherShot => 'Let’s give it another shot';
+
+  @override
+  String get yieldCardDeposit => 'Deposit';
+
+  @override
+  String get yieldsPageEmptyStateDescription =>
+      'Seems like that there are no pools matching your defined settings at the moment. Would you like to either change your settings or try another combination?';
+
+  @override
+  String get yieldsPageEmptyStateHelperButtonTitle => 'Go Back to New Position';
+
+  @override
+  String yieldsPageEmptyStateMinTVLAlert({required String tvlUSD}) {
+    return 'Searched only for liquidity pools with more than $tvlUSD TVL';
+  }
+
+  @override
+  String yieldCardYieldExplanation({required String timeframeLabel}) {
+    return 'Estimated annual yield based on $timeframeLabel of data from fees distributed to liquidity providers.';
+  }
+
+  @override
+  String yieldCardTimeframeYield({required String timeframe}) {
+    return '$timeframe Yield';
+  }
+
+  @override
+  String yieldsPageDisplayingPoolsWithMinTvlAlert({required String tvlUSD}) {
+    return 'Displaying only liquidity pools with more than $tvlUSD TVL.';
+  }
+
+  @override
+  String yieldsPageApplyTvlFilterButtonTitle({required String tvlUSD}) {
+    return 'Show only pools with more than $tvlUSD TVL.';
+  }
+
+  @override
+  String get yieldsPageDisplayingAllPoolsAlert =>
+      'Displaying all liquidity pools.';
+
+  @override
+  String get yieldsPageTimeframeExplanation =>
+      'Each time frame shows yields based on past performance. Shorter windows (24h, 7d) highlight recent trends for quick moves. Longer windows (30d, 90d) provide a broader view for mid to long-term decisions';
+
+  @override
+  String get yieldsPageTimeframeSelectorTitle => 'Best yields in';
+
+  @override
+  String get yieldsPageTitle => 'Choose a pool for you';
+
+  @override
+  String get yieldsPageDescription =>
+      'Select the yield that most suits your needs and deposit to start earning';
+
+  @override
+  String get yieldsPageEmptyStateTitle => 'No Pools Found';
+
+  @override
+  String get yieldsPageErrorStateDescription =>
+      'We ran into a issue while trying to find the best pool. Give it another shot, and if it keeps happening, don’t hesitate to reach out to us!';
+
+  @override
+  String get yieldsPageErrorStateTitle => 'Oops! Something went wrong!';
+
+  @override
+  String get yieldsPageLoadingStep1Description =>
+      'Pairing Token A and Token B to kick off the search for top yields!';
+
+  @override
+  String get yieldsPageLoadingStep1Title => 'Matching Tokens...';
+
+  @override
+  String get yieldsPageLoadingStep2Description =>
+      'Searching through more than a thousand pool combos… so you don\'t have to';
+
+  @override
+  String get yieldsPageLoadingStep3Description =>
+      'Scanning pools, calculating returns, and filtering the noise';
+
+  @override
+  String get yieldsPageLoadingStep3Title => 'Yield optimizer at work…';
+
+  @override
+  String get yieldsPageLoadingStep4Description =>
+      'Hang tight, we\'re filtering and organizing the best pools for you';
+
+  @override
+  String get yieldsPageLoadingStep4Title =>
+      'Organizing the best pools for you…';
+
+  @override
+  String get yieldsPageSearchAllPools => 'Search all pools';
+
+  @override
+  String get yieldsPageLoadingStep2Title => 'Pair hunting…';
 }

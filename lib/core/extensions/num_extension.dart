@@ -29,42 +29,25 @@ extension NumExtension on num {
     return 0;
   }
 
-  String formatCurrency({
-    bool isUSD = true,
-    bool useLessThan = false,
-    int maxDecimals = 4,
-  }) {
+  String formatCurrency({bool isUSD = true, bool useLessThan = false, int maxDecimals = 4}) {
     int decimalsDigits = decimals;
     final maxDecimalsNumber = double.parse("0.${"0" * (maxDecimals - 1)}1");
 
     if (decimals > maxDecimals && (this > maxDecimalsNumber)) decimalsDigits = maxDecimals;
     if (useLessThan && this < maxDecimalsNumber) return toAmount(useLessThan: true, maxFixedDigits: maxDecimals);
-    if (this < 0.1) return "${(isUSD ? "\$" : "")}${Decimal.parse(toString()).toString()}";
+    if (this < 0.1) return "${(isUSD ? "\$" : "")}${Decimal.parse(toString())}";
 
-    return NumberFormat.simpleCurrency(
-      decimalDigits: decimalsDigits,
-      name: isUSD ? null : "",
-    ).format(this);
+    return NumberFormat.simpleCurrency(decimalDigits: decimalsDigits, name: isUSD ? null : "").format(this);
   }
 
-  String formatCompactCurrency({
-    bool isUSD = true,
-    bool useMoreThan = false,
-    num? maxBeforeMoreThan,
-  }) {
+  String formatCompactCurrency({bool isUSD = true, bool useMoreThan = false, num? maxBeforeMoreThan}) {
     final maxWithoutMoreThan = maxBeforeMoreThan ?? pow(10, 12) * 999;
 
     if (useMoreThan && this > maxWithoutMoreThan) {
-      return NumberFormat.compactCurrency(
-        decimalDigits: decimals,
-        name: ">",
-      ).format(maxWithoutMoreThan);
+      return NumberFormat.compactCurrency(decimalDigits: decimals, name: ">").format(maxWithoutMoreThan);
     }
 
-    return NumberFormat.compactCurrency(
-      decimalDigits: decimals,
-      name: isUSD ? "USD " : "",
-    ).format(this);
+    return NumberFormat.compactCurrency(decimalDigits: decimals, name: isUSD ? "USD " : "").format(this);
   }
 
   String maybeFormatCompactCurrency({
@@ -78,17 +61,10 @@ extension NumExtension on num {
     final maxWithoutCompact = maxBeforeCompact ?? maxWithoutMoreThan;
 
     if (this > maxWithoutCompact) {
-      return formatCompactCurrency(
-        isUSD: isUSD,
-        useMoreThan: useMoreThan,
-        maxBeforeMoreThan: maxWithoutMoreThan,
-      );
+      return formatCompactCurrency(isUSD: isUSD, useMoreThan: useMoreThan, maxBeforeMoreThan: maxWithoutMoreThan);
     }
 
-    return formatCurrency(
-      isUSD: isUSD,
-      useLessThan: useLessThan,
-    );
+    return formatCurrency(isUSD: isUSD, useLessThan: useLessThan);
   }
 
   String get formatPercent {

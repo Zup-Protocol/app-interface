@@ -101,7 +101,9 @@ void main() {
     aerodromeV3PoolImpl = AerodromeV3PoolImplMock();
     pancakeSwapInfinityCLPositionManagerImpl = PancakeSwapInfinityCLPositionManagerImplMock();
 
-    currentYield = YieldDto.fixture();
+    currentYield = YieldDto.fixture().copyWith(
+      protocol: ProtocolDto.fixture().copyWith(id: ProtocolId.unknown, rawId: "1"),
+    );
 
     sut = PoolService(
       stateView,

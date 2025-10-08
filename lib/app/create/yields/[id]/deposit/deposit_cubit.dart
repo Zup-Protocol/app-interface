@@ -3,20 +3,19 @@ import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:web3kit/web3kit.dart';
-import 'package:zup_app/app/app_cubit/app_cubit.dart';
 import 'package:zup_app/core/cache.dart';
 import 'package:zup_app/core/concentrated_liquidity_utils/cl_pool_conversors_mixin.dart';
+import 'package:zup_app/core/dtos/deposit_page_arguments_dto.dart';
 import 'package:zup_app/core/dtos/deposit_settings_dto.dart';
-import 'package:zup_app/core/dtos/pool_search_filters_dto.dart';
 import 'package:zup_app/core/dtos/pool_search_settings_dto.dart';
 import 'package:zup_app/core/dtos/yield_dto.dart';
-import 'package:zup_app/core/dtos/yields_dto.dart';
 import 'package:zup_app/core/enums/networks.dart';
 import 'package:zup_app/core/mixins/keys_mixin.dart';
 import 'package:zup_app/core/pool_service.dart';
 import 'package:zup_app/core/repositories/yield_repository.dart';
 import 'package:zup_app/core/slippage.dart';
-import 'package:zup_app/core/zup_analytics.dart';
+import 'package:zup_app/core/zup_navigator.dart';
+import 'package:zup_app/core/zup_route_params_names.dart';
 import 'package:zup_core/zup_core.dart';
 
 part 'deposit_cubit.freezed.dart';
@@ -28,30 +27,40 @@ class DepositCubit extends Cubit<DepositState> with KeysMixin, CLPoolConversorsM
     this._zupSingletonCache,
     this._wallet,
     this._cache,
-    this._appCubit,
-    this._zupAnalytics,
     this._poolService,
-  ) : super(const DepositState.initial());
+    this._navigator,
+  ) : super(const DepositState.initial()) {
+    final yieldPoolFromArguments = DepositPageArgumentsDto.fromJson(_navigator.currentPageArguments).yieldPool;
+
+    if (yieldPoolFromArguments != null) {
+      yieldPool = yieldPoolFromArguments;
+      _latestPoolSqrtPriceX96 = BigInt.parse(yieldPoolFromArguments.latestSqrtPriceX96);
+
+      Future.microtask(
+        () => _poolSqrtPriceX96StreamController.add(BigInt.parse(yieldPoolFromArguments.latestSqrtPriceX96)),
+      );
+
+      emit(DepositState.success(yieldPoolFromArguments));
+    } else {
+      fetchCurrentPoolInfo();
+    }
+  }
 
   final YieldRepository _yieldRepository;
+  final ZupNavigator _navigator;
   final ZupSingletonCache _zupSingletonCache;
   final Wallet _wallet;
   final PoolService _poolService;
   final Cache _cache;
-  final AppCubit _appCubit;
-  final ZupAnalytics _zupAnalytics;
 
   final StreamController<BigInt?> _poolSqrtPriceX96StreamController = StreamController.broadcast();
-  final StreamController<YieldDto?> _selectedYieldStreamController = StreamController.broadcast();
   final Duration _poolSqrtPriceX96CacheExpiration = const Duration(seconds: 30);
 
   BigInt? _latestPoolSqrtPriceX96;
-  YieldDto? _selectedYield;
+  YieldDto? yieldPool;
 
-  late final Stream<YieldDto?> selectedYieldStream = _selectedYieldStreamController.stream;
   late final Stream<BigInt?> poolSqrtPriceX96Stream = _poolSqrtPriceX96StreamController.stream;
 
-  YieldDto? get selectedYield => _selectedYield;
   BigInt? get latestPoolSqrtPriceX96 => _latestPoolSqrtPriceX96;
   DepositSettingsDto get depositSettings => _cache.getDepositSettings();
   PoolSearchSettingsDto get poolSearchSettings => _cache.getPoolSearchSettings();
@@ -60,82 +69,42 @@ class DepositCubit extends Cubit<DepositState> with KeysMixin, CLPoolConversorsM
     Timer.periodic(_poolSqrtPriceX96CacheExpiration, (timer) {
       if (_poolSqrtPriceX96StreamController.isClosed) return timer.cancel();
 
-      if (selectedYield != null) getSelectedPoolSqrtPriceX96();
+      if (yieldPool != null) getPoolSqrtPriceX96();
     });
   }
 
-  Future<void> getBestPools({
-    required String? token0AddressOrId,
-    required String? token1AddressOrId,
-    required String? group0Id,
-    required String? group1Id,
-    bool ignoreMinLiquidity = false,
-  }) async {
+  Future<void> fetchCurrentPoolInfo() async {
     try {
-      _zupAnalytics.logSearch(
-        token0: token0AddressOrId,
-        token1: token1AddressOrId,
-        group0: group0Id,
-        group1: group1Id,
-        network: _appCubit.selectedNetwork.label,
+      emit(const DepositState.loading());
+
+      final poolNetwork = AppNetworks.fromValue(_navigator.getQueryParam(DepositRouteParamsNames().network) ?? "");
+      final poolAddress = _navigator.getIdFromPath;
+      final parseWrappedToNative =
+          bool.tryParse(_navigator.getQueryParam(DepositRouteParamsNames().parseWrappedToNative).toString()) ?? true;
+
+      final pool = await _yieldRepository.getPoolInfo(
+        poolAddress: poolAddress!,
+        poolNetwork: poolNetwork!,
+        parseWrappedToNative: parseWrappedToNative,
       );
 
-      emit(const DepositState.loading());
-      final yields = _appCubit.selectedNetwork.isAllNetworks
-          ? await _yieldRepository.getAllNetworksYield(
-              blockedProtocolIds: _cache.blockedProtocolsIds,
-              token0InternalId: token0AddressOrId,
-              token1InternalId: token1AddressOrId,
-              group0Id: group0Id,
-              group1Id: group1Id,
-              searchSettings: ignoreMinLiquidity ? poolSearchSettings.copyWith(minLiquidityUSD: 0) : poolSearchSettings,
-              testnetMode: _appCubit.isTestnetMode,
-            )
-          : await _yieldRepository.getSingleNetworkYield(
-              blockedProtocolIds: _cache.blockedProtocolsIds,
-              token0Address: token0AddressOrId,
-              token1Address: token1AddressOrId,
-              group0Id: group0Id,
-              group1Id: group1Id,
-              network: _appCubit.selectedNetwork,
-              searchSettings: ignoreMinLiquidity ? poolSearchSettings.copyWith(minLiquidityUSD: 0) : poolSearchSettings,
-            );
+      yieldPool = pool;
 
-      if (yields.isEmpty) {
-        return emit(DepositState.noYields(filtersApplied: yields.filters));
-      }
+      await getPoolSqrtPriceX96();
 
-      emit(DepositState.success(yields));
+      emit(DepositState.success(pool));
     } catch (e) {
       emit(const DepositState.error());
     }
   }
 
-  Future<void> selectYield(YieldDto? yieldDto) async {
-    _selectedYield = yieldDto;
-    _selectedYieldStreamController.add(selectedYield);
-
-    if (selectedYield != null) {
-      _latestPoolSqrtPriceX96 = BigInt.parse(yieldDto!.latestSqrtPriceX96);
-      _poolSqrtPriceX96StreamController.add(_latestPoolSqrtPriceX96);
-
-      await getSelectedPoolSqrtPriceX96(forceRefresh: true);
-    }
-  }
-
-  Future<void> getSelectedPoolSqrtPriceX96({bool forceRefresh = false}) async {
-    if (selectedYield == null) return;
-
-    final selectedYieldBeforeCall = selectedYield;
-
+  Future<void> getPoolSqrtPriceX96({bool forceRefresh = false}) async {
     final sqrtPriceX96 = await _zupSingletonCache.run(
-      () => _poolService.getSqrtPriceX96(selectedYieldBeforeCall!),
+      () => _poolService.getSqrtPriceX96(yieldPool!),
       expiration: _poolSqrtPriceX96CacheExpiration - const Duration(seconds: 1),
       ignoreCache: forceRefresh,
-      key: poolSqrtPriceCacheKey(network: selectedYield!.network, poolAddress: selectedYield!.poolAddress),
+      key: poolSqrtPriceCacheKey(network: yieldPool!.network, poolAddress: yieldPool!.poolAddress),
     );
-
-    if (selectedYieldBeforeCall != selectedYield) return await getSelectedPoolSqrtPriceX96();
 
     _poolSqrtPriceX96StreamController.add(sqrtPriceX96);
     _latestPoolSqrtPriceX96 = sqrtPriceX96;
@@ -173,7 +142,6 @@ class DepositCubit extends Cubit<DepositState> with KeysMixin, CLPoolConversorsM
   @override
   Future<void> close() async {
     await _poolSqrtPriceX96StreamController.close();
-    await _selectedYieldStreamController.close();
     return super.close();
   }
 }

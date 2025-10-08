@@ -1,11 +1,9 @@
 import 'dart:async';
 
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:golden_toolkit/golden_toolkit.dart';
-import 'package:lottie/lottie.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:url_launcher_platform_interface/url_launcher_platform_interface.dart';
 import 'package:web3kit/web3kit.dart';
@@ -14,14 +12,12 @@ import 'package:zup_app/abis/uniswap_permit2.abi.g.dart';
 import 'package:zup_app/abis/uniswap_v3_pool.abi.g.dart';
 import 'package:zup_app/abis/uniswap_v3_position_manager.abi.g.dart';
 import 'package:zup_app/app/app_cubit/app_cubit.dart';
-import 'package:zup_app/app/create/deposit/deposit_cubit.dart';
-import 'package:zup_app/app/create/deposit/deposit_page.dart';
-import 'package:zup_app/app/create/deposit/widgets/preview_deposit_modal/preview_deposit_modal.dart';
+import 'package:zup_app/app/create/yields/%5Bid%5D/deposit/deposit_cubit.dart';
+import 'package:zup_app/app/create/yields/%5Bid%5D/deposit/deposit_page.dart';
+import 'package:zup_app/app/create/yields/%5Bid%5D/deposit/widgets/preview_deposit_modal/preview_deposit_modal.dart';
 import 'package:zup_app/core/cache.dart';
 import 'package:zup_app/core/dtos/deposit_settings_dto.dart';
-import 'package:zup_app/core/dtos/pool_search_filters_dto.dart';
 import 'package:zup_app/core/dtos/pool_search_settings_dto.dart';
-import 'package:zup_app/core/dtos/protocol_dto.dart';
 import 'package:zup_app/core/dtos/token_price_dto.dart';
 import 'package:zup_app/core/dtos/yield_dto.dart';
 import 'package:zup_app/core/dtos/yields_dto.dart';
@@ -35,7 +31,6 @@ import 'package:zup_app/core/zup_analytics.dart';
 import 'package:zup_app/core/zup_links.dart';
 import 'package:zup_app/core/zup_navigator.dart';
 import 'package:zup_app/core/zup_route_params_names.dart';
-import 'package:zup_app/gen/assets.gen.dart';
 import 'package:zup_app/widgets/zup_cached_image.dart';
 import 'package:zup_core/zup_core.dart';
 
@@ -78,32 +73,8 @@ void main() {
     registerFallbackValue(DepositSettingsDto.fixture());
     registerFallbackValue(Duration.zero);
 
-    inject.registerFactory<LottieBuilder>(
-      () => Assets.lotties.click.lottie(animate: false),
-      instanceName: InjectInstanceNames.lottieClick,
-    );
-    inject.registerFactory<LottieBuilder>(
-      () => Assets.lotties.empty.lottie(animate: false),
-      instanceName: InjectInstanceNames.lottieEmpty,
-    );
-    inject.registerFactory<LottieBuilder>(
-      () => Assets.lotties.numbers.lottie(animate: false),
-      instanceName: InjectInstanceNames.lottieNumbers,
-    );
-    inject.registerFactory<LottieBuilder>(
-      () => Assets.lotties.radar.lottie(animate: false),
-      instanceName: InjectInstanceNames.lottieRadar,
-    );
-    inject.registerFactory<LottieBuilder>(
-      () => Assets.lotties.matching.lottie(animate: false),
-      instanceName: InjectInstanceNames.lottieMatching,
-    );
-    inject.registerFactory<LottieBuilder>(
-      () => Assets.lotties.list.lottie(animate: false),
-      instanceName: InjectInstanceNames.lottieList,
-    );
     inject.registerFactory<ScrollController>(
-      () => ScrollController(),
+      () => GoldenConfig.scrollController,
       instanceName: InjectInstanceNames.appScrollController,
     );
 
@@ -129,17 +100,10 @@ void main() {
     when(() => tokensRepository.getTokenPrice(any(), any())).thenAnswer((_) async => TokenPriceDto.fixture());
     when(() => cubit.stream).thenAnswer((_) => const Stream.empty());
     when(() => cubit.state).thenAnswer((_) => const DepositState.initial());
-    when(
-      () => cubit.getBestPools(
-        token0AddressOrId: any(named: "token0AddressOrId"),
-        token1AddressOrId: any(named: "token1AddressOrId"),
-        ignoreMinLiquidity: any(named: "ignoreMinLiquidity"),
-        group0Id: any(named: "group0Id"),
-        group1Id: any(named: "group1Id"),
-      ),
-    ).thenAnswer((_) async {});
+    when(() => cubit.fetchCurrentPoolInfo()).thenAnswer((_) async {
+      return;
+    });
     when(() => cache.getPoolSearchSettings()).thenReturn(PoolSearchSettingsDto.fixture());
-    when(() => cubit.selectedYieldStream).thenAnswer((_) => const Stream.empty());
     when(() => appCubit.selectedNetwork).thenReturn(AppNetworks.sepolia);
     when(() => cubit.poolSqrtPriceX96Stream).thenAnswer((_) => const Stream.empty());
     when(() => cubit.latestPoolSqrtPriceX96).thenAnswer((_) => BigInt.parse("79121973566864535878904"));
@@ -148,6 +112,11 @@ void main() {
     when(() => cubit.saveDepositSettings(any(), any())).thenAnswer((_) async => ());
     when(() => cubit.depositSettings).thenReturn(DepositSettingsDto.fixture());
     when(() => cubit.poolSearchSettings).thenReturn(PoolSearchSettingsDto.fixture());
+    when(() => cubit.yieldPool).thenReturn(YieldDto.fixture());
+    when(() => navigator.getQueryParam(DepositRouteParamsNames().network)).thenReturn(AppNetworks.mainnet.name);
+    when(() => navigator.getQueryParam(DepositRouteParamsNames().timeframe)).thenReturn(YieldTimeFrame.day.name);
+    when(() => navigator.getQueryParam(DepositRouteParamsNames().parseWrappedToNative)).thenReturn(true.toString());
+    when(() => navigator.canBack(any())).thenReturn(false);
   });
 
   tearDown(() async {
@@ -170,37 +139,6 @@ void main() {
   });
 
   zGoldenTest(
-    """When initializing the page it should get the list of best pools,
-   passing the correct token addresses and group ids (from the url)""",
-    (tester) async {
-      const token0Address = "0xToken0";
-      const token1Address = "0xToken1";
-      const group0Id = "0xGroup0";
-      const group1Id = "0xGroup1";
-
-      when(() => navigator.getParam(ZupDepositRouteParamsNames().group0)).thenReturn(group0Id);
-      when(() => navigator.getParam(ZupDepositRouteParamsNames().group1)).thenReturn(group1Id);
-      when(() => navigator.getParam(ZupDepositRouteParamsNames().token0)).thenReturn(token0Address);
-      when(() => navigator.getParam(ZupDepositRouteParamsNames().token1)).thenReturn(token1Address);
-
-      await tester.runAsync(() async {
-        await tester.pumpDeviceBuilder(await goldenBuilder());
-        await tester.pumpAndSettle();
-
-        verify(
-          () => cubit.getBestPools(
-            token0AddressOrId: token0Address,
-            token1AddressOrId: token1Address,
-            group0Id: group0Id,
-            group1Id: group1Id,
-            ignoreMinLiquidity: false,
-          ),
-        ).called(1);
-      });
-    },
-  );
-
-  zGoldenTest(
     "When the cubit state is loading it should show the loading state",
     goldenFileName: "deposit_page_loading",
     (tester) async {
@@ -212,90 +150,6 @@ void main() {
       });
 
       await tester.pumpAndSettle();
-    },
-  );
-
-  zGoldenTest(
-    "When the cubit state is noYields with no min liquidity searched, it should just show the noYields state",
-    goldenFileName: "deposit_page_no_yields",
-    (tester) async {
-      when(
-        () => cubit.state,
-      ).thenReturn(const DepositState.noYields(filtersApplied: PoolSearchFiltersDto(minTvlUsd: 0)));
-
-      await tester.pumpDeviceBuilder(await goldenBuilder());
-      await tester.pumpAndSettle();
-
-      await tester.pumpAndSettle();
-    },
-  );
-
-  zGoldenTest(
-    """When the cubit state is noYields and the search had a min liquidity set, it should show the noYields state
-    with a helper text saying it, and a button to search all pools""",
-    goldenFileName: "deposit_page_no_yields_filtered_by_min_liquidity",
-    (tester) async {
-      when(
-        () => cubit.state,
-      ).thenReturn(const DepositState.noYields(filtersApplied: PoolSearchFiltersDto(minTvlUsd: 97654)));
-
-      await tester.pumpDeviceBuilder(await goldenBuilder());
-      await tester.pumpAndSettle();
-
-      await tester.pumpAndSettle();
-    },
-  );
-
-  zGoldenTest(
-    "When clicking the helper button in the no yields state, to search all pools, it should call the cubit to search all pools",
-    (tester) async {
-      when(
-        () => cubit.getBestPools(
-          token0AddressOrId: any(named: "token0AddressOrId"),
-          token1AddressOrId: any(named: "token1AddressOrId"),
-          ignoreMinLiquidity: any(named: "ignoreMinLiquidity"),
-          group0Id: any(named: "group0Id"),
-          group1Id: any(named: "group1Id"),
-        ),
-      ).thenAnswer((_) async {});
-
-      when(
-        () => cubit.state,
-      ).thenReturn(const DepositState.noYields(filtersApplied: PoolSearchFiltersDto(minTvlUsd: 97654)));
-
-      await tester.pumpDeviceBuilder(await goldenBuilder());
-      await tester.pumpAndSettle();
-
-      await tester.tap(find.byKey(const Key("search-all-pools-button")));
-      await tester.pumpAndSettle();
-
-      verify(
-        () => cubit.getBestPools(
-          token0AddressOrId: any(named: "token0AddressOrId"),
-          token1AddressOrId: any(named: "token1AddressOrId"),
-          group0Id: any(named: "group0Id"),
-          group1Id: any(named: "group1Id"),
-          ignoreMinLiquidity: true,
-        ),
-      ).called(1);
-    },
-  );
-
-  zGoldenTest(
-    """When clicking the helper button in the no yields state,
-   it should navigate back to choose tokens stage""",
-    (tester) async {
-      when(() => navigator.navigateToNewPosition()).thenAnswer((_) async {});
-
-      when(() => cubit.state).thenReturn(const DepositState.noYields(filtersApplied: PoolSearchFiltersDto()));
-
-      await tester.pumpDeviceBuilder(await goldenBuilder());
-      await tester.pumpAndSettle();
-
-      await tester.tap(find.byKey(const Key("help-button")));
-      await tester.pumpAndSettle();
-
-      verify(() => navigator.navigateToNewPosition()).called(1);
     },
   );
 
@@ -312,18 +166,9 @@ void main() {
 
   zGoldenTest(
     """"When clicking the helper button in the error state,
-    it should try to get best pools again with the same tokens
+    it should try to fetch pool data again with the same tokens
     and groups""",
     (tester) async {
-      const token0Address = "0xToken0";
-      const token1Address = "0xToken1";
-      const group0Id = "0xGroup0";
-      const group1Id = "0xGroup1";
-
-      when(() => navigator.getParam(ZupDepositRouteParamsNames().group0)).thenReturn(group0Id);
-      when(() => navigator.getParam(ZupDepositRouteParamsNames().group1)).thenReturn(group1Id);
-      when(() => navigator.getParam(ZupDepositRouteParamsNames().token0)).thenReturn(token0Address);
-      when(() => navigator.getParam(ZupDepositRouteParamsNames().token1)).thenReturn(token1Address);
       when(() => cubit.state).thenReturn(const DepositState.error());
 
       await tester.pumpDeviceBuilder(await goldenBuilder());
@@ -332,14 +177,7 @@ void main() {
       await tester.tap(find.byKey(const Key("help-button")));
       await tester.pumpAndSettle();
 
-      verify(
-        () => cubit.getBestPools(
-          token0AddressOrId: token0Address,
-          token1AddressOrId: token1Address,
-          group0Id: group0Id,
-          group1Id: group1Id,
-        ),
-      ).called(2); // 2 because of the initial call
+      verify(() => cubit.fetchCurrentPoolInfo()).called(1);
     },
   );
 
@@ -347,9 +185,9 @@ void main() {
     tester,
   ) async {
     await tester.runAsync(() async {
-      final yields = YieldsDto.fixture();
+      final pool = YieldDto.fixture();
 
-      when(() => cubit.state).thenReturn(DepositState.success(yields));
+      when(() => cubit.state).thenReturn(DepositState.success(pool));
 
       await tester.pumpDeviceBuilder(await goldenBuilder());
       await tester.pumpAndSettle();
@@ -359,183 +197,15 @@ void main() {
   });
 
   zGoldenTest(
-    """When the state is success, and the minimum liquidity search config is more than 0,
-      it should show a text about showing only pools with more than X(min) liquidity, and a button
-      to search all pools""",
-    goldenFileName: "deposit_page_success_filtered_by_min_liquidity",
-    (tester) async {
-      await tester.runAsync(() async {
-        final yields = YieldsDto.fixture();
-        when(() => cubit.poolSearchSettings).thenReturn(PoolSearchSettingsDto(minLiquidityUSD: 97654));
-        when(() => cubit.state).thenReturn(DepositState.success(yields));
-
-        await tester.pumpDeviceBuilder(await goldenBuilder());
-        await tester.pumpAndSettle();
-
-        await tester.pumpAndSettle();
-      });
-    },
-  );
-
-  zGoldenTest(
-    """When the state is success, and the minimum liquidity search config is 0,
-      it should not show a text about showing only pools with more than X(min) liquidity""",
-    goldenFileName: "deposit_page_success_not_filtered_by_min_liquidity",
-    (tester) async {
-      await tester.runAsync(() async {
-        final yields = YieldsDto.fixture();
-        when(() => cubit.poolSearchSettings).thenReturn(PoolSearchSettingsDto(minLiquidityUSD: 0));
-        when(() => cubit.state).thenReturn(DepositState.success(yields));
-
-        await tester.pumpDeviceBuilder(await goldenBuilder());
-        await tester.pumpAndSettle();
-
-        await tester.pumpAndSettle();
-      });
-    },
-  );
-
-  zGoldenTest(
-    """When the state is success, and the repository returns that the filter for mininum liquidity
-    search has zero, but the user has a local filter set, it should show a text and a button to search only pools
-    with the local filter amount set""",
-    goldenFileName: "deposit_page_success_filtered_by_min_liquidity_local_filter_set",
-    (tester) async {
-      await tester.runAsync(() async {
-        final yields = YieldsDto.fixture().copyWith(
-          filters: const PoolSearchFiltersDto(minTvlUsd: 0),
-        ); // api filter returns 0
-        when(
-          () => cubit.poolSearchSettings,
-        ).thenReturn(PoolSearchSettingsDto(minLiquidityUSD: 2189)); // local filter set
-        when(() => cubit.state).thenReturn(DepositState.success(yields));
-
-        await tester.pumpDeviceBuilder(await goldenBuilder());
-        await tester.pumpAndSettle();
-
-        await tester.pumpAndSettle();
-      });
-    },
-  );
-
-  zGoldenTest(
-    """When clicking in the button to search all pools in the success state
-   that is with a filter for min liquidity, it should call the cubit to get pools with
-   the ignore min liquidity flag""",
-    (tester) async {
-      await tester.runAsync(() async {
-        final yields = YieldsDto.fixture().copyWith(filters: const PoolSearchFiltersDto(minTvlUsd: 12675));
-
-        when(() => cubit.poolSearchSettings).thenReturn(PoolSearchSettingsDto(minLiquidityUSD: 12675));
-        when(() => cubit.state).thenReturn(DepositState.success(yields));
-        when(
-          () => cubit.getBestPools(
-            token0AddressOrId: any(named: "token0AddressOrId"),
-            token1AddressOrId: any(named: "token1AddressOrId"),
-            ignoreMinLiquidity: any(named: "ignoreMinLiquidity"),
-            group0Id: any(named: "group0Id"),
-            group1Id: any(named: "group1Id"),
-          ),
-        ).thenAnswer((_) async {});
-
-        await tester.pumpDeviceBuilder(await goldenBuilder());
-        await tester.pumpAndSettle();
-
-        await tester.tap(find.byKey(const Key("hide-show-all-pools-button")));
-        await tester.pumpAndSettle();
-
-        verify(
-          () => cubit.getBestPools(
-            token0AddressOrId: any(named: "token0AddressOrId"),
-            token1AddressOrId: any(named: "token1AddressOrId"),
-            group0Id: any(named: "group0Id"),
-            group1Id: any(named: "group1Id"),
-            ignoreMinLiquidity: true,
-          ),
-        ).called(1);
-      });
-    },
-  );
-
-  zGoldenTest(
-    """When clicking in the button to search only pools with more than x amount in
-   the success state that is without a filter for min liquidity, it should call the cubit to get pools with
-   the min liquidity set to not be ignored""",
-    (tester) async {
-      await tester.runAsync(() async {
-        final yields = YieldsDto.fixture().copyWith(
-          filters: const PoolSearchFiltersDto(minTvlUsd: 0),
-        ); // api filter returns 0
-
-        when(
-          () => cubit.poolSearchSettings,
-        ).thenReturn(PoolSearchSettingsDto(minLiquidityUSD: 12675)); // local filter set
-        when(() => cubit.state).thenReturn(DepositState.success(yields));
-        when(
-          () => cubit.getBestPools(
-            token0AddressOrId: any(named: "token0AddressOrId"),
-            token1AddressOrId: any(named: "token1AddressOrId"),
-            group0Id: any(named: "group0Id"),
-            group1Id: any(named: "group1Id"),
-            ignoreMinLiquidity: any(named: "ignoreMinLiquidity"),
-          ),
-        ).thenAnswer((_) async {});
-
-        await tester.pumpDeviceBuilder(await goldenBuilder());
-        await tester.pumpAndSettle();
-
-        await tester.tap(find.byKey(const Key("hide-show-all-pools-button")));
-        await tester.pumpAndSettle();
-
-        verify(
-          () => cubit.getBestPools(
-            token0AddressOrId: any(named: "token0AddressOrId"),
-            token1AddressOrId: any(named: "token1AddressOrId"),
-            group0Id: any(named: "group0Id"),
-            group1Id: any(named: "group1Id"),
-            ignoreMinLiquidity: false,
-          ),
-        ).called(2); // two calls, one when the page is loaded and one when the user clicks the button
-      });
-    },
-  );
-
-  zGoldenTest(
-    "When the state is sucess, and the running device is a mobile, the yield cards should be in a column",
-    goldenFileName: "deposit_page_success_mobile",
-    (tester) async {
-      await tester.runAsync(() async {
-        final yields = YieldsDto.fixture();
-
-        when(
-          () => cubit.depositSettings,
-        ).thenReturn(const DepositSettingsDto(deadlineMinutes: 10, maxSlippage: DepositSettingsDto.defaultMaxSlippage));
-
-        when(() => cubit.state).thenReturn(DepositState.success(yields));
-
-        await tester.pumpDeviceBuilder(await goldenBuilder(isMobile: true));
-
-        await tester.pumpAndSettle();
-      });
-    },
-  );
-
-  zGoldenTest(
     "When the running device is mobile, the range section should be adapted to it",
     goldenFileName: "deposit_page_range_section_mobile",
     (tester) async {
       await tester.runAsync(() async {
-        final selectedYield = YieldDto.fixture();
-        final yields = YieldsDto.fixture();
-
         when(
           () => cubit.depositSettings,
         ).thenReturn(const DepositSettingsDto(deadlineMinutes: 10, maxSlippage: DepositSettingsDto.defaultMaxSlippage));
 
-        when(() => cubit.selectedYieldStream).thenAnswer((_) => Stream.value(selectedYield));
-        when(() => cubit.selectedYield).thenReturn(selectedYield);
-        when(() => cubit.state).thenReturn(DepositState.success(yields));
-        when(() => cubit.state).thenReturn(DepositState.success(YieldsDto.fixture()));
+        when(() => cubit.state).thenReturn(DepositState.success(YieldDto.fixture()));
 
         await tester.pumpDeviceBuilder(await goldenBuilder(isMobile: true));
         await tester.pumpAndSettle();
@@ -549,88 +219,51 @@ void main() {
 
   zGoldenTest("When clicking back in the success state, it should navigate to the choose tokens page", (tester) async {
     when(() => navigator.navigateToNewPosition()).thenAnswer((_) async {});
+    when(() => cubit.state).thenReturn(DepositState.success(YieldDto.fixture()));
 
-    when(() => cubit.state).thenReturn(DepositState.success(YieldsDto.fixture()));
+    await tester.runAsync(() async {
+      await tester.pumpDeviceBuilder(await goldenBuilder());
+      await tester.pumpAndSettle();
 
-    await tester.pumpDeviceBuilder(await goldenBuilder());
-    await tester.pumpAndSettle();
-
-    await tester.tap(find.byKey(const Key("back-button")));
-    await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key("back-button")));
+      await tester.pumpAndSettle();
+    });
 
     verify(() => navigator.navigateToNewPosition()).called(1);
   });
 
   zGoldenTest(
-    "When hovering the info icon of the pool time frame section, it should show a tooltip explaining it",
-    goldenFileName: "deposit_page_timeframe_tooltip",
+    """When clicking back in the success state, and the navigator returns true to canBack,
+  it should try to navigate back""",
     (tester) async {
-      when(() => cubit.state).thenReturn(DepositState.success(YieldsDto.fixture()));
+      when(() => navigator.canBack(any())).thenReturn(true);
+      when(() => navigator.navigateToNewPosition()).thenAnswer((_) async {});
+      when(() => cubit.state).thenReturn(DepositState.success(YieldDto.fixture()));
 
-      await tester.pumpDeviceBuilder(await goldenBuilder());
-      await tester.pumpAndSettle();
-
-      await tester.hover(find.byKey(const Key("timeframe-tooltip")));
-      await tester.pumpAndSettle();
-    },
-  );
-
-  zGoldenTest(
-    "When the selected yield stream in the cubit emits a yield, it should select the yield",
-    goldenFileName: "deposit_page_selected_yield_stream",
-    (tester) async {
       await tester.runAsync(() async {
-        final yields = YieldsDto.fixture();
-        final selectedYield = yields.poolsSortedBy24hYield.first;
-
-        when(() => cubit.selectedYieldStream).thenAnswer((_) => Stream.value(selectedYield));
-        when(() => cubit.selectedYield).thenReturn(selectedYield);
-        when(() => cubit.state).thenReturn(DepositState.success(yields));
-
         await tester.pumpDeviceBuilder(await goldenBuilder());
         await tester.pumpAndSettle();
+
+        await tester.tap(find.byKey(const Key("back-button")));
         await tester.pumpAndSettle();
       });
+
+      verify(() => navigator.back(any())).called(1);
     },
   );
 
-  zGoldenTest("When selecting a yield, it should call select yield in the cubit", (tester) async {
-    final yields = YieldsDto.fixture();
-    when(() => cubit.selectYield(any())).thenAnswer((_) async {});
-    when(() => cubit.state).thenReturn(DepositState.success(YieldsDto.fixture()));
-
-    await tester.pumpDeviceBuilder(await goldenBuilder());
-    await tester.pumpAndSettle();
-
-    await tester.tap(find.byKey(Key("yield-card-${yields.pools.first.poolAddress}")).last);
-    await tester.pumpAndSettle();
-
-    verify(() => cubit.selectYield(any())).called(1);
-  });
-
   zGoldenTest(
-    "When selecting a yield, it should scroll down to the range section",
-    goldenFileName: "deposit_page_select_yield_scroll",
+    """When the navigator returns true for .canBack, the back button title should be
+    to navigate to select yield page""",
+    goldenFileName: "deposit_page_back_button_can_back_true",
     (tester) async {
+      when(() => navigator.canBack(any())).thenReturn(true);
+      when(() => navigator.navigateToNewPosition()).thenAnswer((_) async {});
+      when(() => cubit.state).thenReturn(DepositState.success(YieldDto.fixture()));
+
       await tester.runAsync(() async {
-        final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
-        final selectedYieldStreamController = StreamController<YieldDto>.broadcast();
-
-        when(() => cubit.selectedYieldStream).thenAnswer((_) => selectedYieldStreamController.stream);
-        when(() => cubit.selectedYield).thenReturn(null);
-        when(() => cubit.selectYield(any())).thenAnswer((_) async {});
-        when(() => cubit.state).thenReturn(DepositState.success(YieldsDto.fixture()));
-
         await tester.pumpDeviceBuilder(await goldenBuilder());
         await tester.pumpAndSettle();
-
-        selectedYieldStreamController.add(selectedYield);
-        when(() => cubit.selectedYield).thenReturn(selectedYield);
-
-        await tester.tap(find.byKey(Key("yield-card-${selectedYield.poolAddress}")));
-        await tester.pumpAndSettle();
-
-        verify(() => cubit.selectYield(any())).called(1);
       });
     },
   );
@@ -642,9 +275,8 @@ void main() {
       await tester.runAsync(() async {
         final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
 
-        when(() => cubit.selectedYieldStream).thenAnswer((_) => Stream.value(selectedYield));
-        when(() => cubit.selectedYield).thenReturn(selectedYield);
-        when(() => cubit.state).thenReturn(DepositState.success(YieldsDto.fixture()));
+        when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
+        when(() => cubit.yieldPool).thenReturn(selectedYield);
 
         await tester.pumpDeviceBuilder(await goldenBuilder());
         await tester.pumpAndSettle();
@@ -662,9 +294,8 @@ void main() {
       await tester.runAsync(() async {
         final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
 
-        when(() => cubit.selectedYieldStream).thenAnswer((_) => Stream.value(selectedYield));
-        when(() => cubit.selectedYield).thenReturn(selectedYield);
-        when(() => cubit.state).thenReturn(DepositState.success(YieldsDto.fixture()));
+        when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
+        when(() => cubit.yieldPool).thenReturn(selectedYield);
 
         await tester.pumpDeviceBuilder(await goldenBuilder());
         await tester.pumpAndSettle();
@@ -685,9 +316,8 @@ void main() {
       await tester.runAsync(() async {
         final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
 
-        when(() => cubit.selectedYieldStream).thenAnswer((_) => Stream.value(selectedYield));
-        when(() => cubit.selectedYield).thenReturn(selectedYield);
-        when(() => cubit.state).thenReturn(DepositState.success(YieldsDto.fixture()));
+        when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
+        when(() => cubit.yieldPool).thenReturn(selectedYield);
 
         await tester.pumpDeviceBuilder(await goldenBuilder());
         await tester.pumpAndSettle();
@@ -709,9 +339,8 @@ void main() {
       await tester.runAsync(() async {
         final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
 
-        when(() => cubit.selectedYieldStream).thenAnswer((_) => Stream.value(selectedYield));
-        when(() => cubit.selectedYield).thenReturn(selectedYield);
-        when(() => cubit.state).thenReturn(DepositState.success(YieldsDto.fixture()));
+        when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
+        when(() => cubit.yieldPool).thenReturn(selectedYield);
         when(() => cubit.poolSqrtPriceX96Stream).thenAnswer((_) => Stream.value(BigInt.from(174072)));
 
         await tester.pumpDeviceBuilder(await goldenBuilder());
@@ -728,9 +357,9 @@ void main() {
       await tester.runAsync(() async {
         final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
 
-        when(() => cubit.selectedYieldStream).thenAnswer((_) => Stream.value(selectedYield));
-        when(() => cubit.selectedYield).thenReturn(selectedYield);
-        when(() => cubit.state).thenReturn(DepositState.success(YieldsDto.fixture()));
+        when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
+        when(() => cubit.yieldPool).thenReturn(selectedYield);
+        when(() => cubit.yieldPool).thenReturn(selectedYield);
         when(
           () => cubit.poolSqrtPriceX96Stream,
         ).thenAnswer((_) => Stream.value(BigInt.parse("79121973566864535878904")));
@@ -752,9 +381,8 @@ void main() {
         final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
         final currentPriceAsTick = BigInt.parse("79121973566864535878904");
 
-        when(() => cubit.selectedYieldStream).thenAnswer((_) => Stream.value(selectedYield));
-        when(() => cubit.selectedYield).thenReturn(selectedYield);
-        when(() => cubit.state).thenReturn(DepositState.success(YieldsDto.fixture()));
+        when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
+        when(() => cubit.yieldPool).thenReturn(selectedYield);
         when(() => cubit.poolSqrtPriceX96Stream).thenAnswer((_) => Stream.value(currentPriceAsTick));
         when(() => cubit.latestPoolSqrtPriceX96).thenReturn(currentPriceAsTick);
 
@@ -780,9 +408,8 @@ void main() {
         final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
         final currentPriceAsSqrtPriceX96 = BigInt.parse("79121973566864535878904");
 
-        when(() => cubit.selectedYieldStream).thenAnswer((_) => Stream.value(selectedYield));
-        when(() => cubit.selectedYield).thenReturn(selectedYield);
-        when(() => cubit.state).thenReturn(DepositState.success(YieldsDto.fixture()));
+        when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
+        when(() => cubit.yieldPool).thenReturn(selectedYield);
         when(() => cubit.poolSqrtPriceX96Stream).thenAnswer((_) => Stream.value(currentPriceAsSqrtPriceX96));
         when(() => cubit.latestPoolSqrtPriceX96).thenReturn(currentPriceAsSqrtPriceX96);
 
@@ -809,9 +436,8 @@ void main() {
         final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
         final currentPriceAsTick = BigInt.parse("79121973566864535878904");
 
-        when(() => cubit.selectedYieldStream).thenAnswer((_) => Stream.value(selectedYield));
-        when(() => cubit.selectedYield).thenReturn(selectedYield);
-        when(() => cubit.state).thenReturn(DepositState.success(YieldsDto.fixture()));
+        when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
+        when(() => cubit.yieldPool).thenReturn(selectedYield);
         when(() => cubit.poolSqrtPriceX96Stream).thenAnswer((_) => Stream.value(currentPriceAsTick));
         when(() => cubit.latestPoolSqrtPriceX96).thenReturn(currentPriceAsTick);
 
@@ -835,9 +461,8 @@ void main() {
         final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
         final currentPriceAsTick = BigInt.parse("79121973566864535878904");
 
-        when(() => cubit.selectedYieldStream).thenAnswer((_) => Stream.value(selectedYield));
-        when(() => cubit.selectedYield).thenReturn(selectedYield);
-        when(() => cubit.state).thenReturn(DepositState.success(YieldsDto.fixture()));
+        when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
+        when(() => cubit.yieldPool).thenReturn(selectedYield);
         when(() => cubit.poolSqrtPriceX96Stream).thenAnswer((_) => Stream.value(currentPriceAsTick));
         when(() => cubit.latestPoolSqrtPriceX96).thenReturn(currentPriceAsTick);
 
@@ -867,9 +492,8 @@ void main() {
         final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
         final currentPriceAsTick = BigInt.parse("79121973566864535878904");
 
-        when(() => cubit.selectedYieldStream).thenAnswer((_) => Stream.value(selectedYield));
-        when(() => cubit.selectedYield).thenReturn(selectedYield);
-        when(() => cubit.state).thenReturn(DepositState.success(YieldsDto.fixture()));
+        when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
+        when(() => cubit.yieldPool).thenReturn(selectedYield);
         when(() => cubit.poolSqrtPriceX96Stream).thenAnswer((_) => Stream.value(currentPriceAsTick));
         when(() => cubit.latestPoolSqrtPriceX96).thenReturn(currentPriceAsTick);
 
@@ -895,9 +519,8 @@ void main() {
         final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
         final currentPriceAsTick = BigInt.parse("79121973566864535878904");
 
-        when(() => cubit.selectedYieldStream).thenAnswer((_) => Stream.value(selectedYield));
-        when(() => cubit.selectedYield).thenReturn(selectedYield);
-        when(() => cubit.state).thenReturn(DepositState.success(YieldsDto.fixture()));
+        when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
+        when(() => cubit.yieldPool).thenReturn(selectedYield);
         when(() => cubit.poolSqrtPriceX96Stream).thenAnswer((_) => Stream.value(currentPriceAsTick));
         when(() => cubit.latestPoolSqrtPriceX96).thenReturn(currentPriceAsTick);
 
@@ -930,9 +553,8 @@ void main() {
         final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
         final currentPriceAsTick = BigInt.parse("79121973566864535878904");
 
-        when(() => cubit.selectedYieldStream).thenAnswer((_) => Stream.value(selectedYield));
-        when(() => cubit.selectedYield).thenReturn(selectedYield);
-        when(() => cubit.state).thenReturn(DepositState.success(YieldsDto.fixture()));
+        when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
+        when(() => cubit.yieldPool).thenReturn(selectedYield);
         when(() => cubit.poolSqrtPriceX96Stream).thenAnswer((_) => Stream.value(currentPriceAsTick));
         when(() => cubit.latestPoolSqrtPriceX96).thenReturn(currentPriceAsTick);
 
@@ -956,9 +578,8 @@ void main() {
         final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
         final currentPriceAsTick = BigInt.parse("79121973566864535878904");
 
-        when(() => cubit.selectedYieldStream).thenAnswer((_) => Stream.value(selectedYield));
-        when(() => cubit.selectedYield).thenReturn(selectedYield);
-        when(() => cubit.state).thenReturn(DepositState.success(YieldsDto.fixture()));
+        when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
+        when(() => cubit.yieldPool).thenReturn(selectedYield);
         when(() => cubit.poolSqrtPriceX96Stream).thenAnswer((_) => Stream.value(currentPriceAsTick));
         when(() => cubit.latestPoolSqrtPriceX96).thenReturn(currentPriceAsTick);
 
@@ -984,9 +605,9 @@ void main() {
         final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
         final currentPriceAsTick = BigInt.parse("79121973566864535878904");
 
-        when(() => cubit.selectedYieldStream).thenAnswer((_) => Stream.value(selectedYield));
-        when(() => cubit.selectedYield).thenReturn(selectedYield);
-        when(() => cubit.state).thenReturn(DepositState.success(YieldsDto.fixture()));
+        when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
+        when(() => cubit.yieldPool).thenReturn(selectedYield);
+        when(() => cubit.yieldPool).thenReturn(selectedYield);
         when(() => cubit.poolSqrtPriceX96Stream).thenAnswer((_) => Stream.value(currentPriceAsTick));
         when(() => cubit.latestPoolSqrtPriceX96).thenReturn(currentPriceAsTick);
 
@@ -1014,9 +635,8 @@ void main() {
         final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
         final currentPriceAsTick = BigInt.parse("79121973566864535878904");
 
-        when(() => cubit.selectedYieldStream).thenAnswer((_) => Stream.value(selectedYield));
-        when(() => cubit.selectedYield).thenReturn(selectedYield);
-        when(() => cubit.state).thenReturn(DepositState.success(YieldsDto.fixture()));
+        when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
+        when(() => cubit.yieldPool).thenReturn(selectedYield);
         when(() => cubit.poolSqrtPriceX96Stream).thenAnswer((_) => Stream.value(currentPriceAsTick));
         when(() => cubit.latestPoolSqrtPriceX96).thenReturn(currentPriceAsTick);
 
@@ -1040,9 +660,8 @@ void main() {
         final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
         final currentPriceAsTick = BigInt.parse("79121973566864535878904");
 
-        when(() => cubit.selectedYieldStream).thenAnswer((_) => Stream.value(selectedYield));
-        when(() => cubit.selectedYield).thenReturn(selectedYield);
-        when(() => cubit.state).thenReturn(DepositState.success(YieldsDto.fixture()));
+        when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
+        when(() => cubit.yieldPool).thenReturn(selectedYield);
         when(() => cubit.poolSqrtPriceX96Stream).thenAnswer((_) => Stream.value(currentPriceAsTick));
         when(() => cubit.latestPoolSqrtPriceX96).thenReturn(currentPriceAsTick);
 
@@ -1067,9 +686,8 @@ void main() {
         final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
         final currentPriceAsTick = BigInt.parse("79121973566864535878904");
 
-        when(() => cubit.selectedYieldStream).thenAnswer((_) => Stream.value(selectedYield));
-        when(() => cubit.selectedYield).thenReturn(selectedYield);
-        when(() => cubit.state).thenReturn(DepositState.success(YieldsDto.fixture()));
+        when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
+        when(() => cubit.yieldPool).thenReturn(selectedYield);
         when(() => cubit.poolSqrtPriceX96Stream).thenAnswer((_) => Stream.value(currentPriceAsTick));
         when(() => cubit.latestPoolSqrtPriceX96).thenReturn(currentPriceAsTick);
 
@@ -1093,9 +711,8 @@ void main() {
         final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
         final currentPriceAsTick = BigInt.parse("79121973566864535878904");
 
-        when(() => cubit.selectedYieldStream).thenAnswer((_) => Stream.value(selectedYield));
-        when(() => cubit.selectedYield).thenReturn(selectedYield);
-        when(() => cubit.state).thenReturn(DepositState.success(YieldsDto.fixture()));
+        when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
+        when(() => cubit.yieldPool).thenReturn(selectedYield);
         when(() => cubit.poolSqrtPriceX96Stream).thenAnswer((_) => Stream.value(currentPriceAsTick));
         when(() => cubit.latestPoolSqrtPriceX96).thenReturn(currentPriceAsTick);
 
@@ -1120,9 +737,8 @@ void main() {
         final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
         final currentPriceAsTick = BigInt.parse("79121973566864535878904");
 
-        when(() => cubit.selectedYieldStream).thenAnswer((_) => Stream.value(selectedYield));
-        when(() => cubit.selectedYield).thenReturn(selectedYield);
-        when(() => cubit.state).thenReturn(DepositState.success(YieldsDto.fixture()));
+        when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
+        when(() => cubit.yieldPool).thenReturn(selectedYield);
         when(() => cubit.poolSqrtPriceX96Stream).thenAnswer((_) => Stream.value(currentPriceAsTick));
         when(() => cubit.latestPoolSqrtPriceX96).thenReturn(currentPriceAsTick);
 
@@ -1146,9 +762,8 @@ void main() {
         final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
         final currentPriceAsTick = BigInt.parse("79121973566864535878904");
 
-        when(() => cubit.selectedYieldStream).thenAnswer((_) => Stream.value(selectedYield));
-        when(() => cubit.selectedYield).thenReturn(selectedYield);
-        when(() => cubit.state).thenReturn(DepositState.success(YieldsDto.fixture()));
+        when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
+        when(() => cubit.yieldPool).thenReturn(selectedYield);
         when(() => cubit.poolSqrtPriceX96Stream).thenAnswer((_) => Stream.value(currentPriceAsTick));
         when(() => cubit.latestPoolSqrtPriceX96).thenReturn(currentPriceAsTick);
 
@@ -1172,9 +787,8 @@ void main() {
         final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
         final currentPriceAsTick = BigInt.parse("79121973566864535878904");
 
-        when(() => cubit.selectedYieldStream).thenAnswer((_) => Stream.value(selectedYield));
-        when(() => cubit.selectedYield).thenReturn(selectedYield);
-        when(() => cubit.state).thenReturn(DepositState.success(YieldsDto.fixture()));
+        when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
+        when(() => cubit.yieldPool).thenReturn(selectedYield);
         when(() => cubit.poolSqrtPriceX96Stream).thenAnswer((_) => Stream.value(currentPriceAsTick));
         when(() => cubit.latestPoolSqrtPriceX96).thenReturn(currentPriceAsTick);
 
@@ -1200,9 +814,8 @@ void main() {
         final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
         final currentPriceAsTick = BigInt.parse("79121973566864535878904");
 
-        when(() => cubit.selectedYieldStream).thenAnswer((_) => Stream.value(selectedYield));
-        when(() => cubit.selectedYield).thenReturn(selectedYield);
-        when(() => cubit.state).thenReturn(DepositState.success(YieldsDto.fixture()));
+        when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
+        when(() => cubit.yieldPool).thenReturn(selectedYield);
         when(() => cubit.poolSqrtPriceX96Stream).thenAnswer((_) => Stream.value(currentPriceAsTick));
         when(() => cubit.latestPoolSqrtPriceX96).thenReturn(currentPriceAsTick);
 
@@ -1231,9 +844,8 @@ void main() {
         final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
         final currentPriceAsTick = BigInt.parse("79121973566864535878904");
 
-        when(() => cubit.selectedYieldStream).thenAnswer((_) => Stream.value(selectedYield));
-        when(() => cubit.selectedYield).thenReturn(selectedYield);
-        when(() => cubit.state).thenReturn(DepositState.success(YieldsDto.fixture()));
+        when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
+        when(() => cubit.yieldPool).thenReturn(selectedYield);
         when(() => cubit.poolSqrtPriceX96Stream).thenAnswer((_) => Stream.value(currentPriceAsTick));
         when(() => cubit.latestPoolSqrtPriceX96).thenReturn(currentPriceAsTick);
 
@@ -1261,9 +873,8 @@ void main() {
         final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
         final currentPriceAsTick = BigInt.parse("79121973566864535878904");
 
-        when(() => cubit.selectedYieldStream).thenAnswer((_) => Stream.value(selectedYield));
-        when(() => cubit.selectedYield).thenReturn(selectedYield);
-        when(() => cubit.state).thenReturn(DepositState.success(YieldsDto.fixture()));
+        when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
+        when(() => cubit.yieldPool).thenReturn(selectedYield);
         when(() => cubit.poolSqrtPriceX96Stream).thenAnswer((_) => Stream.value(currentPriceAsTick));
         when(() => cubit.latestPoolSqrtPriceX96).thenReturn(currentPriceAsTick);
 
@@ -1290,9 +901,8 @@ void main() {
         final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
         final currentPriceAsTick = BigInt.parse("79121973566864535878904");
 
-        when(() => cubit.selectedYieldStream).thenAnswer((_) => Stream.value(selectedYield));
-        when(() => cubit.selectedYield).thenReturn(selectedYield);
-        when(() => cubit.state).thenReturn(DepositState.success(YieldsDto.fixture()));
+        when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
+        when(() => cubit.yieldPool).thenReturn(selectedYield);
         when(() => cubit.poolSqrtPriceX96Stream).thenAnswer((_) => Stream.value(currentPriceAsTick));
         when(() => cubit.latestPoolSqrtPriceX96).thenReturn(currentPriceAsTick);
 
@@ -1324,9 +934,9 @@ void main() {
         final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
         final currentPriceAsSqrtPriceX96 = BigInt.parse("5239001873626858491699987");
 
-        when(() => cubit.selectedYieldStream).thenAnswer((_) => Stream.value(selectedYield));
-        when(() => cubit.selectedYield).thenReturn(selectedYield);
-        when(() => cubit.state).thenReturn(DepositState.success(YieldsDto.fixture()));
+        when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
+        when(() => cubit.yieldPool).thenReturn(selectedYield);
+        when(() => cubit.yieldPool).thenReturn(selectedYield);
         when(() => cubit.poolSqrtPriceX96Stream).thenAnswer((_) => Stream.value(currentPriceAsSqrtPriceX96));
         when(() => cubit.latestPoolSqrtPriceX96).thenReturn(currentPriceAsSqrtPriceX96);
 
@@ -1349,9 +959,8 @@ void main() {
         final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
         final currentPriceAsTick = BigInt.parse("79121973566864535878904");
 
-        when(() => cubit.selectedYieldStream).thenAnswer((_) => Stream.value(selectedYield));
-        when(() => cubit.selectedYield).thenReturn(selectedYield);
-        when(() => cubit.state).thenReturn(DepositState.success(YieldsDto.fixture()));
+        when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
+        when(() => cubit.yieldPool).thenReturn(selectedYield);
         when(() => cubit.poolSqrtPriceX96Stream).thenAnswer((_) => Stream.value(currentPriceAsTick));
         when(() => cubit.latestPoolSqrtPriceX96).thenReturn(currentPriceAsTick);
 
@@ -1376,9 +985,8 @@ void main() {
         final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
         final currentPriceAsTick = BigInt.parse("79121973566864535878904");
 
-        when(() => cubit.selectedYieldStream).thenAnswer((_) => Stream.value(selectedYield));
-        when(() => cubit.selectedYield).thenReturn(selectedYield);
-        when(() => cubit.state).thenReturn(DepositState.success(YieldsDto.fixture()));
+        when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
+        when(() => cubit.yieldPool).thenReturn(selectedYield);
         when(() => cubit.poolSqrtPriceX96Stream).thenAnswer((_) => Stream.value(currentPriceAsTick));
         when(() => cubit.latestPoolSqrtPriceX96).thenReturn(currentPriceAsTick);
 
@@ -1406,9 +1014,8 @@ void main() {
         final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
         final currentPriceAsTick = BigInt.parse("79121973566864535878904");
 
-        when(() => cubit.selectedYieldStream).thenAnswer((_) => Stream.value(selectedYield));
-        when(() => cubit.selectedYield).thenReturn(selectedYield);
-        when(() => cubit.state).thenReturn(DepositState.success(YieldsDto.fixture()));
+        when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
+        when(() => cubit.yieldPool).thenReturn(selectedYield);
         when(() => cubit.poolSqrtPriceX96Stream).thenAnswer((_) => Stream.value(currentPriceAsTick));
         when(() => cubit.latestPoolSqrtPriceX96).thenReturn(currentPriceAsTick);
 
@@ -1434,9 +1041,8 @@ void main() {
         final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
         final currentPriceAsTick = BigInt.parse("79121973566864535878904");
 
-        when(() => cubit.selectedYieldStream).thenAnswer((_) => Stream.value(selectedYield));
-        when(() => cubit.selectedYield).thenReturn(selectedYield);
-        when(() => cubit.state).thenReturn(DepositState.success(YieldsDto.fixture()));
+        when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
+        when(() => cubit.yieldPool).thenReturn(selectedYield);
         when(() => cubit.poolSqrtPriceX96Stream).thenAnswer((_) => Stream.value(currentPriceAsTick));
         when(() => cubit.latestPoolSqrtPriceX96).thenReturn(currentPriceAsTick);
 
@@ -1462,9 +1068,8 @@ void main() {
         final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
         final currentPriceAsTick = BigInt.parse("79121973566864535878904");
 
-        when(() => cubit.selectedYieldStream).thenAnswer((_) => Stream.value(selectedYield));
-        when(() => cubit.selectedYield).thenReturn(selectedYield);
-        when(() => cubit.state).thenReturn(DepositState.success(YieldsDto.fixture()));
+        when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
+        when(() => cubit.yieldPool).thenReturn(selectedYield);
         when(() => cubit.poolSqrtPriceX96Stream).thenAnswer((_) => Stream.value(currentPriceAsTick));
         when(() => cubit.latestPoolSqrtPriceX96).thenReturn(currentPriceAsTick);
 
@@ -1492,9 +1097,8 @@ void main() {
         final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
         final currentPriceAsTick = BigInt.parse("79121973566864535878904");
 
-        when(() => cubit.selectedYieldStream).thenAnswer((_) => Stream.value(selectedYield));
-        when(() => cubit.selectedYield).thenReturn(selectedYield);
-        when(() => cubit.state).thenReturn(DepositState.success(YieldsDto.fixture()));
+        when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
+        when(() => cubit.yieldPool).thenReturn(selectedYield);
         when(() => cubit.poolSqrtPriceX96Stream).thenAnswer((_) => Stream.value(currentPriceAsTick));
         when(() => cubit.latestPoolSqrtPriceX96).thenReturn(currentPriceAsTick);
 
@@ -1525,9 +1129,8 @@ void main() {
         final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
         final currentPriceAsTick = BigInt.parse("79121973566864535878904");
 
-        when(() => cubit.selectedYieldStream).thenAnswer((_) => Stream.value(selectedYield));
-        when(() => cubit.selectedYield).thenReturn(selectedYield);
-        when(() => cubit.state).thenReturn(DepositState.success(YieldsDto.fixture()));
+        when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
+        when(() => cubit.yieldPool).thenReturn(selectedYield);
         when(() => cubit.poolSqrtPriceX96Stream).thenAnswer((_) => Stream.value(currentPriceAsTick));
         when(() => cubit.latestPoolSqrtPriceX96).thenReturn(currentPriceAsTick);
 
@@ -1556,9 +1159,8 @@ void main() {
         final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
         final currentPriceAsTick = BigInt.parse("79121973566864535878904");
 
-        when(() => cubit.selectedYieldStream).thenAnswer((_) => Stream.value(selectedYield));
-        when(() => cubit.selectedYield).thenReturn(selectedYield);
-        when(() => cubit.state).thenReturn(DepositState.success(YieldsDto.fixture()));
+        when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
+        when(() => cubit.yieldPool).thenReturn(selectedYield);
         when(() => cubit.poolSqrtPriceX96Stream).thenAnswer((_) => Stream.value(currentPriceAsTick));
         when(() => cubit.latestPoolSqrtPriceX96).thenReturn(currentPriceAsTick);
 
@@ -1593,9 +1195,8 @@ void main() {
         final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
         final currentPriceAsTick = BigInt.parse("79121973566864535878904");
 
-        when(() => cubit.selectedYieldStream).thenAnswer((_) => Stream.value(selectedYield));
-        when(() => cubit.selectedYield).thenReturn(selectedYield);
-        when(() => cubit.state).thenReturn(DepositState.success(YieldsDto.fixture()));
+        when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
+        when(() => cubit.yieldPool).thenReturn(selectedYield);
         when(() => cubit.poolSqrtPriceX96Stream).thenAnswer((_) => Stream.value(currentPriceAsTick));
         when(() => cubit.latestPoolSqrtPriceX96).thenReturn(currentPriceAsTick);
 
@@ -1630,9 +1231,8 @@ void main() {
         final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
         final currentPriceAsTick = BigInt.parse("79121973566864535878904");
 
-        when(() => cubit.selectedYieldStream).thenAnswer((_) => Stream.value(selectedYield));
-        when(() => cubit.selectedYield).thenReturn(selectedYield);
-        when(() => cubit.state).thenReturn(DepositState.success(YieldsDto.fixture()));
+        when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
+        when(() => cubit.yieldPool).thenReturn(selectedYield);
         when(() => cubit.poolSqrtPriceX96Stream).thenAnswer((_) => Stream.value(currentPriceAsTick));
         when(() => cubit.latestPoolSqrtPriceX96).thenReturn(currentPriceAsTick);
 
@@ -1661,7 +1261,6 @@ void main() {
       });
     },
   );
-
   zGoldenTest(
     "When inputing the quote token amount, reversing the tokens and then changing the range, the quote token amount should be recalculated",
     goldenFileName: "deposit_page_input_quote_token_amount_reverse_tokens_and_change_range",
@@ -1670,9 +1269,8 @@ void main() {
         final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
         final currentPriceAsTick = BigInt.parse("79121973566864535878904");
 
-        when(() => cubit.selectedYieldStream).thenAnswer((_) => Stream.value(selectedYield));
-        when(() => cubit.selectedYield).thenReturn(selectedYield);
-        when(() => cubit.state).thenReturn(DepositState.success(YieldsDto.fixture()));
+        when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
+        when(() => cubit.yieldPool).thenReturn(selectedYield);
         when(() => cubit.poolSqrtPriceX96Stream).thenAnswer((_) => Stream.value(currentPriceAsTick));
         when(() => cubit.latestPoolSqrtPriceX96).thenReturn(currentPriceAsTick);
 
@@ -1710,9 +1308,8 @@ void main() {
         final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
         final currentPriceAsTick = BigInt.parse("79121973566864535878904");
 
-        when(() => cubit.selectedYieldStream).thenAnswer((_) => Stream.value(selectedYield));
-        when(() => cubit.selectedYield).thenReturn(selectedYield);
-        when(() => cubit.state).thenReturn(DepositState.success(YieldsDto.fixture()));
+        when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
+        when(() => cubit.yieldPool).thenReturn(selectedYield);
         when(() => cubit.poolSqrtPriceX96Stream).thenAnswer((_) => Stream.value(currentPriceAsTick));
         when(() => cubit.latestPoolSqrtPriceX96).thenReturn(currentPriceAsTick);
 
@@ -1747,9 +1344,8 @@ void main() {
         final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
         final currentPriceAsTick = BigInt.parse("79121973566864535878904");
 
-        when(() => cubit.selectedYieldStream).thenAnswer((_) => Stream.value(selectedYield));
-        when(() => cubit.selectedYield).thenReturn(selectedYield);
-        when(() => cubit.state).thenReturn(DepositState.success(YieldsDto.fixture()));
+        when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
+        when(() => cubit.yieldPool).thenReturn(selectedYield);
         when(() => cubit.poolSqrtPriceX96Stream).thenAnswer((_) => Stream.value(currentPriceAsTick));
         when(() => cubit.latestPoolSqrtPriceX96).thenReturn(currentPriceAsTick);
 
@@ -1783,9 +1379,8 @@ void main() {
         final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
         final currentPriceAsTick = BigInt.parse("79121973566864535878904");
 
-        when(() => cubit.selectedYieldStream).thenAnswer((_) => Stream.value(selectedYield));
-        when(() => cubit.selectedYield).thenReturn(selectedYield);
-        when(() => cubit.state).thenReturn(DepositState.success(YieldsDto.fixture()));
+        when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
+        when(() => cubit.yieldPool).thenReturn(selectedYield);
         when(() => cubit.poolSqrtPriceX96Stream).thenAnswer((_) => Stream.value(currentPriceAsTick));
         when(() => cubit.latestPoolSqrtPriceX96).thenReturn(currentPriceAsTick);
 
@@ -1826,9 +1421,8 @@ void main() {
         final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
         final currentPriceAsTick = BigInt.parse("79121973566864535878904");
 
-        when(() => cubit.selectedYieldStream).thenAnswer((_) => Stream.value(selectedYield));
-        when(() => cubit.selectedYield).thenReturn(selectedYield);
-        when(() => cubit.state).thenReturn(DepositState.success(YieldsDto.fixture()));
+        when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
+        when(() => cubit.yieldPool).thenReturn(selectedYield);
         when(() => cubit.poolSqrtPriceX96Stream).thenAnswer((_) => Stream.value(currentPriceAsTick));
         when(() => cubit.latestPoolSqrtPriceX96).thenReturn(currentPriceAsTick);
 
@@ -1869,9 +1463,8 @@ void main() {
         final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
         final currentPriceAsTick = BigInt.parse("79121973566864535878904");
 
-        when(() => cubit.selectedYieldStream).thenAnswer((_) => Stream.value(selectedYield));
-        when(() => cubit.selectedYield).thenReturn(selectedYield);
-        when(() => cubit.state).thenReturn(DepositState.success(YieldsDto.fixture()));
+        when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
+        when(() => cubit.yieldPool).thenReturn(selectedYield);
         when(() => cubit.poolSqrtPriceX96Stream).thenAnswer((_) => Stream.value(currentPriceAsTick));
         when(() => cubit.latestPoolSqrtPriceX96).thenReturn(currentPriceAsTick);
 
@@ -1904,9 +1497,8 @@ void main() {
         final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
         final currentPriceAsTick = BigInt.parse("79121973566864535878904");
 
-        when(() => cubit.selectedYieldStream).thenAnswer((_) => Stream.value(selectedYield));
-        when(() => cubit.selectedYield).thenReturn(selectedYield);
-        when(() => cubit.state).thenReturn(DepositState.success(YieldsDto.fixture()));
+        when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
+        when(() => cubit.yieldPool).thenReturn(selectedYield);
         when(() => cubit.poolSqrtPriceX96Stream).thenAnswer((_) => Stream.value(currentPriceAsTick));
         when(() => cubit.latestPoolSqrtPriceX96).thenReturn(currentPriceAsTick);
 
@@ -1936,9 +1528,8 @@ void main() {
         final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
         final currentPriceAsTick = BigInt.parse("79121973566864535878904");
 
-        when(() => cubit.selectedYieldStream).thenAnswer((_) => Stream.value(selectedYield));
-        when(() => cubit.selectedYield).thenReturn(selectedYield);
-        when(() => cubit.state).thenReturn(DepositState.success(YieldsDto.fixture()));
+        when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
+        when(() => cubit.yieldPool).thenReturn(selectedYield);
         when(() => cubit.poolSqrtPriceX96Stream).thenAnswer((_) => Stream.value(currentPriceAsTick));
         when(() => cubit.latestPoolSqrtPriceX96).thenReturn(currentPriceAsTick);
 
@@ -1974,9 +1565,8 @@ void main() {
         final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
         final currentPriceAsTick = BigInt.parse("79121973566864535878904");
 
-        when(() => cubit.selectedYieldStream).thenAnswer((_) => Stream.value(selectedYield));
-        when(() => cubit.selectedYield).thenReturn(selectedYield);
-        when(() => cubit.state).thenReturn(DepositState.success(YieldsDto.fixture()));
+        when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
+        when(() => cubit.yieldPool).thenReturn(selectedYield);
         when(() => cubit.poolSqrtPriceX96Stream).thenAnswer((_) => Stream.value(currentPriceAsTick));
         when(() => cubit.latestPoolSqrtPriceX96).thenReturn(currentPriceAsTick);
 
@@ -2010,9 +1600,8 @@ void main() {
 
         when(() => wallet.signer).thenReturn(null);
         when(() => wallet.signerStream).thenAnswer((_) => Stream.value(null));
-        when(() => cubit.selectedYieldStream).thenAnswer((_) => Stream.value(selectedYield));
-        when(() => cubit.selectedYield).thenReturn(selectedYield);
-        when(() => cubit.state).thenReturn(DepositState.success(YieldsDto.fixture()));
+        when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
+        when(() => cubit.yieldPool).thenReturn(selectedYield);
         when(() => cubit.poolSqrtPriceX96Stream).thenAnswer((_) => Stream.value(currentPriceAsTick));
         when(() => cubit.latestPoolSqrtPriceX96).thenReturn(currentPriceAsTick);
 
@@ -2037,9 +1626,8 @@ void main() {
 
         when(() => wallet.signer).thenReturn(null);
         when(() => wallet.signerStream).thenAnswer((_) => Stream.value(null));
-        when(() => cubit.selectedYieldStream).thenAnswer((_) => Stream.value(selectedYield));
-        when(() => cubit.selectedYield).thenReturn(selectedYield);
-        when(() => cubit.state).thenReturn(DepositState.success(YieldsDto.fixture()));
+        when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
+        when(() => cubit.yieldPool).thenReturn(selectedYield);
         when(() => cubit.poolSqrtPriceX96Stream).thenAnswer((_) => Stream.value(currentPriceAsTick));
         when(() => cubit.latestPoolSqrtPriceX96).thenReturn(currentPriceAsTick);
 
@@ -2068,9 +1656,8 @@ void main() {
         when(
           () => cubit.getWalletTokenAmount(any(), network: any(named: "network")),
         ).thenAnswer((_) => Future.value(0.0));
-        when(() => cubit.selectedYieldStream).thenAnswer((_) => Stream.value(selectedYield));
-        when(() => cubit.selectedYield).thenReturn(selectedYield);
-        when(() => cubit.state).thenReturn(DepositState.success(YieldsDto.fixture()));
+        when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
+        when(() => cubit.yieldPool).thenReturn(selectedYield);
         when(() => cubit.poolSqrtPriceX96Stream).thenAnswer((_) => Stream.value(currentPriceAsTick));
         when(() => cubit.latestPoolSqrtPriceX96).thenReturn(currentPriceAsTick);
 
@@ -2098,9 +1685,8 @@ void main() {
         when(
           () => cubit.getWalletTokenAmount(any(), network: any(named: "network")),
         ).thenAnswer((_) => Future.value(0.0));
-        when(() => cubit.selectedYieldStream).thenAnswer((_) => Stream.value(selectedYield));
-        when(() => cubit.selectedYield).thenReturn(selectedYield);
-        when(() => cubit.state).thenReturn(DepositState.success(YieldsDto.fixture()));
+        when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
+        when(() => cubit.yieldPool).thenReturn(selectedYield);
         when(() => cubit.poolSqrtPriceX96Stream).thenAnswer((_) => Stream.value(currentPriceAsTick));
         when(() => cubit.latestPoolSqrtPriceX96).thenReturn(currentPriceAsTick);
 
@@ -2141,9 +1727,8 @@ void main() {
             network: any(named: "network"),
           ),
         ).thenAnswer((_) => Future.value(0));
-        when(() => cubit.selectedYieldStream).thenAnswer((_) => Stream.value(selectedYield));
-        when(() => cubit.selectedYield).thenReturn(selectedYield);
-        when(() => cubit.state).thenReturn(DepositState.success(YieldsDto.fixture()));
+        when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
+        when(() => cubit.yieldPool).thenReturn(selectedYield);
         when(() => cubit.poolSqrtPriceX96Stream).thenAnswer((_) => Stream.value(currentPriceAsTick));
         when(() => cubit.latestPoolSqrtPriceX96).thenReturn(currentPriceAsTick);
 
@@ -2183,9 +1768,8 @@ void main() {
             network: any(named: "network"),
           ),
         ).thenAnswer((_) => Future.value(0));
-        when(() => cubit.selectedYieldStream).thenAnswer((_) => Stream.value(selectedYield));
-        when(() => cubit.selectedYield).thenReturn(selectedYield);
-        when(() => cubit.state).thenReturn(DepositState.success(YieldsDto.fixture()));
+        when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
+        when(() => cubit.yieldPool).thenReturn(selectedYield);
         when(() => cubit.poolSqrtPriceX96Stream).thenAnswer((_) => Stream.value(currentPriceAsTick));
         when(() => cubit.latestPoolSqrtPriceX96).thenReturn(currentPriceAsTick);
 
@@ -2228,9 +1812,8 @@ void main() {
             network: any(named: "network"),
           ),
         ).thenAnswer((_) => Future.value(0));
-        when(() => cubit.selectedYieldStream).thenAnswer((_) => Stream.value(selectedYield));
-        when(() => cubit.selectedYield).thenReturn(selectedYield);
-        when(() => cubit.state).thenReturn(DepositState.success(YieldsDto.fixture()));
+        when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
+        when(() => cubit.yieldPool).thenReturn(selectedYield);
         when(() => cubit.poolSqrtPriceX96Stream).thenAnswer((_) => Stream.value(currentPriceAsTick));
         when(() => cubit.latestPoolSqrtPriceX96).thenReturn(currentPriceAsTick);
 
@@ -2273,11 +1856,11 @@ void main() {
             network: any(named: "network"),
           ),
         ).thenAnswer((_) => Future.value(32576352673));
-        when(() => cubit.selectedYieldStream).thenAnswer((_) => Stream.value(selectedYield));
-        when(() => cubit.selectedYield).thenReturn(selectedYield);
-        when(() => cubit.state).thenReturn(DepositState.success(YieldsDto.fixture()));
+        when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
+        when(() => cubit.yieldPool).thenReturn(selectedYield);
         when(() => cubit.poolSqrtPriceX96Stream).thenAnswer((_) => Stream.value(currentPriceAsTick));
         when(() => cubit.latestPoolSqrtPriceX96).thenReturn(currentPriceAsTick);
+        when(() => cubit.yieldPool).thenReturn(selectedYield);
 
         await tester.pumpDeviceBuilder(await goldenBuilder());
         await tester.pumpAndSettle();
@@ -2315,9 +1898,8 @@ void main() {
             network: any(named: "network"),
           ),
         ).thenAnswer((_) => Future.value(0));
-        when(() => cubit.selectedYieldStream).thenAnswer((_) => Stream.value(selectedYield));
-        when(() => cubit.selectedYield).thenReturn(selectedYield);
-        when(() => cubit.state).thenReturn(DepositState.success(YieldsDto.fixture()));
+        when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
+        when(() => cubit.yieldPool).thenReturn(selectedYield);
         when(() => cubit.poolSqrtPriceX96Stream).thenAnswer((_) => Stream.value(currentPriceAsTick));
         when(() => cubit.latestPoolSqrtPriceX96).thenReturn(currentPriceAsTick);
 
@@ -2360,9 +1942,8 @@ void main() {
             network: any(named: "network"),
           ),
         ).thenAnswer((_) => Future.value(3237526));
-        when(() => cubit.selectedYieldStream).thenAnswer((_) => Stream.value(selectedYield));
-        when(() => cubit.selectedYield).thenReturn(selectedYield);
-        when(() => cubit.state).thenReturn(DepositState.success(YieldsDto.fixture()));
+        when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
+        when(() => cubit.yieldPool).thenReturn(selectedYield);
         when(() => cubit.poolSqrtPriceX96Stream).thenAnswer((_) => Stream.value(currentPriceAsTick));
         when(() => cubit.latestPoolSqrtPriceX96).thenReturn(currentPriceAsTick);
 
@@ -2410,16 +1991,12 @@ void main() {
             network: any(named: "network"),
           ),
         ).thenAnswer((_) => Future.value(32576352673));
-        when(() => cubit.selectYield(any())).thenAnswer((_) => Future.value());
-        when(() => cubit.selectedYieldStream).thenAnswer((_) => Stream.value(selectedYield));
-        when(() => cubit.selectedYield).thenReturn(selectedYield);
-        when(() => cubit.state).thenReturn(DepositState.success(YieldsDto.fixture()));
+        when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
+        when(() => cubit.yieldPool).thenReturn(selectedYield);
         when(() => cubit.poolSqrtPriceX96Stream).thenAnswer((_) => Stream.value(currentPriceAsTick));
         when(() => cubit.latestPoolSqrtPriceX96).thenReturn(currentPriceAsTick);
 
         await tester.pumpDeviceBuilder(await goldenBuilder(), wrapper: GoldenConfig.localizationsWrapper());
-        await tester.tap(find.byKey(Key("yield-card-${selectedYield.poolAddress}")));
-        await tester.pumpAndSettle();
         await tester.drag(find.byKey(const Key("deposit-settings-button")), const Offset(0, -500));
         await tester.pumpAndSettle();
 
@@ -2440,9 +2017,8 @@ void main() {
       await tester.runAsync(() async {
         final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
 
-        when(() => cubit.selectedYieldStream).thenAnswer((_) => Stream.value(selectedYield));
-        when(() => cubit.selectedYield).thenReturn(selectedYield);
-        when(() => cubit.state).thenReturn(DepositState.success(YieldsDto.fixture()));
+        when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
+        when(() => cubit.yieldPool).thenReturn(selectedYield);
         when(() => cubit.poolSqrtPriceX96Stream).thenAnswer((_) => const Stream.empty());
         when(() => cubit.latestPoolSqrtPriceX96).thenReturn(null);
 
@@ -2465,9 +2041,8 @@ void main() {
       await tester.runAsync(() async {
         final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
 
-        when(() => cubit.selectedYieldStream).thenAnswer((_) => Stream.value(selectedYield));
-        when(() => cubit.selectedYield).thenReturn(selectedYield);
-        when(() => cubit.state).thenReturn(DepositState.success(YieldsDto.fixture()));
+        when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
+        when(() => cubit.yieldPool).thenReturn(selectedYield);
         when(() => cubit.poolSqrtPriceX96Stream).thenAnswer((_) => const Stream.empty());
         when(() => cubit.latestPoolSqrtPriceX96).thenReturn(null);
 
@@ -2491,9 +2066,8 @@ void main() {
       await tester.runAsync(() async {
         final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
 
-        when(() => cubit.selectedYieldStream).thenAnswer((_) => Stream.value(selectedYield));
-        when(() => cubit.selectedYield).thenReturn(selectedYield);
-        when(() => cubit.state).thenReturn(DepositState.success(YieldsDto.fixture()));
+        when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
+        when(() => cubit.yieldPool).thenReturn(selectedYield);
         when(() => cubit.poolSqrtPriceX96Stream).thenAnswer((_) => Stream.value(BigInt.from(2131)));
         when(() => cubit.latestPoolSqrtPriceX96).thenReturn(null);
 
@@ -2517,9 +2091,8 @@ void main() {
       await tester.runAsync(() async {
         final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
 
-        when(() => cubit.selectedYieldStream).thenAnswer((_) => Stream.value(selectedYield));
-        when(() => cubit.selectedYield).thenReturn(selectedYield);
-        when(() => cubit.state).thenReturn(DepositState.success(YieldsDto.fixture()));
+        when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
+        when(() => cubit.yieldPool).thenReturn(selectedYield);
         when(() => cubit.poolSqrtPriceX96Stream).thenAnswer((_) => Stream.value(BigInt.from(2131)));
         when(() => cubit.latestPoolSqrtPriceX96).thenReturn(null);
 
@@ -2543,19 +2116,21 @@ void main() {
       const expectedDeadlineCallback = Duration(minutes: 21);
 
       when(() => cubit.saveDepositSettings(any(), any())).thenAnswer((_) async => () {});
-      when(() => cubit.state).thenReturn(DepositState.success(YieldsDto.fixture()));
+      when(() => cubit.state).thenReturn(DepositState.success(YieldDto.fixture()));
 
-      await tester.pumpDeviceBuilder(await goldenBuilder(), wrapper: GoldenConfig.localizationsWrapper());
-      await tester.tap(find.byKey(const Key("deposit-settings-button")));
-      await tester.pumpAndSettle();
+      await tester.runAsync(() async {
+        await tester.pumpDeviceBuilder(await goldenBuilder(), wrapper: GoldenConfig.localizationsWrapper());
+        await tester.tap(find.byKey(const Key("deposit-settings-button")));
+        await tester.pumpAndSettle();
 
-      await tester.enterText(find.byKey(const Key("slippage-text-field")), expectedSlippageCallback.value.toString());
-      await tester.enterText(
-        find.byKey(const Key("deadline-textfield")),
-        expectedDeadlineCallback.inMinutes.toString(),
-      );
-      FocusManager.instance.primaryFocus?.unfocus();
-      await tester.pumpAndSettle();
+        await tester.enterText(find.byKey(const Key("slippage-text-field")), expectedSlippageCallback.value.toString());
+        await tester.enterText(
+          find.byKey(const Key("deadline-textfield")),
+          expectedDeadlineCallback.inMinutes.toString(),
+        );
+        FocusManager.instance.primaryFocus?.unfocus();
+        await tester.pumpAndSettle();
+      });
 
       verify(() => cubit.saveDepositSettings(expectedSlippageCallback, expectedDeadlineCallback)).called(1);
     },
@@ -2567,15 +2142,16 @@ void main() {
     goldenFileName: "deposit_page_deposit_settings_button_slippage_title",
     (tester) async {
       when(() => cubit.saveDepositSettings(any(), any())).thenAnswer((_) async => () {});
-      when(() => cubit.state).thenReturn(DepositState.success(YieldsDto.fixture()));
+      when(() => cubit.state).thenReturn(DepositState.success(YieldDto.fixture()));
 
-      await tester.pumpDeviceBuilder(await goldenBuilder(), wrapper: GoldenConfig.localizationsWrapper());
-      await tester.tap(find.byKey(const Key("deposit-settings-button")));
-      await tester.pumpAndSettle();
-
-      await tester.enterText(find.byKey(const Key("slippage-text-field")), "12.3");
-      FocusManager.instance.primaryFocus?.unfocus();
-      await tester.pumpAndSettle();
+      await tester.runAsync(() async {
+        await tester.pumpDeviceBuilder(await goldenBuilder(), wrapper: GoldenConfig.localizationsWrapper());
+        await tester.tap(find.byKey(const Key("deposit-settings-button")));
+        await tester.pumpAndSettle();
+        await tester.enterText(find.byKey(const Key("slippage-text-field")), "12.3");
+        FocusManager.instance.primaryFocus?.unfocus();
+        await tester.pumpAndSettle();
+      });
     },
   );
 
@@ -2585,15 +2161,17 @@ void main() {
     goldenFileName: "deposit_page_deposit_settings_button_orange",
     (tester) async {
       when(() => cubit.saveDepositSettings(any(), any())).thenAnswer((_) async => () {});
-      when(() => cubit.state).thenReturn(DepositState.success(YieldsDto.fixture()));
+      when(() => cubit.state).thenReturn(DepositState.success(YieldDto.fixture()));
 
-      await tester.pumpDeviceBuilder(await goldenBuilder(), wrapper: GoldenConfig.localizationsWrapper());
-      await tester.tap(find.byKey(const Key("deposit-settings-button")));
-      await tester.pumpAndSettle();
+      await tester.runAsync(() async {
+        await tester.pumpDeviceBuilder(await goldenBuilder(), wrapper: GoldenConfig.localizationsWrapper());
+        await tester.tap(find.byKey(const Key("deposit-settings-button")));
+        await tester.pumpAndSettle();
 
-      await tester.enterText(find.byKey(const Key("slippage-text-field")), "1.2");
-      FocusManager.instance.primaryFocus?.unfocus();
-      await tester.pumpAndSettle();
+        await tester.enterText(find.byKey(const Key("slippage-text-field")), "1.2");
+        FocusManager.instance.primaryFocus?.unfocus();
+        await tester.pumpAndSettle();
+      });
     },
   );
   zGoldenTest(
@@ -2603,15 +2181,17 @@ void main() {
     goldenFileName: "deposit_page_deposit_settings_button_zup_purple_gray",
     (tester) async {
       when(() => cubit.saveDepositSettings(any(), any())).thenAnswer((_) async => () {});
-      when(() => cubit.state).thenReturn(DepositState.success(YieldsDto.fixture()));
+      when(() => cubit.state).thenReturn(DepositState.success(YieldDto.fixture()));
 
-      await tester.pumpDeviceBuilder(await goldenBuilder(), wrapper: GoldenConfig.localizationsWrapper());
-      await tester.tap(find.byKey(const Key("deposit-settings-button")));
-      await tester.pumpAndSettle();
+      await tester.runAsync(() async {
+        await tester.pumpDeviceBuilder(await goldenBuilder(), wrapper: GoldenConfig.localizationsWrapper());
+        await tester.tap(find.byKey(const Key("deposit-settings-button")));
+        await tester.pumpAndSettle();
 
-      await tester.enterText(find.byKey(const Key("slippage-text-field")), "0.32");
-      FocusManager.instance.primaryFocus?.unfocus();
-      await tester.pumpAndSettle();
+        await tester.enterText(find.byKey(const Key("slippage-text-field")), "0.32");
+        FocusManager.instance.primaryFocus?.unfocus();
+        await tester.pumpAndSettle();
+      });
     },
   );
 
@@ -2622,15 +2202,17 @@ void main() {
     goldenFileName: "deposit_page_deposit_settings_button_red",
     (tester) async {
       when(() => cubit.saveDepositSettings(any(), any())).thenAnswer((_) async => () {});
-      when(() => cubit.state).thenReturn(DepositState.success(YieldsDto.fixture()));
+      when(() => cubit.state).thenReturn(DepositState.success(YieldDto.fixture()));
 
-      await tester.pumpDeviceBuilder(await goldenBuilder(), wrapper: GoldenConfig.localizationsWrapper());
-      await tester.tap(find.byKey(const Key("deposit-settings-button")));
-      await tester.pumpAndSettle();
+      await tester.runAsync(() async {
+        await tester.pumpDeviceBuilder(await goldenBuilder(), wrapper: GoldenConfig.localizationsWrapper());
+        await tester.tap(find.byKey(const Key("deposit-settings-button")));
+        await tester.pumpAndSettle();
 
-      await tester.enterText(find.byKey(const Key("slippage-text-field")), "21.2");
-      FocusManager.instance.primaryFocus?.unfocus();
-      await tester.pumpAndSettle();
+        await tester.enterText(find.byKey(const Key("slippage-text-field")), "21.2");
+        FocusManager.instance.primaryFocus?.unfocus();
+        await tester.pumpAndSettle();
+      });
     },
   );
 
@@ -2642,19 +2224,21 @@ void main() {
       const expectedDeadlineCallback = Duration(minutes: 21);
 
       when(() => cubit.saveDepositSettings(any(), any())).thenAnswer((_) async => () {});
-      when(() => cubit.state).thenReturn(DepositState.success(YieldsDto.fixture()));
+      when(() => cubit.state).thenReturn(DepositState.success(YieldDto.fixture()));
 
-      await tester.pumpDeviceBuilder(await goldenBuilder(), wrapper: GoldenConfig.localizationsWrapper());
-      await tester.tap(find.byKey(const Key("deposit-settings-button")));
-      await tester.pumpAndSettle();
+      await tester.runAsync(() async {
+        await tester.pumpDeviceBuilder(await goldenBuilder(), wrapper: GoldenConfig.localizationsWrapper());
+        await tester.tap(find.byKey(const Key("deposit-settings-button")));
+        await tester.pumpAndSettle();
 
-      await tester.enterText(find.byKey(const Key("slippage-text-field")), expectedSlippageCallback.value.toString());
-      await tester.enterText(
-        find.byKey(const Key("deadline-textfield")),
-        expectedDeadlineCallback.inMinutes.toString(),
-      );
-      FocusManager.instance.primaryFocus?.unfocus();
-      await tester.pumpAndSettle();
+        await tester.enterText(find.byKey(const Key("slippage-text-field")), expectedSlippageCallback.value.toString());
+        await tester.enterText(
+          find.byKey(const Key("deadline-textfield")),
+          expectedDeadlineCallback.inMinutes.toString(),
+        );
+        FocusManager.instance.primaryFocus?.unfocus();
+        await tester.pumpAndSettle();
+      });
 
       verify(() => cubit.saveDepositSettings(expectedSlippageCallback, expectedDeadlineCallback)).called(1);
     },
@@ -2667,12 +2251,14 @@ void main() {
     (tester) async {
       const expectedDepositSettings = DepositSettingsDto(maxSlippage: 32.1, deadlineMinutes: 98);
       when(() => cubit.saveDepositSettings(any(), any())).thenAnswer((_) async => () {});
-      when(() => cubit.state).thenReturn(DepositState.success(YieldsDto.fixture()));
+      when(() => cubit.state).thenReturn(DepositState.success(YieldDto.fixture()));
       when(() => cubit.depositSettings).thenReturn(expectedDepositSettings);
 
-      await tester.pumpDeviceBuilder(await goldenBuilder(), wrapper: GoldenConfig.localizationsWrapper());
-      await tester.tap(find.byKey(const Key("deposit-settings-button")));
-      await tester.pumpAndSettle();
+      await tester.runAsync(() async {
+        await tester.pumpDeviceBuilder(await goldenBuilder(), wrapper: GoldenConfig.localizationsWrapper());
+        await tester.tap(find.byKey(const Key("deposit-settings-button")));
+        await tester.pumpAndSettle();
+      });
     },
   );
 
@@ -2682,32 +2268,34 @@ void main() {
     goldenFileName: "deposit_page_deposit_settings_dropdown_reopening",
     (tester) async {
       when(() => cubit.saveDepositSettings(any(), any())).thenAnswer((_) async => () {});
-      when(() => cubit.state).thenReturn(DepositState.success(YieldsDto.fixture()));
+      when(() => cubit.state).thenReturn(DepositState.success(YieldDto.fixture()));
+      await tester.runAsync(() async {
+        await tester.pumpDeviceBuilder(await goldenBuilder(), wrapper: GoldenConfig.localizationsWrapper());
+        await tester.tap(find.byKey(const Key("deposit-settings-button")));
+        await tester.pumpAndSettle();
 
-      await tester.pumpDeviceBuilder(await goldenBuilder(), wrapper: GoldenConfig.localizationsWrapper());
-      await tester.tap(find.byKey(const Key("deposit-settings-button")));
-      await tester.pumpAndSettle();
+        await tester.enterText(
+          find.byKey(const Key("slippage-text-field")),
+          "0.7",
+        ); // expected slippage to be shown on reopening
+        await tester.enterText(
+          find.byKey(const Key("deadline-textfield")),
+          "76",
+        ); // expected deadline to be shown on reopening
+        FocusManager.instance.primaryFocus?.unfocus();
+        await tester.pumpAndSettle();
 
-      await tester.enterText(
-        find.byKey(const Key("slippage-text-field")),
-        "0.7",
-      ); // expected slippage to be shown on reopening
-      await tester.enterText(
-        find.byKey(const Key("deadline-textfield")),
-        "76",
-      ); // expected deadline to be shown on reopening
-      FocusManager.instance.primaryFocus?.unfocus();
-      await tester.pumpAndSettle();
+        // Closing the dropdown
+        await tester.tap(find.byKey(const Key("deposit-settings-button")));
+        await tester.pumpAndSettle();
 
-      // Closing the dropdown
-      await tester.tap(find.byKey(const Key("deposit-settings-button")));
-      await tester.pumpAndSettle();
-
-      // // Reopening the dropdown
-      await tester.tap(find.byKey(const Key("deposit-settings-button")));
-      await tester.pumpAndSettle();
+        // // Reopening the dropdown
+        await tester.tap(find.byKey(const Key("deposit-settings-button")));
+        await tester.pumpAndSettle();
+      });
     },
   );
+
   zGoldenTest(
     """When selecting a slippage and a deadline in the deposit settings dropdown,
   and then clicking to preview the deposit, it should pass the correct slippage and deadline
@@ -2728,17 +2316,12 @@ void main() {
           () => cubit.getWalletTokenAmount(any(), network: any(named: "network")),
         ).thenAnswer((_) => Future.value(EthereumConstants.uint256Max.toDouble()));
 
-        when(() => cubit.selectedYieldStream).thenAnswer((_) => Stream.value(selectedYield));
-        when(() => cubit.selectedYield).thenReturn(selectedYield);
-        when(() => cubit.state).thenReturn(DepositState.success(YieldsDto.fixture()));
+        when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
+        when(() => cubit.yieldPool).thenReturn(selectedYield);
         when(() => cubit.poolSqrtPriceX96Stream).thenAnswer((_) => Stream.value(currentPriceAsSqrtPriceX96));
         when(() => cubit.latestPoolSqrtPriceX96).thenReturn(currentPriceAsSqrtPriceX96);
-        when(() => cubit.selectYield(any())).thenAnswer((_) async => () {});
 
         await tester.pumpDeviceBuilder(await goldenBuilder(), wrapper: GoldenConfig.localizationsWrapper());
-        await tester.pumpAndSettle();
-
-        await tester.tap(find.byKey(Key("yield-card-${selectedYield.poolAddress}")));
         await tester.pumpAndSettle();
 
         await tester.tap(find.byKey(const Key("deposit-settings-button")));
@@ -2770,21 +2353,9 @@ void main() {
   );
 
   zGoldenTest(
-    "When loading the screen, and the network in the path param is different from the selected one, it should switch the network",
-    (tester) async {
-      when(() => navigator.getParam(any())).thenAnswer((_) => AppNetworks.scroll.name);
-
-      await tester.runAsync(() async => await tester.pumpDeviceBuilder(await goldenBuilder()));
-      await tester.pumpAndSettle();
-
-      verify(() => appCubit.updateAppNetwork(AppNetworks.scroll)).called(1);
-    },
-  );
-
-  zGoldenTest(
     "When loading the screen, and the network in the path param is equal from the selected one, it should not switch the network",
     (tester) async {
-      when(() => navigator.getParam(any())).thenAnswer((_) => appCubit.selectedNetwork.name);
+      when(() => navigator.getQueryParam(any())).thenAnswer((_) => appCubit.selectedNetwork.name);
 
       await tester.runAsync(() async => await tester.pumpDeviceBuilder(await goldenBuilder()));
       await tester.pumpAndSettle();
@@ -2819,16 +2390,13 @@ void main() {
             network: any(named: "network"),
           ),
         ).thenAnswer((_) => Future.value(32576352673));
-        when(() => cubit.selectYield(any())).thenAnswer((_) => Future.value());
-        when(() => cubit.selectedYieldStream).thenAnswer((_) => Stream.value(selectedYield));
-        when(() => cubit.selectedYield).thenReturn(selectedYield);
-        when(() => cubit.state).thenReturn(DepositState.success(YieldsDto.fixture()));
+
+        when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
+        when(() => cubit.yieldPool).thenReturn(selectedYield);
         when(() => cubit.poolSqrtPriceX96Stream).thenAnswer((_) => poolSqrtPriceX96StreamController.stream);
         when(() => cubit.latestPoolSqrtPriceX96).thenReturn(currentPriceAsSqrtPriceX96);
 
         await tester.pumpDeviceBuilder(await goldenBuilder(), wrapper: GoldenConfig.localizationsWrapper());
-        await tester.tap(find.byKey(Key("yield-card-${selectedYield.poolAddress}")));
-        await tester.pumpAndSettle();
         await tester.drag(find.byKey(const Key("deposit-settings-button")), const Offset(0, -500));
         await tester.pumpAndSettle();
 
@@ -2837,333 +2405,6 @@ void main() {
 
         poolSqrtPriceX96StreamController.add(nextPriceAsSqrtPriceX96);
         when(() => cubit.latestPoolSqrtPriceX96).thenReturn(nextPriceAsSqrtPriceX96);
-        await tester.pumpAndSettle();
-      });
-    },
-  );
-
-  zGoldenTest(
-    """When scrolling yields in the 24h timeframe, then clicking to switch to the
-    7d timeframe, it should reset the scroll position""",
-    goldenFileName: "deposit_page_reset_scroll_position_on_timeframe_change",
-    (tester) async {
-      await tester.runAsync(() async {
-        final yields = YieldsDto.fixture().copyWith(
-          pools: List.generate(10, (index) => YieldDto.fixture())
-              .mapIndexed(
-                (index, element) => element.copyWith(
-                  yield24h: index,
-                  yield7d: index * 2,
-                  yield30d: index * 3,
-                  protocol: ProtocolDto.fixture().copyWith(name: "$index"),
-                ),
-              )
-              .toList(),
-        );
-
-        when(() => cubit.state).thenReturn(DepositState.success(yields));
-        await tester.pumpDeviceBuilder(await goldenBuilder());
-
-        await tester.tap(find.byKey(const Key("next-yield-page-button")));
-        await tester.pumpAndSettle();
-        await tester.tap(find.byKey(const Key("next-yield-page-button")));
-        await tester.pumpAndSettle();
-
-        await tester.tap(find.byKey(Key("${YieldTimeFrame.week.name}-timeframe-button")));
-        await tester.pumpAndSettle();
-      });
-    },
-  );
-
-  zGoldenTest(
-    """When hovering the 24h timeframe button in the success state,
-    it should have an scale and opacity state""",
-    goldenFileName: "deposit_page_24h_timeframe_hover",
-    (tester) async {
-      await tester.runAsync(() async {
-        when(() => cubit.state).thenReturn(DepositState.success(YieldsDto.fixture()));
-        await tester.pumpDeviceBuilder(await goldenBuilder());
-
-        await tester.hover(find.byKey(Key("${YieldTimeFrame.day.name}-timeframe-button")));
-        await tester.pumpAndSettle();
-      });
-    },
-  );
-
-  zGoldenTest(
-    """When hovering the 7d timeframe button in the success state,
-    it should have an scale and opacity state""",
-    goldenFileName: "deposit_page_7d_timeframe_hover",
-    (tester) async {
-      await tester.runAsync(() async {
-        when(() => cubit.state).thenReturn(DepositState.success(YieldsDto.fixture()));
-        await tester.pumpDeviceBuilder(await goldenBuilder());
-
-        await tester.hover(find.byKey(Key("${YieldTimeFrame.week.name}-timeframe-button")));
-        await tester.pumpAndSettle();
-      });
-    },
-  );
-
-  zGoldenTest(
-    """When hovering the 30d timeframe button in the success state,
-    it should have an scale and opacity state""",
-    goldenFileName: "deposit_page_30d_timeframe_hover",
-    (tester) async {
-      await tester.runAsync(() async {
-        when(() => cubit.state).thenReturn(DepositState.success(YieldsDto.fixture()));
-        await tester.pumpDeviceBuilder(await goldenBuilder());
-
-        await tester.hover(find.byKey(Key("${YieldTimeFrame.month.name}-timeframe-button")));
-        await tester.pumpAndSettle();
-      });
-    },
-  );
-
-  zGoldenTest(
-    """When hovering the 90d timeframe button in the success state,
-    it should have an scale and opacity state""",
-    goldenFileName: "deposit_page_90d_timeframe_hover",
-    (tester) async {
-      await tester.runAsync(() async {
-        when(() => cubit.state).thenReturn(DepositState.success(YieldsDto.fixture()));
-        await tester.pumpDeviceBuilder(await goldenBuilder());
-
-        await tester.hover(find.byKey(Key("${YieldTimeFrame.threeMonth.name}-timeframe-button")));
-        await tester.pumpAndSettle();
-      });
-    },
-  );
-
-  zGoldenTest(
-    "When clicking the 7d timeframe in the success state, it should change the yields timeframe",
-    goldenFileName: "deposit_page_7d_timeframe",
-    (tester) async {
-      await tester.runAsync(() async {
-        when(() => cubit.state).thenReturn(DepositState.success(YieldsDto.fixture()));
-        await tester.pumpDeviceBuilder(await goldenBuilder());
-
-        await tester.tap(find.byKey(Key("${YieldTimeFrame.week.name}-timeframe-button")));
-        await tester.pumpAndSettle();
-      });
-    },
-  );
-
-  zGoldenTest(
-    "When clicking the 30d timeframe in the success state, it should change the yields timeframe",
-    goldenFileName: "deposit_page_30d_timeframe",
-    (tester) async {
-      await tester.runAsync(() async {
-        when(() => cubit.state).thenReturn(DepositState.success(YieldsDto.fixture()));
-        await tester.pumpDeviceBuilder(await goldenBuilder());
-
-        await tester.tap(find.byKey(Key("${YieldTimeFrame.month.name}-timeframe-button")));
-        await tester.pumpAndSettle();
-      });
-    },
-  );
-
-  zGoldenTest(
-    "When clicking the 90d timeframe in the success state, it should change the yields timeframe",
-    goldenFileName: "deposit_page_90d_timeframe",
-    (tester) async {
-      await tester.runAsync(() async {
-        when(() => cubit.state).thenReturn(DepositState.success(YieldsDto.fixture()));
-        await tester.pumpDeviceBuilder(await goldenBuilder());
-
-        await tester.tap(find.byKey(Key("${YieldTimeFrame.threeMonth.name}-timeframe-button")));
-        await tester.pumpAndSettle();
-      });
-    },
-  );
-
-  zGoldenTest(
-    """When clicking the 90d timeframe in the success state and then coming back to the 24h timeframe,
-    it should change the yields timeframe correctly back to 24h""",
-    goldenFileName: "deposit_page_90d_timeframe_back_to_24h",
-    (tester) async {
-      await tester.runAsync(() async {
-        when(() => cubit.state).thenReturn(DepositState.success(YieldsDto.fixture()));
-        await tester.pumpDeviceBuilder(await goldenBuilder());
-
-        await tester.tap(find.byKey(Key("${YieldTimeFrame.threeMonth.name}-timeframe-button")));
-        await tester.pumpAndSettle();
-        await tester.tap(find.byKey(Key("${YieldTimeFrame.day.name}-timeframe-button")));
-        await tester.pumpAndSettle();
-      });
-    },
-  );
-
-  group(
-    """When the state is sucess,
-   all pools should be displayed, with
-   two per page, sorted descending by
-   the selected timeframe""",
-    () {
-      final poolsList = [
-        YieldDto.fixture().copyWith(yield24h: 1, yield7d: 10, yield30d: 100, yield90d: 1000),
-        YieldDto.fixture().copyWith(yield24h: 2, yield7d: 20, yield30d: 200, yield90d: 2000),
-        YieldDto.fixture().copyWith(yield24h: 3, yield7d: 30, yield30d: 300, yield90d: 3000),
-        YieldDto.fixture().copyWith(yield24h: 4, yield7d: 40, yield30d: 400, yield90d: 4000),
-        YieldDto.fixture().copyWith(yield24h: 5, yield7d: 50, yield30d: 500, yield90d: 5000),
-      ];
-
-      zGoldenTest("24h timeframe Page 1", goldenFileName: "deposit_page_pools_page_1_24h_timeframe", (tester) async {
-        await tester.runAsync(() async {
-          when(() => cubit.state).thenReturn(DepositState.success(YieldsDto(pools: poolsList)));
-          await tester.pumpDeviceBuilder(await goldenBuilder());
-
-          await tester.tap(find.byKey(Key("${YieldTimeFrame.day.name}-timeframe-button")));
-          await tester.pumpAndSettle();
-        });
-      });
-
-      zGoldenTest("24h timeframe Page 2", goldenFileName: "deposit_page_pools_page_2_24h_timeframe", (tester) async {
-        await tester.runAsync(() async {
-          when(() => cubit.state).thenReturn(DepositState.success(YieldsDto(pools: poolsList)));
-          await tester.pumpDeviceBuilder(await goldenBuilder());
-
-          await tester.tap(find.byKey(const Key("next-yield-page-button")));
-          await tester.pumpAndSettle();
-
-          await tester.tap(find.byKey(Key("${YieldTimeFrame.day.name}-timeframe-button")));
-          await tester.pumpAndSettle();
-        });
-      });
-
-      zGoldenTest("7d timeframe Page 1", goldenFileName: "deposit_page_pools_page_1_7d_timeframe", (tester) async {
-        await tester.runAsync(() async {
-          when(() => cubit.state).thenReturn(DepositState.success(YieldsDto(pools: poolsList)));
-          await tester.pumpDeviceBuilder(await goldenBuilder());
-
-          await tester.tap(find.byKey(Key("${YieldTimeFrame.week.name}-timeframe-button")));
-          await tester.pumpAndSettle();
-        });
-      });
-
-      zGoldenTest("""7d timeframe Page 2""", goldenFileName: "deposit_page_pools_page_2_7d_timeframe", (tester) async {
-        await tester.runAsync(() async {
-          when(() => cubit.state).thenReturn(DepositState.success(YieldsDto(pools: poolsList)));
-          await tester.pumpDeviceBuilder(await goldenBuilder());
-
-          await tester.tap(find.byKey(Key("${YieldTimeFrame.week.name}-timeframe-button")));
-          await tester.pumpAndSettle();
-
-          await tester.tap(find.byKey(const Key("next-yield-page-button")));
-          await tester.pumpAndSettle();
-        });
-      });
-
-      zGoldenTest("30d timeframe Page 1", goldenFileName: "deposit_page_pools_page_1_30d_timeframe", (tester) async {
-        await tester.runAsync(() async {
-          when(() => cubit.state).thenReturn(DepositState.success(YieldsDto(pools: poolsList)));
-          await tester.pumpDeviceBuilder(await goldenBuilder());
-
-          await tester.tap(find.byKey(Key("${YieldTimeFrame.month.name}-timeframe-button")));
-          await tester.pumpAndSettle();
-        });
-      });
-
-      zGoldenTest("""30d timeframe Page 2""", goldenFileName: "deposit_page_pools_page_2_30d_timeframe", (
-        tester,
-      ) async {
-        await tester.runAsync(() async {
-          when(() => cubit.state).thenReturn(DepositState.success(YieldsDto(pools: poolsList)));
-          await tester.pumpDeviceBuilder(await goldenBuilder());
-
-          await tester.tap(find.byKey(Key("${YieldTimeFrame.month.name}-timeframe-button")));
-          await tester.pumpAndSettle();
-
-          await tester.tap(find.byKey(const Key("next-yield-page-button")));
-          await tester.pumpAndSettle();
-        });
-      });
-
-      zGoldenTest("90d timeframe Page 1", goldenFileName: "deposit_page_pools_page_1_90d_timeframe", (tester) async {
-        await tester.runAsync(() async {
-          when(() => cubit.state).thenReturn(DepositState.success(YieldsDto(pools: poolsList)));
-          await tester.pumpDeviceBuilder(await goldenBuilder());
-
-          await tester.tap(find.byKey(Key("${YieldTimeFrame.threeMonth.name}-timeframe-button")));
-          await tester.pumpAndSettle();
-        });
-      });
-
-      zGoldenTest("""90d timeframe Page 2""", goldenFileName: "deposit_page_pools_page_2_90d_timeframe", (
-        tester,
-      ) async {
-        await tester.runAsync(() async {
-          when(() => cubit.state).thenReturn(DepositState.success(YieldsDto(pools: poolsList)));
-          await tester.pumpDeviceBuilder(await goldenBuilder());
-
-          await tester.tap(find.byKey(Key("${YieldTimeFrame.threeMonth.name}-timeframe-button")));
-          await tester.pumpAndSettle();
-
-          await tester.tap(find.byKey(const Key("next-yield-page-button")));
-          await tester.pumpAndSettle();
-        });
-      });
-    },
-  );
-
-  zGoldenTest(
-    """When the state is sucess,
-    and the pools amount are odd,
-    the last page should show only
-    the last pool""",
-    goldenFileName: "deposit_page_odd_pools_last_page",
-    (tester) async {
-      final poolsList = [
-        YieldDto.fixture().copyWith(yield24h: 1),
-        YieldDto.fixture().copyWith(yield24h: 2),
-        YieldDto.fixture().copyWith(yield24h: 3),
-        YieldDto.fixture().copyWith(yield24h: 4),
-        YieldDto.fixture().copyWith(yield24h: 5),
-      ];
-
-      await tester.runAsync(() async {
-        when(() => cubit.state).thenReturn(DepositState.success(YieldsDto(pools: poolsList)));
-        await tester.pumpDeviceBuilder(await goldenBuilder());
-
-        await tester.tap(find.byKey(const Key("next-yield-page-button")));
-        await tester.pumpAndSettle();
-        await tester.tap(find.byKey(const Key("next-yield-page-button")));
-        await tester.pumpAndSettle();
-      });
-    },
-  );
-
-  zGoldenTest(
-    "When hovering the page indicator for the pools pages, it should scale",
-    goldenFileName: "deposit_page_pools_page_indicator_hover",
-    (tester) async {
-      await tester.runAsync(() async {
-        when(
-          () => cubit.state,
-        ).thenReturn(DepositState.success(YieldsDto(pools: List.generate(10, (index) => YieldDto.fixture()))));
-
-        await tester.pumpDeviceBuilder(await goldenBuilder());
-
-        await tester.hover(find.byKey(const Key("yield-page-indicator-3")));
-        await tester.pumpAndSettle();
-      });
-    },
-  );
-
-  zGoldenTest(
-    "When clicking the page indicator for the pools pages, it should navigate to the page",
-    goldenFileName: "deposit_page_pools_page_indicator_click",
-    (tester) async {
-      await tester.runAsync(() async {
-        when(() => cubit.state).thenReturn(
-          DepositState.success(
-            YieldsDto(pools: List.generate(10, (index) => YieldDto.fixture().copyWith(yield24h: index + 1))),
-          ),
-        );
-
-        await tester.pumpDeviceBuilder(await goldenBuilder());
-
-        await tester.tap(find.byKey(const Key("yield-page-indicator-3")));
         await tester.pumpAndSettle();
       });
     },

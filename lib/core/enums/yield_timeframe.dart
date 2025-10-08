@@ -1,7 +1,17 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:zup_app/l10n/gen/app_localizations.dart';
 
-enum YieldTimeFrame { day, week, month, threeMonth }
+enum YieldTimeFrame {
+  day,
+  week,
+  month,
+  threeMonth;
+
+  static YieldTimeFrame? fromValue(String name) {
+    return YieldTimeFrame.values.firstWhereOrNull((e) => e.name == name);
+  }
+}
 
 extension YieldTimeFrameExtension on YieldTimeFrame {
   bool get isDay => this == YieldTimeFrame.day;

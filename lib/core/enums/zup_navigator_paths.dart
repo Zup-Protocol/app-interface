@@ -4,19 +4,22 @@ import 'package:zup_app/zup_app.dart';
 enum ZupNavigatorPaths {
   initial,
   newPosition,
+  yields,
   deposit;
 
   String get path => switch (this) {
     initial => routePaths.create.path,
     newPosition => routePaths.create.path,
-    deposit => routePaths.create.deposit,
+    yields => routePaths.create.yields.path,
+    deposit => routePaths.create.yields.$id.deposit,
   };
 
   T routeParamsNames<T extends ZupRouteParamsNames>() {
     final params = switch (this) {
-      initial => ZupInitialRouteParamsNames(),
-      newPosition => ZupNewPositionRouteParamsNames(),
-      deposit => ZupDepositRouteParamsNames(),
+      initial => InitialRouteParamsNames(),
+      newPosition => NewPositionRouteParamsNames(),
+      yields => YieldsRouteParamsNames(),
+      deposit => DepositRouteParamsNames(),
     };
 
     return params as T;

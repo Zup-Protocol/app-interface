@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 import 'package:zup_core/extensions/extensions.dart';
 import 'package:zup_ui_kit/zup_ui_kit.dart';
 
@@ -30,24 +31,26 @@ class ZupCachedImage {
       // cache not implemented yet because of web issue rendering images from other domains (https://github.com/Baseflow/flutter_cached_network_image/issues/972)
       child: ClipRRect(
         borderRadius: BorderRadius.circular(radius ?? 0),
-        child: Container(
-          color: backgroundColor,
-          child: Image.network(
-            _parseImageUrl(url),
-            height: height,
-            width: width,
-            fit: BoxFit.cover,
-            errorBuilder: errorWidget,
-            frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
-              if (frame == null) {
-                return Container(
-                  color: ZupThemeColors.background.themed(context.brightness),
-                  child: placeholder ?? ZupCircularLoadingIndicator(size: height ?? 20),
-                );
-              }
-              return child;
-            },
-            webHtmlElementStrategy: WebHtmlElementStrategy.fallback,
+        child: Skeleton.shade(
+          child: Container(
+            color: backgroundColor,
+            child: Image.network(
+              _parseImageUrl(url),
+              height: height,
+              width: width,
+              fit: BoxFit.cover,
+              errorBuilder: errorWidget,
+              frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
+                if (frame == null) {
+                  return Container(
+                    color: ZupThemeColors.background.themed(context.brightness),
+                    child: placeholder ?? ZupCircularLoadingIndicator(size: height ?? 20),
+                  );
+                }
+                return child;
+              },
+              webHtmlElementStrategy: WebHtmlElementStrategy.fallback,
+            ),
           ),
         ),
       ),

@@ -4,7 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:golden_toolkit/golden_toolkit.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:url_launcher_platform_interface/url_launcher_platform_interface.dart';
-import 'package:zup_app/app/create/deposit/widgets/deposit_success_modal.dart';
+import 'package:zup_app/app/create/yields/%5Bid%5D/deposit/widgets/deposit_success_modal.dart';
 import 'package:zup_app/core/dtos/protocol_dto.dart';
 import 'package:zup_app/core/dtos/yield_dto.dart';
 import 'package:zup_app/core/injections.dart';
@@ -33,21 +33,22 @@ void main() {
 
   tearDown(() => inject.reset());
 
-  Future<DeviceBuilder> goldenBuilder({
-    YieldDto? customYield,
-    bool showAsBottomSheet = false,
-  }) async =>
-      await goldenDeviceBuilder(Builder(builder: (context) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          DepositSuccessModal.show(
-            context,
-            depositedYield: customYield ?? YieldDto.fixture().copyWith(),
-            showAsBottomSheet: showAsBottomSheet,
-          );
-        });
+  Future<DeviceBuilder> goldenBuilder({YieldDto? customYield, bool showAsBottomSheet = false}) async =>
+      await goldenDeviceBuilder(
+        Builder(
+          builder: (context) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              DepositSuccessModal.show(
+                context,
+                depositedYield: customYield ?? YieldDto.fixture().copyWith(),
+                showAsBottomSheet: showAsBottomSheet,
+              );
+            });
 
-        return const SizedBox.shrink();
-      }));
+            return const SizedBox.shrink();
+          },
+        ),
+      );
 
   zGoldenTest(
     "When calling .show in the deposit success modal, it should be displayed",
@@ -82,9 +83,11 @@ void main() {
       const protocolUrl = "https://dale.com.zup";
 
       await tester.pumpDeviceBuilder(
-          await goldenBuilder(
-              customYield: YieldDto.fixture().copyWith(protocol: ProtocolDto.fixture().copyWith(url: protocolUrl))),
-          wrapper: GoldenConfig.localizationsWrapper());
+        await goldenBuilder(
+          customYield: YieldDto.fixture().copyWith(protocol: ProtocolDto.fixture().copyWith(url: protocolUrl)),
+        ),
+        wrapper: GoldenConfig.localizationsWrapper(),
+      );
       await tester.pumpAndSettle();
 
       await tester.tap(find.byKey(const Key("view-position-button")));
@@ -94,21 +97,27 @@ void main() {
     },
   );
 
-  zGoldenTest("When clicking the close button, the modal should be closed",
-      goldenFileName: "deposit_success_modal_close_button_tap", (tester) async {
-    await tester.pumpDeviceBuilder(await goldenBuilder(), wrapper: GoldenConfig.localizationsWrapper());
-    await tester.pumpAndSettle();
+  zGoldenTest(
+    "When clicking the close button, the modal should be closed",
+    goldenFileName: "deposit_success_modal_close_button_tap",
+    (tester) async {
+      await tester.pumpDeviceBuilder(await goldenBuilder(), wrapper: GoldenConfig.localizationsWrapper());
+      await tester.pumpAndSettle();
 
-    await tester.tap(find.byKey(const Key("close-button")));
-    await tester.pumpAndSettle();
-  });
+      await tester.tap(find.byKey(const Key("close-button")));
+      await tester.pumpAndSettle();
+    },
+  );
 
-  zGoldenTest("When passing showAsBottomSheet to true, the modal should be displayed as a bottom sheet",
-      goldenFileName: "deposit_success_modal_bottom_sheet", (tester) async {
-    await tester.pumpDeviceBuilder(
-      await goldenBuilder(showAsBottomSheet: true),
-      wrapper: GoldenConfig.localizationsWrapper(),
-    );
-    await tester.pumpAndSettle();
-  });
+  zGoldenTest(
+    "When passing showAsBottomSheet to true, the modal should be displayed as a bottom sheet",
+    goldenFileName: "deposit_success_modal_bottom_sheet",
+    (tester) async {
+      await tester.pumpDeviceBuilder(
+        await goldenBuilder(showAsBottomSheet: true),
+        wrapper: GoldenConfig.localizationsWrapper(),
+      );
+      await tester.pumpAndSettle();
+    },
+  );
 }

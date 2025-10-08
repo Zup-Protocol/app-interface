@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:zup_app/core/dtos/pool_search_settings_dto.dart';
+import 'package:zup_app/core/dtos/yield_dto.dart';
 import 'package:zup_app/core/dtos/yields_dto.dart';
 import 'package:zup_app/core/enums/networks.dart';
 
@@ -17,21 +18,22 @@ class YieldRepository {
     required PoolSearchSettingsDto searchSettings,
     required List<String> blockedProtocolIds,
   }) async {
-    final response = await _zupAPIDio.post("/pools/search/${network.chainId}", queryParameters: {
-      if (token0Address != null) "token0Address": token0Address,
-      if (token1Address != null) "token1Address": token1Address,
-      if (group0Id != null) "group0Id": group0Id,
-      if (group1Id != null) "group1Id": group1Id,
-    }, data: {
-      "filters": {
-        "minTvlUsd": searchSettings.minLiquidityUSD,
-        "blockedProtocols": blockedProtocolIds,
-        "allowedPoolTypes": [
-          if (searchSettings.allowV3Search) "V3",
-          if (searchSettings.allowV4Search) "V4",
-        ],
-      }
-    });
+    final response = await _zupAPIDio.post(
+      "/pools/search/${network.chainId}",
+      queryParameters: {
+        if (token0Address != null) "token0Address": token0Address,
+        if (token1Address != null) "token1Address": token1Address,
+        if (group0Id != null) "group0Id": group0Id,
+        if (group1Id != null) "group1Id": group1Id,
+      },
+      data: {
+        "filters": {
+          "minTvlUsd": searchSettings.minLiquidityUSD,
+          "blockedProtocols": blockedProtocolIds,
+          "allowedPoolTypes": [if (searchSettings.allowV3Search) "V3", if (searchSettings.allowV4Search) "V4"],
+        },
+      },
+    );
 
     return YieldsDto.fromJson(response.data);
   }
@@ -45,23 +47,37 @@ class YieldRepository {
     required List<String> blockedProtocolIds,
     bool testnetMode = false,
   }) async {
-    final response = await _zupAPIDio.post("/pools/search/all", queryParameters: {
-      if (token0InternalId != null) "token0Id": token0InternalId,
-      if (token1InternalId != null) "token1Id": token1InternalId,
-      if (group0Id != null) "group0Id": group0Id,
-      if (group1Id != null) "group1Id": group1Id,
-    }, data: {
-      "filters": {
-        "minTvlUsd": searchSettings.minLiquidityUSD,
-        "testnetMode": testnetMode,
-        "blockedProtocols": blockedProtocolIds,
-        "allowedPoolTypes": [
-          if (searchSettings.allowV3Search) "V3",
-          if (searchSettings.allowV4Search) "V4",
-        ],
-      }
-    });
+    final response = await _zupAPIDio.post(
+      "/pools/search/all",
+      queryParameters: {
+        if (token0InternalId != null) "token0Id": token0InternalId,
+        if (token1InternalId != null) "token1Id": token1InternalId,
+        if (group0Id != null) "group0Id": group0Id,
+        if (group1Id != null) "group1Id": group1Id,
+      },
+      data: {
+        "filters": {
+          "minTvlUsd": searchSettings.minLiquidityUSD,
+          "testnetMode": testnetMode,
+          "blockedProtocols": blockedProtocolIds,
+          "allowedPoolTypes": [if (searchSettings.allowV3Search) "V3", if (searchSettings.allowV4Search) "V4"],
+        },
+      },
+    );
 
     return YieldsDto.fromJson(response.data);
+  }
+
+  Future<YieldDto> getPoolInfo({
+    required String poolAddress,
+    required AppNetworks poolNetwork,
+    bool parseWrappedToNative = true,
+  }) async {
+    final response = await _zupAPIDio.get(
+      "/pools/$poolAddress/${poolNetwork.chainId}",
+      queryParameters: {"parseWrappedToNative": parseWrappedToNative},
+    );
+
+    return YieldDto.fromJson(response.data);
   }
 }

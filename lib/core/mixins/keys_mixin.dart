@@ -19,4 +19,6 @@ mixin KeysMixin {
   }
 
   String get protocolsListKey => 'zup-supported-protocols';
+
+  String yieldCardHeroKey(String poolAddress) => 'yield-card-hero-$poolAddress';
 }

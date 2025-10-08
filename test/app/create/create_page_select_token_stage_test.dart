@@ -313,7 +313,7 @@ void main() {
       when(() => appCubit.selectedNetwork).thenAnswer((_) => AppNetworks.allNetworks);
       when(() => tokensRepository.getTokenList(any())).thenAnswer((_) async => TokenListDto(popularTokens: tokens));
       when(
-        () => zupNavigator.navigateToDeposit(
+        () => zupNavigator.navigateToYields(
           group0: any(named: "group0"),
           group1: any(named: "group1"),
           network: any(named: "network"),
@@ -338,7 +338,7 @@ void main() {
       await tester.pumpAndSettle();
 
       verify(
-        () => zupNavigator.navigateToDeposit(
+        () => zupNavigator.navigateToYields(
           token0: token0Id,
           token1: token1Id,
           network: AppNetworks.allNetworks,
@@ -357,14 +357,16 @@ void main() {
       when(() => appCubit.selectedNetwork).thenAnswer((_) => AppNetworks.allNetworks);
       when(() => tokensRepository.getTokenList(any())).thenAnswer((_) async => TokenListDto(tokenGroups: tokenGroups));
       when(
-        () => zupNavigator.navigateToDeposit(
+        () => zupNavigator.navigateToYields(
           group0: any(named: "group0"),
           group1: any(named: "group1"),
           network: any(named: "network"),
           token0: any(named: "token0"),
           token1: any(named: "token1"),
         ),
-      ).thenAnswer((_) async {});
+      ).thenAnswer((_) async {
+        return;
+      });
 
       await tester.pumpDeviceBuilder(await goldenBuilder(), wrapper: GoldenConfig.localizationsWrapper());
 
@@ -382,7 +384,7 @@ void main() {
       await tester.pumpAndSettle();
 
       verify(
-        () => zupNavigator.navigateToDeposit(
+        () => zupNavigator.navigateToYields(
           token0: null,
           token1: null,
           network: AppNetworks.allNetworks,

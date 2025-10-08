@@ -41,10 +41,19 @@
    <script src="https://cdn.jsdelivr.net/npm/lottie-web@5.7.8/build/player/lottie.min.js"></script>
 
    <script>
+    var lottieAnimationId = 'lottie-animation';
+    
+    window.addEventListener('flutter-first-frame', function () {
+      var lottieAnimationContainer = document.getElementById(lottieAnimationId);
+
+      lottieAnimationContainer.remove();
+      document.body.style.backgroundColor = 'transparent';  
+    });
+
    document.addEventListener('DOMContentLoaded', function() {
    var animationContainer = document.createElement('div'); 
 
-   animationContainer.id = 'lottie-animation';
+   animationContainer.id = lottieAnimationId;
    document.body.appendChild(animationContainer);
    
    var animationData = {
@@ -55,12 +64,7 @@
     path: "loading.json",
    };
    
-  var animation = lottie.loadAnimation(animationData);
-
-  window.addEventListener('flutter-first-frame', function () {
-    animationContainer.remove();
-    document.body.style.backgroundColor = 'transparent'
-    });
+    lottie.loadAnimation(animationData);
    });
    </script>
    
@@ -82,6 +86,6 @@
     inject();
   </script>
 
-  <script src="flutter_bootstrap.js?v=25" async></script>
+  <script src="flutter_bootstrap.js?v=26" async></script>
 </body>
 </html>

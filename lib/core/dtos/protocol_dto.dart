@@ -21,11 +21,11 @@ sealed class ProtocolDto with _$ProtocolDto {
 
   factory ProtocolDto.fromJson(Map<String, dynamic> json) => _$ProtocolDtoFromJson(json);
 
-  factory ProtocolDto.fixture() => const ProtocolDto(
-        rawId: "1",
-        id: ProtocolId.unknown,
-        name: "Uniswap",
-        url: "https://app.uniswap.org/pool",
-        logo: "https://raw.githubusercontent.com/trustwallet/assets/master/dapps/app.uniswap.org.png",
-      );
+  factory ProtocolDto.fixture() => ProtocolDto(
+    rawId: ProtocolId.velodromeSlipstream.toRawJsonValue,
+    id: ProtocolId.velodromeSlipstream,
+    name: "Uniswap",
+    url: "https://app.uniswap.org/pool",
+    logo: "https://raw.githubusercontent.com/trustwallet/assets/master/dapps/app.uniswap.org.png",
+  );
 }

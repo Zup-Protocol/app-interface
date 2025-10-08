@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:zup_app/app/create/deposit/widgets/token_amount_input_card/token_amount_input_card_cubit.dart';
+import 'package:zup_app/app/create/yields/%5Bid%5D/deposit/widgets/token_amount_input_card/token_amount_input_card_cubit.dart';
 import 'package:zup_app/core/dtos/token_dto.dart';
 import 'package:zup_app/core/dtos/token_price_dto.dart';
 import 'package:zup_app/core/enums/networks.dart';
@@ -46,14 +46,22 @@ void main() {
     final token = TokenDto.fixture();
     const network = AppNetworks.sepolia;
 
-    when(() => zupSingletonCache.run<num>(any(), expiration: any(named: "expiration"), key: any(named: "key")))
-        .thenAnswer((_) async => 31);
+    when(
+      () => zupSingletonCache.run<num>(
+        any(),
+        expiration: any(named: "expiration"),
+        key: any(named: "key"),
+      ),
+    ).thenAnswer((_) async => 31);
 
     await sut0.getTokenPrice(token: token, network: network);
-    verify(() => zupSingletonCache.run<num>(any(),
+    verify(
+      () => zupSingletonCache.run<num>(
+        any(),
         expiration: const Duration(minutes: 1),
-        key: _KeysMixinWrapper()
-            .tokenPriceCacheKey(tokenAddress: token.addresses[network.chainId]!, network: network))).called(1);
+        key: _KeysMixinWrapper().tokenPriceCacheKey(tokenAddress: token.addresses[network.chainId]!, network: network),
+      ),
+    ).called(1);
   });
 
   test("When calling `getTokenPrice` it should use tokensRepository to get the token price", () async {

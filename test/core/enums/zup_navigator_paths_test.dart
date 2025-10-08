@@ -8,16 +8,24 @@ void main() {
     expect(ZupNavigatorPaths.initial.path, routePaths.create.path);
   });
 
-  test("Zup navigator paths `path` extension should use routefly generated paths", () {
-    expect(
-      ZupNavigatorPaths.newPosition.path,
-      routePaths.create.path,
-      reason: "New position path does not match routefly path",
-    );
+  test("The path for new position should use routefly generated paths", () {
+    expect(ZupNavigatorPaths.newPosition.path, routePaths.create.path);
+  });
+
+  test("The path for yields should use routefly generated paths", () {
+    expect(ZupNavigatorPaths.yields.path, routePaths.create.yields.path);
+  });
+
+  test("The path for deposit should use routefly generated paths", () {
+    expect(ZupNavigatorPaths.deposit.path, routePaths.create.yields.$id.deposit);
   });
 
   test("The route params names type for yields should be correct", () {
     expect(ZupNavigatorPaths.yields.routeParamsNames().runtimeType, YieldsRouteParamsNames);
+  });
+
+  test("The route params names type for deposit should be correct", () {
+    expect(ZupNavigatorPaths.deposit.routeParamsNames().runtimeType, DepositRouteParamsNames);
   });
 
   test("The route params names type for new position should be correct", () {

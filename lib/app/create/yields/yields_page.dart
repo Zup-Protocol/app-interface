@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lottie/lottie.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 import 'package:zup_app/app/app_cubit/app_cubit.dart';
 import 'package:zup_app/app/create/yields/yields_cubit.dart';
 import 'package:zup_app/core/cache.dart';
@@ -302,30 +303,29 @@ class _YieldsPageState extends State<YieldsPage> with DeviceInfoMixin, SingleTic
 
                   return Flexible(
                     child: Center(
-                      child: Hero(
-                        flightShuttleBuilder:
-                            (
-                              BuildContext _,
-                              Animation<double> _,
-                              HeroFlightDirection _,
-                              BuildContext fromHeroContext,
-                              BuildContext _,
-                            ) {
-                              return Align(alignment: Alignment.topRight, child: fromHeroContext.widget);
-                            },
-                        tag: yieldCardHeroKey(yieldItem.poolAddress),
-                        child: YieldCard(
-                          key: Key("yield-card-${yieldItem.poolAddress}"),
-                          yieldPool: yieldItem,
-                          yieldTimeFrame: selectedYieldTimeFrame,
-                          showHotestYieldAnimation: yieldItem.equals(poolsSortedByTimeframe.first),
-                          onClickDeposit: () {
-                            //   navigator.navigateToDeposit(
-                            //   yieldPool: yieldItem,
-                            //   selectedTimeframe: selectedYieldTimeFrame,
-                            //   parseWrappedToNative: yieldItem.isToken0Native || yieldItem.isToken1Native,
-                            // );
+                      child: YieldCard(
+                        key: Key("yield-card-${yieldItem.poolAddress}"),
+                        yieldPool: yieldItem,
+                        yieldTimeFrame: selectedYieldTimeFrame,
+                        showHotestYieldAnimation: yieldItem.equals(poolsSortedByTimeframe.first),
+                        expandWidth: isMobileSize(context),
+                        mainButton: ZupPrimaryButton(
+                          key: Key("deposit-button-${yieldItem.poolAddress}"),
+                          title: S.of(context).yieldCardDeposit,
+                          onPressed: (_) {
+                            navigator.navigateToDeposit(
+                              yieldPool: yieldItem,
+                              selectedTimeframe: selectedYieldTimeFrame,
+                              parseWrappedToNative: yieldItem.isToken0Native || yieldItem.isToken1Native,
+                            );
                           },
+                          width: 200,
+                          height: 45,
+                          hoverElevation: 0,
+                          fixedIcon: true,
+                          alignCenter: true,
+                          isTrailingIcon: true,
+                          icon: Skeleton.ignore(child: Assets.icons.arrowRight.svg(height: 12, width: 12)),
                         ),
                       ),
                     ),

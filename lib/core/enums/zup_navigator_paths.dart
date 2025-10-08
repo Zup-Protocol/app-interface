@@ -10,8 +10,8 @@ enum ZupNavigatorPaths {
   String get path => switch (this) {
     initial => routePaths.create.path,
     newPosition => routePaths.create.path,
-    yields => routePaths.create.yields,
-    deposit => routePaths.create.deposit,
+    yields => routePaths.create.yields.path,
+    deposit => routePaths.create.yields.$id.deposit,
   };
 
   T routeParamsNames<T extends ZupRouteParamsNames>() {

@@ -4,12 +4,14 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:golden_toolkit/golden_toolkit.dart';
 import 'package:lottie/lottie.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:web3kit/core/ethereum_constants.dart';
 import 'package:zup_app/app/app_cubit/app_cubit.dart';
 import 'package:zup_app/app/create/yields/yields_cubit.dart';
 import 'package:zup_app/app/create/yields/yields_page.dart';
 import 'package:zup_app/core/cache.dart';
 import 'package:zup_app/core/dtos/pool_search_filters_dto.dart';
 import 'package:zup_app/core/dtos/pool_search_settings_dto.dart';
+import 'package:zup_app/core/dtos/token_dto.dart';
 import 'package:zup_app/core/dtos/yield_dto.dart';
 import 'package:zup_app/core/dtos/yields_dto.dart';
 import 'package:zup_app/core/enums/networks.dart';
@@ -32,6 +34,9 @@ void main() {
   late Cache appCache;
 
   setUp(() {
+    registerFallbackValue(YieldDto.fixture());
+    registerFallbackValue(YieldTimeFrame.day);
+
     navigator = ZupNavigatorMock();
     cubit = YieldsCubitMock();
     appCache = CacheMock();
@@ -76,6 +81,7 @@ void main() {
     inject.registerFactory<bool>(() => false, instanceName: InjectInstanceNames.infinityAnimationAutoPlay);
 
     when(() => navigator.navigateToNewPosition()).thenAnswer((_) => Future.value());
+    when(() => appCache.getPoolSearchSettings()).thenReturn(PoolSearchSettingsDto(minLiquidityUSD: 122));
     when(() => appCubit.selectedNetwork).thenAnswer((_) => AppNetworks.sepolia);
     when(() => cubit.stream).thenAnswer((_) => const Stream.empty());
     when(() => cubit.state).thenReturn(const YieldsState.initial());
@@ -731,6 +737,368 @@ void main() {
           ignoreMinLiquidity: false,
         ),
       ).called(2); // the first one is the initial request and the second one is the refetch
+    },
+  );
+
+  zGoldenTest(
+    """When clicking the deposit button in the yield card,
+  it should call the navigator to navigate to the deposit page
+  passing the yield pool that was clicked""",
+    (tester) async {
+      final yields = List.generate(
+        2,
+        (index) => YieldDto.fixture().copyWith(yield24h: 100 * index, poolAddress: "0x$index"),
+      );
+
+      when(
+        () => navigator.navigateToDeposit(
+          yieldPool: any(named: "yieldPool"),
+          selectedTimeframe: any(named: "selectedTimeframe"),
+          parseWrappedToNative: any(named: "parseWrappedToNative"),
+        ),
+      ).thenAnswer((invocation) async {});
+
+      when(() => cubit.state).thenReturn(
+        YieldsState.success(
+          YieldsDto.fixture().copyWith(pools: yields, filters: const PoolSearchFiltersDto(minTvlUsd: 0)),
+        ),
+      );
+
+      await tester.pumpDeviceBuilder(await goldenBuilder());
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(Key("deposit-button-${yields[0].poolAddress}")));
+      await tester.pumpAndSettle();
+
+      verify(
+        () => navigator.navigateToDeposit(
+          yieldPool: yields[0],
+          parseWrappedToNative: any(named: "parseWrappedToNative"),
+          selectedTimeframe: any(named: "selectedTimeframe"),
+        ),
+      ).called(1);
+    },
+  );
+
+  zGoldenTest(
+    """When clicking the deposit button in the yield card,
+  and the selected timeframe is week, it should pass the
+  week timeframe to the navigator to navigate to the deposit page""",
+    (tester) async {
+      final yields = List.generate(
+        2,
+        (index) => YieldDto.fixture().copyWith(yield24h: 100 * index, poolAddress: "0x$index"),
+      );
+
+      when(
+        () => navigator.navigateToDeposit(
+          yieldPool: any(named: "yieldPool"),
+          selectedTimeframe: any(named: "selectedTimeframe"),
+          parseWrappedToNative: any(named: "parseWrappedToNative"),
+        ),
+      ).thenAnswer((invocation) async {});
+
+      when(() => cubit.state).thenReturn(
+        YieldsState.success(
+          YieldsDto.fixture().copyWith(pools: yields, filters: const PoolSearchFiltersDto(minTvlUsd: 0)),
+        ),
+      );
+
+      await tester.pumpDeviceBuilder(await goldenBuilder());
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(Key("${YieldTimeFrame.week.name}-timeframe-button")));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(Key("deposit-button-${yields[0].poolAddress}")));
+      await tester.pumpAndSettle();
+
+      verify(
+        () => navigator.navigateToDeposit(
+          yieldPool: any(named: "yieldPool"),
+          parseWrappedToNative: any(named: "parseWrappedToNative"),
+          selectedTimeframe: YieldTimeFrame.week,
+        ),
+      ).called(1);
+    },
+  );
+
+  zGoldenTest(
+    """When clicking the deposit button in the yield card,
+  and the selected timeframe is month, it should pass the
+  month timeframe to the navigator to navigate to the deposit page""",
+    (tester) async {
+      final yields = List.generate(
+        2,
+        (index) => YieldDto.fixture().copyWith(yield24h: 100 * index, poolAddress: "0x$index"),
+      );
+
+      when(
+        () => navigator.navigateToDeposit(
+          yieldPool: any(named: "yieldPool"),
+          selectedTimeframe: any(named: "selectedTimeframe"),
+          parseWrappedToNative: any(named: "parseWrappedToNative"),
+        ),
+      ).thenAnswer((invocation) async {});
+
+      when(() => cubit.state).thenReturn(
+        YieldsState.success(
+          YieldsDto.fixture().copyWith(pools: yields, filters: const PoolSearchFiltersDto(minTvlUsd: 0)),
+        ),
+      );
+
+      await tester.pumpDeviceBuilder(await goldenBuilder());
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(Key("${YieldTimeFrame.month.name}-timeframe-button")));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(Key("deposit-button-${yields[0].poolAddress}")));
+      await tester.pumpAndSettle();
+
+      verify(
+        () => navigator.navigateToDeposit(
+          yieldPool: any(named: "yieldPool"),
+          parseWrappedToNative: any(named: "parseWrappedToNative"),
+          selectedTimeframe: YieldTimeFrame.month,
+        ),
+      ).called(1);
+    },
+  );
+
+  zGoldenTest(
+    """When clicking the deposit button in the yield card,
+  and the user didn't select any timeframe, the default
+  passed to the navigator to navigate to the deposit page
+  should be the day timeframe""",
+    (tester) async {
+      final yields = List.generate(
+        2,
+        (index) => YieldDto.fixture().copyWith(yield24h: 100 * index, poolAddress: "0x$index"),
+      );
+
+      when(
+        () => navigator.navigateToDeposit(
+          yieldPool: any(named: "yieldPool"),
+          selectedTimeframe: any(named: "selectedTimeframe"),
+          parseWrappedToNative: any(named: "parseWrappedToNative"),
+        ),
+      ).thenAnswer((invocation) async {});
+
+      when(() => cubit.state).thenReturn(
+        YieldsState.success(
+          YieldsDto.fixture().copyWith(pools: yields, filters: const PoolSearchFiltersDto(minTvlUsd: 0)),
+        ),
+      );
+
+      await tester.pumpDeviceBuilder(await goldenBuilder());
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(Key("${YieldTimeFrame.day.name}-timeframe-button")));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(Key("deposit-button-${yields[0].poolAddress}")));
+      await tester.pumpAndSettle();
+
+      verify(
+        () => navigator.navigateToDeposit(
+          yieldPool: any(named: "yieldPool"),
+          parseWrappedToNative: any(named: "parseWrappedToNative"),
+          selectedTimeframe: YieldTimeFrame.day,
+        ),
+      ).called(1);
+    },
+  );
+
+  zGoldenTest(
+    """When clicking the deposit button in the yield card,
+  and the address of the token0 in the pool for the network
+  is zero, it should pass parseWrappedToNative as true
+  to the navigator to navigate to the deposit page""",
+    (tester) async {
+      const yieldNetwork = AppNetworks.sepolia;
+
+      final yields = List.generate(
+        2,
+        (index) => YieldDto.fixture().copyWith(
+          yield24h: 100 * index,
+          poolAddress: "0x$index",
+          chainId: yieldNetwork.chainId,
+          token0: TokenDto(addresses: {yieldNetwork.chainId: EthereumConstants.zeroAddress}),
+        ),
+      );
+
+      when(
+        () => navigator.navigateToDeposit(
+          yieldPool: any(named: "yieldPool"),
+          selectedTimeframe: any(named: "selectedTimeframe"),
+          parseWrappedToNative: any(named: "parseWrappedToNative"),
+        ),
+      ).thenAnswer((invocation) async {});
+
+      when(() => cubit.state).thenReturn(
+        YieldsState.success(
+          YieldsDto.fixture().copyWith(pools: yields, filters: const PoolSearchFiltersDto(minTvlUsd: 0)),
+        ),
+      );
+
+      await tester.pumpDeviceBuilder(await goldenBuilder());
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(Key("deposit-button-${yields[0].poolAddress}")));
+      await tester.pumpAndSettle();
+
+      verify(
+        () => navigator.navigateToDeposit(
+          yieldPool: any(named: "yieldPool"),
+          parseWrappedToNative: true,
+          selectedTimeframe: any(named: "selectedTimeframe"),
+        ),
+      ).called(1);
+    },
+  );
+
+  zGoldenTest(
+    """When clicking the deposit button in the yield card,
+  and the address of the token1 in the pool for the network
+  is zero, it should pass parseWrappedToNative as true
+  to the navigator to navigate to the deposit page""",
+    (tester) async {
+      const yieldNetwork = AppNetworks.sepolia;
+
+      final yields = List.generate(
+        2,
+        (index) => YieldDto.fixture().copyWith(
+          yield24h: 100 * index,
+          poolAddress: "0x$index",
+          chainId: yieldNetwork.chainId,
+          token1: TokenDto(addresses: {yieldNetwork.chainId: EthereumConstants.zeroAddress}),
+        ),
+      );
+
+      when(
+        () => navigator.navigateToDeposit(
+          yieldPool: any(named: "yieldPool"),
+          selectedTimeframe: any(named: "selectedTimeframe"),
+          parseWrappedToNative: any(named: "parseWrappedToNative"),
+        ),
+      ).thenAnswer((invocation) async {});
+
+      when(() => cubit.state).thenReturn(
+        YieldsState.success(
+          YieldsDto.fixture().copyWith(pools: yields, filters: const PoolSearchFiltersDto(minTvlUsd: 0)),
+        ),
+      );
+
+      await tester.pumpDeviceBuilder(await goldenBuilder());
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(Key("deposit-button-${yields[0].poolAddress}")));
+      await tester.pumpAndSettle();
+
+      verify(
+        () => navigator.navigateToDeposit(
+          yieldPool: any(named: "yieldPool"),
+          parseWrappedToNative: true,
+          selectedTimeframe: any(named: "selectedTimeframe"),
+        ),
+      ).called(1);
+    },
+  );
+
+  zGoldenTest(
+    """When clicking the deposit button in the yield card,
+  and the address of the token1 in the pool for the network
+  is wrapped native, it should not pass parseWrappedToNative as true
+  to the navigator to navigate to the deposit page""",
+    (tester) async {
+      const yieldNetwork = AppNetworks.sepolia;
+
+      final yields = List.generate(
+        2,
+        (index) => YieldDto.fixture().copyWith(
+          yield24h: 100 * index,
+          poolAddress: "0x$index",
+          chainId: yieldNetwork.chainId,
+          token1: TokenDto(addresses: {yieldNetwork.chainId: yieldNetwork.wrappedNativeTokenAddress}),
+        ),
+      );
+
+      when(
+        () => navigator.navigateToDeposit(
+          yieldPool: any(named: "yieldPool"),
+          selectedTimeframe: any(named: "selectedTimeframe"),
+          parseWrappedToNative: any(named: "parseWrappedToNative"),
+        ),
+      ).thenAnswer((invocation) async {});
+
+      when(() => cubit.state).thenReturn(
+        YieldsState.success(
+          YieldsDto.fixture().copyWith(pools: yields, filters: const PoolSearchFiltersDto(minTvlUsd: 0)),
+        ),
+      );
+
+      await tester.pumpDeviceBuilder(await goldenBuilder());
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(Key("deposit-button-${yields[0].poolAddress}")));
+      await tester.pumpAndSettle();
+
+      verify(
+        () => navigator.navigateToDeposit(
+          yieldPool: any(named: "yieldPool"),
+          parseWrappedToNative: false,
+          selectedTimeframe: any(named: "selectedTimeframe"),
+        ),
+      ).called(1);
+    },
+  );
+
+  zGoldenTest(
+    """When clicking the deposit button in the yield card,
+  and the address of the token0 in the pool for the network
+  is wrapped native, it should not pass parseWrappedToNative as true
+  to the navigator to navigate to the deposit page""",
+    (tester) async {
+      const yieldNetwork = AppNetworks.sepolia;
+
+      final yields = List.generate(
+        2,
+        (index) => YieldDto.fixture().copyWith(
+          yield24h: 100 * index,
+          poolAddress: "0x$index",
+          chainId: yieldNetwork.chainId,
+          token0: TokenDto(addresses: {yieldNetwork.chainId: yieldNetwork.wrappedNativeTokenAddress}),
+        ),
+      );
+
+      when(
+        () => navigator.navigateToDeposit(
+          yieldPool: any(named: "yieldPool"),
+          selectedTimeframe: any(named: "selectedTimeframe"),
+          parseWrappedToNative: any(named: "parseWrappedToNative"),
+        ),
+      ).thenAnswer((invocation) async {});
+
+      when(() => cubit.state).thenReturn(
+        YieldsState.success(
+          YieldsDto.fixture().copyWith(pools: yields, filters: const PoolSearchFiltersDto(minTvlUsd: 0)),
+        ),
+      );
+
+      await tester.pumpDeviceBuilder(await goldenBuilder());
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(Key("deposit-button-${yields[0].poolAddress}")));
+      await tester.pumpAndSettle();
+
+      verify(
+        () => navigator.navigateToDeposit(
+          yieldPool: any(named: "yieldPool"),
+          parseWrappedToNative: false,
+          selectedTimeframe: any(named: "selectedTimeframe"),
+        ),
+      ).called(1);
     },
   );
 }

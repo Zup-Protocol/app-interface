@@ -899,7 +899,7 @@ packages:
     description:
       path: "."
       ref: hotfix-vercel
-      resolved-ref: e650b6ab6c14ecd419761f1d406c05dbe60075b1
+      resolved-ref: "436317b637bd30b5bf61a1927a5075f2f43f33c9"
       url: "https://github.com/RyanHolanda/routefly.git"
     source: git
     version: "3.1.3"

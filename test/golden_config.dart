@@ -98,7 +98,9 @@ void zGoldenTest(
 }) {
   return testGoldens(description, (tester) async {
     await mockHttpImage(() async => await test(tester), overrideImage: overrideMockedNetworkImage);
+
     await tester.pumpAndSettle();
+
     if (goldenFileName != null) {
       try {
         await screenMatchesGolden(tester, goldenFileName);

@@ -9,11 +9,9 @@ class NewPositionRouteParamsNames extends ZupRouteParamsNames {
 }
 
 class DepositRouteParamsNames extends ZupRouteParamsNames {
-  final String token0 = "token0";
-  final String token1 = "token1";
-  final String group0 = "group0";
-  final String group1 = "group1";
+  final String timeframe = "timeframe";
   final String network = "network";
+  final String parseWrappedToNative = "parseWrappedToNative";
 }
 
 class YieldsRouteParamsNames extends ZupRouteParamsNames {

@@ -1,16 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:routefly/routefly.dart';
+import 'package:zup_app/core/dtos/deposit_page_arguments_dto.dart';
+import 'package:zup_app/core/dtos/yield_dto.dart';
 import 'package:zup_app/core/enums/networks.dart';
+import 'package:zup_app/core/enums/yield_timeframe.dart';
 import 'package:zup_app/core/enums/zup_navigator_paths.dart';
 import 'package:zup_app/core/zup_route_params_names.dart';
 
 class ZupNavigator {
   Listenable get listenable => Routefly.listenable;
+
   String get currentRoute => Routefly.currentUri.path;
 
   String? getQueryParam(String paramName) => Routefly.query.params[paramName];
 
   String? getQuery(String queryName) => Routefly.query[queryName].toString();
+
+  String? get getIdFromPath => Routefly.query["id"].toString();
 
   Map<String, dynamic> get currentPageArguments => Routefly.query.arguments ?? {};
 
@@ -43,29 +49,27 @@ class ZupNavigator {
 
   Future<void> navigateToInitial() async => await Routefly.navigate(ZupNavigatorPaths.initial.path);
 
-  // Future<void> navigateToDeposit({
-  //   required YieldDto yieldPool,
-  //   required YieldTimeFrame selectedTimeframe,
-  //   required bool parseWrappedToNative,
-  // }) async {
-  //   final depositPathParamNames = ZupNavigatorPaths.deposit.routeParamsNames<DepositRouteParamsNames>();
+  Future<void> navigateToDeposit({
+    required YieldDto yieldPool,
+    required YieldTimeFrame selectedTimeframe,
+    required bool parseWrappedToNative,
+  }) async {
+    final depositPathParamNames = ZupNavigatorPaths.deposit.routeParamsNames<DepositRouteParamsNames>();
 
-  //   final appNetworkUrlParam = _buildUrlParam(depositPathParamNames.network, yieldPool.network.name);
-  //   final timeframeUrlParam = _buildUrlParam(depositPathParamNames.timeframe, selectedTimeframe.name);
-  //   final parseWrappedToNativeParam = _buildUrlParam(
-  //     depositPathParamNames.parseWrappedToNative,
-  //     parseWrappedToNative.toString(),
-  //   );
+    final poolNetworkUrlParam = _buildUrlParam(depositPathParamNames.network, yieldPool.network.name);
+    final timeframeUrlParam = _buildUrlParam(depositPathParamNames.timeframe, selectedTimeframe.name);
+    final parseWrappedToNativeParam = _buildUrlParam(
+      depositPathParamNames.parseWrappedToNative,
+      parseWrappedToNative.toString(),
+    );
 
-  //   final rawPath = ZupNavigatorPaths.deposit.path(
-  //     pathParams: DepositPagePathParamsDto(poolAddress: yieldPool.poolAddress).toJson().cast<String, String>(),
-  //   );
+    final rawPath = ZupNavigatorPaths.deposit.path.changes({"id": yieldPool.poolAddress});
 
-  //   await Routefly.pushNavigate(
-  //     "$rawPath?$appNetworkUrlParam&$timeframeUrlParam&$parseWrappedToNativeParam",
-  //     arguments: DepositPageArgumentsDto(yieldPool: yieldPool).toJson(),
-  //   );
-  // }
+    await Routefly.pushNavigate(
+      "$rawPath?$poolNetworkUrlParam&$timeframeUrlParam&$parseWrappedToNativeParam",
+      arguments: DepositPageArgumentsDto(yieldPool: yieldPool).toJson(),
+    );
+  }
 
   String _buildUrlParam(String paramName, String paramValue) {
     return "$paramName=$paramValue";

@@ -27,6 +27,7 @@ void main() {
     YieldDto? yieldPool,
     YieldTimeFrame? yieldTimeFrame,
     bool snapshotDarkMode = false,
+    bool showYieldTimeframe = false,
   }) async => await goldenDeviceBuilder(
     darkMode: snapshotDarkMode,
     Center(
@@ -34,10 +35,11 @@ void main() {
         height: 310,
         width: 340,
         child: YieldCard(
+          showTimeframe: showYieldTimeframe,
           showHotestYieldAnimation: false,
           yieldPool: yieldPool ?? YieldDto.fixture(),
           yieldTimeFrame: yieldTimeFrame ?? YieldTimeFrame.day,
-          onClickDeposit: () {},
+          mainButton: const SizedBox(),
         ),
       ),
     ),
@@ -163,6 +165,17 @@ void main() {
         token1: TokenDto.fixture().copyWith(symbol: "elit adipiscing consectetur amet sit dolor ipsum Lorem"),
       );
       await tester.pumpDeviceBuilder(await goldenBuilder(yieldPool: pool));
+    },
+  );
+
+  zGoldenTest(
+    "When passing 'showYieldTimframe' true, it should show the timeframe of the yield in the card",
+    goldenFileName: "yield_card_show_yield_timeframe",
+    (tester) async {
+      final pool = YieldDto.fixture().copyWith(yield90d: 654);
+      await tester.pumpDeviceBuilder(
+        await goldenBuilder(yieldTimeFrame: YieldTimeFrame.threeMonth, yieldPool: pool, showYieldTimeframe: true),
+      );
     },
   );
 }

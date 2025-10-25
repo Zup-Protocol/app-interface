@@ -255,23 +255,17 @@ abstract class S {
   /// **'Dark'**
   String get dark;
 
-  /// Used by the deposit page as title for the loading state, before the pool is ready for the user to deposit
+  /// Used by the deposit page as title for the back button to navigate back to the new position page, if the previous page isn't to select a yield, like paste the url to deposit directly
   ///
   /// In en, this message translates to:
-  /// **'Getting the pool ready for you...'**
-  String get depositPageLoadingTitle;
+  /// **'Search other pools'**
+  String get depositPageBackToNewPositionButtonTitle;
 
   /// Used by the deposit page as title for the back button to navigate back to the yields page, if the previous page was to select a yield
   ///
   /// In en, this message translates to:
   /// **'Select Yield'**
   String get depositPageBackToYieldsButtonTitle;
-
-  /// Used by the deposit page as title for the back button to navigate back to the new position page, if the previous page isn't to select a yield, like paste the url to deposit directly
-  ///
-  /// In en, this message translates to:
-  /// **'Search other pools'**
-  String get depositPageBackToNewPositionButtonTitle;
 
   /// No description provided for @depositPageBestYieldsIn.
   ///
@@ -404,6 +398,12 @@ abstract class S {
   /// In en, this message translates to:
   /// **'Organizing the best pools for you…'**
   String get depositPageLoadingStep4Title;
+
+  /// Used by the deposit page as title for the loading state, before the pool is ready for the user to deposit
+  ///
+  /// In en, this message translates to:
+  /// **'Getting the pool ready for you...'**
+  String get depositPageLoadingTitle;
 
   /// No description provided for @depositPageMaxRangeOutOfRangeWarningText.
   ///
@@ -675,6 +675,180 @@ abstract class S {
   /// **'No results for'**
   String get noResultsFor;
 
+  /// Used by the pool info modal to title the about pool tab at a tab bar
+  ///
+  /// In en, this message translates to:
+  /// **'About Pool'**
+  String get poolInfoModalAboutPoolTabTitle;
+
+  /// Used by the pool info modal to proceed to the add liquidity page with the current pool
+  ///
+  /// In en, this message translates to:
+  /// **'Add Liquidity'**
+  String get poolInfoModalAddLiquidity;
+
+  /// Used by the pool info modal as title for the bottom sheet that displays pool information
+  ///
+  /// In en, this message translates to:
+  /// **'Pool Information'**
+  String get poolInfoModalBottomSheetTitle;
+
+  /// Used by the pool info modal to copy one of the pool tokens address
+  ///
+  /// In en, this message translates to:
+  /// **'Copy Token Address'**
+  String get poolInfoModalAboutPageCopyToken;
+
+  /// Used by the pool info modal to notify the user that one of the pool tokens address was copied
+  ///
+  /// In en, this message translates to:
+  /// **'Copied!'**
+  String get poolInfoModalAboutPageTokenCopied;
+
+  /// Used by the pool info modal to copy the pool hook address if any
+  ///
+  /// In en, this message translates to:
+  /// **'Copy Hook Address'**
+  String get poolInfoModalAboutPageCopyHook;
+
+  /// Used by the pool info modal to notify the user that the pool hook address was copied
+  ///
+  /// In en, this message translates to:
+  /// **'Copied!'**
+  String get poolInfoModalAboutPageHookCopied;
+
+  /// Used by the pool info modal in the about page to show how long ago a pool was created
+  ///
+  /// In en, this message translates to:
+  /// **'Created {timeAgo}'**
+  String poolInfoModalAboutPageTimeCreatedAgo({required String timeAgo});
+
+  /// Used by the pool info modal as a title for the section that has information about the pool's blockchain, in the about page
+  ///
+  /// In en, this message translates to:
+  /// **'Network'**
+  String get poolInfoModalAboutPageNetwork;
+
+  /// Used by the pool info modal as a title for the section that has information about the pool's protocol, in the about page
+  ///
+  /// In en, this message translates to:
+  /// **'Protocol'**
+  String get poolInfoModalAboutPageProtocol;
+
+  /// Used by the pool info modal as a title for the tokens section of the about page. This section lists the tokens in the pool
+  ///
+  /// In en, this message translates to:
+  /// **'Tokens'**
+  String get poolInfoModalAboutPageTokens;
+
+  /// Used by the pool info modal to notify the user that the pool address was copied
+  ///
+  /// In en, this message translates to:
+  /// **'Copied!'**
+  String get poolInfoModalCopied;
+
+  /// Used by the pool info modal to copy the current pool address
+  ///
+  /// In en, this message translates to:
+  /// **'Copy Pool Address'**
+  String get poolInfoModalCopyPoolAddress;
+
+  /// Used by the pool info modal to title the pool stats tab at a tab bar
+  ///
+  /// In en, this message translates to:
+  /// **'Pool Stats'**
+  String get poolInfoModalPoolStatsTabTitle;
+
+  /// Used by the pool info modal to explain what's the swap volume of a pool to the user in the state page
+  ///
+  /// In en, this message translates to:
+  /// **'{formattedVolume} in trades happened in the last {timeframeLabel} at this pool'**
+  String poolInfoModalStatePageSwapVolumeDescription({
+    required String formattedVolume,
+    required String timeframeLabel,
+  });
+
+  /// Used by the pool info modal as a title for the fees field in the passed timeframe in the stats page
+  ///
+  /// In en, this message translates to:
+  /// **'{timeframeLabel} Fees'**
+  String poolInfoModalStatsPageFees({required String timeframeLabel});
+
+  /// Used by the pool info modal to explain what's the fees of a pool to the user in the stats page
+  ///
+  /// In en, this message translates to:
+  /// **'This pool has distributed {formattedFees} of fees in \${timeframeLabel} to liquidity providers'**
+  String poolInfoModalStatsPageFeesDescription({
+    required String formattedFees,
+    required String timeframeLabel,
+  });
+
+  /// Used by the pool info modal as a title for the net inflow of liquidity in the passed timeframe in the stats page
+  ///
+  /// In en, this message translates to:
+  /// **'{timeframeLabel} Net Inflow'**
+  String poolInfoModalStatsPageNetInflow({required String timeframeLabel});
+
+  /// Used by the pool info modal to explain what's the net inflow of a pool to the user in the state page
+  ///
+  /// In en, this message translates to:
+  /// **'This pool’s TVL changed by {formattedNetInflow} over the last {timeframeLabel} from liquidity provider deposits and withdrawals. It may differ from the current TVL due to price movements'**
+  String poolInfoModalStatsPageNetInflowDescription({
+    required String formattedNetInflow,
+    required String timeframeLabel,
+  });
+
+  /// Used by the pool info modal as a title for the swap volume field in the passed timeframe in the stats page
+  ///
+  /// In en, this message translates to:
+  /// **'{timeframeLabel} Swap Volume'**
+  String poolInfoModalStatsPageSwapVolume({required String timeframeLabel});
+
+  /// Used by the pool info modal in the stats page to title the timeframe selector to change the stats time frame, like to 24h, 7d, 30d, etc...
+  ///
+  /// In en, this message translates to:
+  /// **'Stats Timeframe'**
+  String get poolInfoModalStatsPageTimeframeTitle;
+
+  /// Used by the pool info modal to explain what's the TVL of a pool to the user in the stats page
+  ///
+  /// In en, this message translates to:
+  /// **'This pool has {formattedTvl} deposited in it, based on the current price of the tokens in the pool.'**
+  String poolInfoModalStatsPageTvlDescription({required String formattedTvl});
+
+  /// Used by the pool info modal as a title for the yearly yield field in the passed timeframe in the stats page
+  ///
+  /// In en, this message translates to:
+  /// **'{timeframeLabel} Yearly Yield'**
+  String poolInfoModalStatsPageYearlyYield({required String timeframeLabel});
+
+  /// Used by the pool info modal to explain what's the yearly yield of a pool to the user in the stats page
+  ///
+  /// In en, this message translates to:
+  /// **'This pool has an estimated yearly yield of {yearlyYieldFormatted} based on {timeframeLabel} of data from fees distributed to liquidity providers'**
+  String poolInfoModalStatsPageYearlyYieldDescription({
+    required String yearlyYieldFormatted,
+    required String timeframeLabel,
+  });
+
+  /// A tooltip message used by the pool tokens button to explain what clicking on the button does
+  ///
+  /// In en, this message translates to:
+  /// **'View this pool at DEX Screener'**
+  String get poolTokensButtonViewAtDexcreener;
+
+  /// Used as tooltip message to explain what's a V3 pool to the user
+  ///
+  /// In en, this message translates to:
+  /// **'This pool uses the Uniswap V3 model, which allows more efficient trading and customizable liquidity ranges'**
+  String get poolTypeV3Description;
+
+  /// Used as tooltip message to explain what's a V4 pool to the user
+  ///
+  /// In en, this message translates to:
+  /// **'This pool uses the Uniswap V4 model, which introduces hooks and a more flexible architecture for custom pool logic'**
+  String get poolTypeV4Description;
+
   /// No description provided for @popularTokens.
   ///
   /// In en, this message translates to:
@@ -820,6 +994,51 @@ abstract class S {
   /// In en, this message translates to:
   /// **'Approve {tokenSymbol}'**
   String previewDepositModalApproveToken({required String tokenSymbol});
+
+  /// Used by the pool info modal as a title for the fee tier field in the about page
+  ///
+  /// In en, this message translates to:
+  /// **'Fee'**
+  String get poolInfoModalAboutPageFee;
+
+  /// No description provided for @poolInfoModalAboutPageFeeDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'This pool takes {isDynamicFee, select, true {a dynamic} other {{formattedFee}}} fee on each trade and distributes it to the liquidity providers'**
+  String poolInfoModalAboutPageFeeDescription({
+    required String isDynamicFee,
+    required String formattedFee,
+  });
+
+  /// Used by the pool info modal as a title for the pool type field in the about page
+  ///
+  /// In en, this message translates to:
+  /// **'Type'**
+  String get poolInfoModalAboutPageType;
+
+  /// Used by the pool info modal as a value for the pool type field in the about page
+  ///
+  /// In en, this message translates to:
+  /// **'{poolType} Pool'**
+  String poolInfoModalAboutPagePoolTypeValue({required String poolType});
+
+  /// Used by the pool info modal as a value for the hooks field in the about page when there are no hooks in the pool
+  ///
+  /// In en, this message translates to:
+  /// **'No'**
+  String get poolInfoModalAboutPageHooksNo;
+
+  /// Used by the pool info modal as a description for the hooks field in the about page to explain what hooks are to the user
+  ///
+  /// In en, this message translates to:
+  /// **'Some pools can include hooks, which are small smart contracts attached to the pool that allow pools to add extra features or rules when people trade or add liquidity'**
+  String get poolInfoModalAboutPageHooksDescription;
+
+  /// Used by the pool info modal as a title for the hooks field in the about page
+  ///
+  /// In en, this message translates to:
+  /// **'Hooks'**
+  String get poolInfoModalAboutPageHooks;
 
   /// No description provided for @previewDepositModalApprovingToken.
   ///
@@ -1117,7 +1336,7 @@ abstract class S {
   /// **'Token groups let you search pools using multiple tokens in one go. Think of them like batch queries, want all USD stablecoins? Pick the group and we\'ll surface every relevant pool. You can also match groups against single tokens or other groups to discover deep liquidity.'**
   String get tokenSelectorModalTokenGroupsTooltipMessage;
 
-  /// No description provided for @tvl.
+  /// Used anywhere that wants to show the total value locked of something
   ///
   /// In en, this message translates to:
   /// **'TVL'**
@@ -1164,6 +1383,48 @@ abstract class S {
   /// In en, this message translates to:
   /// **'What\'s this?'**
   String get whatsThisQuestionText;
+
+  /// Used anywhere that implements days ago time, to describe how many days ago something happened
+  ///
+  /// In en, this message translates to:
+  /// **'{days, plural, one{{days} day} other{{days} days}}{hours, plural, zero{} one{ and {hours} hour} other{ and {hours} hours}} ago'**
+  String xDaysAndHoursAgo({required int days, required int hours});
+
+  /// Used anywhere that implements hours ago time, to describe how many hours ago something happened
+  ///
+  /// In en, this message translates to:
+  /// **'{hours, plural, one{{hours} hour} other{{hours} hours}}{minutes, plural, zero{} one{ and {minutes} minute} other{ and {minutes} minutes}} ago'**
+  String xHoursAndMinutesAgo({required int hours, required int minutes});
+
+  /// Used anywhere that implements milliseconds ago time, to describe how many milliseconds ago something happened
+  ///
+  /// In en, this message translates to:
+  /// **'{milliseconds, plural, one{{milliseconds} millisecond} other{{milliseconds} milliseconds}} ago'**
+  String xMillisecondsAgo({required int milliseconds});
+
+  /// Used anywhere that implements minutes ago time, to describe how many minutes ago something happened
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes, plural, one{{minutes} minute} other{{minutes} minutes}}{seconds, plural, =0{} other{ and {seconds, plural, one{{seconds} second} other{{seconds} seconds}}}} ago'**
+  String xMinutesAndSecondsAgo({required int minutes, required int seconds});
+
+  /// Used anywhere that implements months ago time, to describe how many months ago something happened
+  ///
+  /// In en, this message translates to:
+  /// **'{months, plural, one{{months} month} other{{months} months}}{days, plural, zero{} one{ and {days} day} other{ and {days} days}} ago'**
+  String xMonthsAndDaysAgo({required int months, required int days});
+
+  /// Used anywhere that implements seconds ago time, to describe how many seconds ago something happened
+  ///
+  /// In en, this message translates to:
+  /// **'{seconds, plural, one{{seconds} second} other{{seconds} seconds}} ago'**
+  String xSecondsAgo({required int seconds});
+
+  /// Used anywhere that implements years ago time, to describe how many years ago something happened
+  ///
+  /// In en, this message translates to:
+  /// **'{years, plural, one{{years} year} other{{years} years}}{months, plural, zero{} one{ and {months} month} other{ and {months} months}} ago'**
+  String xYearsAndMonthsAgo({required int years, required int months});
 
   /// No description provided for @yieldCardAverageYieldYearly.
   ///

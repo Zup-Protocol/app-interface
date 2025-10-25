@@ -250,8 +250,8 @@ class PoolService with CLPoolLiquidityCalculationsMixin, CLPoolConversorsMixin, 
           tickLower: tickLower,
           tickUpper: tickUpper,
           fee: BigInt.from(depositOnYield.initialFeeTier),
-          token0: depositOnYield.token0.addresses[depositOnYield.network.chainId]!,
-          token1: depositOnYield.token1.addresses[depositOnYield.network.chainId]!,
+          token0: depositOnYield.token0.address,
+          token1: depositOnYield.token1.address,
         ),
       );
     }.call();
@@ -337,11 +337,11 @@ class PoolService with CLPoolLiquidityCalculationsMixin, CLPoolConversorsMixin, 
       ],
       [
         [
-          depositOnYield.token0.addresses[depositOnYield.network.chainId]!,
-          depositOnYield.token1.addresses[depositOnYield.network.chainId]!,
+          depositOnYield.token0.address,
+          depositOnYield.token1.address,
           BigInt.from(depositOnYield.initialFeeTier),
           BigInt.from(depositOnYield.tickSpacing),
-          depositOnYield.v4Hooks,
+          depositOnYield.hook?.address ?? EthereumConstants.zeroAddress,
         ],
         tickLower,
         tickUpper,
@@ -355,10 +355,7 @@ class PoolService with CLPoolLiquidityCalculationsMixin, CLPoolConversorsMixin, 
 
     final settlePairActionParams = _ethereumAbiCoder.encode(
       ["address", "address"],
-      [
-        depositOnYield.token0.addresses[depositOnYield.network.chainId]!,
-        depositOnYield.token1.addresses[depositOnYield.network.chainId]!,
-      ],
+      [depositOnYield.token0.address, depositOnYield.token1.address],
     );
 
     final sweepActionParams = isNativeDeposit
@@ -425,9 +422,9 @@ class PoolService with CLPoolLiquidityCalculationsMixin, CLPoolConversorsMixin, 
       ],
       [
         [
-          depositOnYield.token0.addresses[depositOnYield.network.chainId]!,
-          depositOnYield.token1.addresses[depositOnYield.network.chainId]!,
-          depositOnYield.v4Hooks,
+          depositOnYield.token0.address,
+          depositOnYield.token1.address,
+          depositOnYield.hook?.address ?? EthereumConstants.zeroAddress,
           depositOnYield.v4PoolManager,
           depositOnYield.initialFeeTier,
           await _getPancakeSwapInfinityPoolBytesParameters(depositOnYield),
@@ -442,15 +439,9 @@ class PoolService with CLPoolLiquidityCalculationsMixin, CLPoolConversorsMixin, 
       ],
     );
 
-    final closeCurrency0ActionParams = _ethereumAbiCoder.encode(
-      ["address"],
-      [depositOnYield.token0.addresses[depositOnYield.network.chainId]!],
-    );
+    final closeCurrency0ActionParams = _ethereumAbiCoder.encode(["address"], [depositOnYield.token0.address]);
 
-    final closeCurrency1ActionParams = _ethereumAbiCoder.encode(
-      ["address"],
-      [depositOnYield.token1.addresses[depositOnYield.network.chainId]!],
-    );
+    final closeCurrency1ActionParams = _ethereumAbiCoder.encode(["address"], [depositOnYield.token1.address]);
 
     final pancakeSwapV4PositionManagerContract = _pancakeSwapInfinityClPositionManager.fromSigner(
       contractAddress: depositOnYield.positionManagerAddress,
@@ -527,8 +518,8 @@ class PoolService with CLPoolLiquidityCalculationsMixin, CLPoolConversorsMixin, 
           tickLower: tickLower,
           tickUpper: tickUpper,
           deployer: depositOnYield.deployerAddress,
-          token0: depositOnYield.token0.addresses[depositOnYield.network.chainId]!,
-          token1: depositOnYield.token1.addresses[depositOnYield.network.chainId]!,
+          token0: depositOnYield.token0.address,
+          token1: depositOnYield.token1.address,
         ),
       );
     }.call();
@@ -593,8 +584,8 @@ class PoolService with CLPoolLiquidityCalculationsMixin, CLPoolConversorsMixin, 
           tickUpper: tickUpper,
           tickSpacing: BigInt.from(depositOnYield.tickSpacing),
           sqrtPriceX96: BigInt.from(0),
-          token0: depositOnYield.token0.addresses[depositOnYield.network.chainId]!,
-          token1: depositOnYield.token1.addresses[depositOnYield.network.chainId]!,
+          token0: depositOnYield.token0.address,
+          token1: depositOnYield.token1.address,
         ),
       );
     }.call();
@@ -604,12 +595,12 @@ class PoolService with CLPoolLiquidityCalculationsMixin, CLPoolConversorsMixin, 
 
   String _getNativeV3PoolToken0Address(YieldDto forYield) {
     if (forYield.isToken0Native) return forYield.network.wrappedNativeTokenAddress;
-    return forYield.token0.addresses[forYield.network.chainId]!;
+    return forYield.token0.address;
   }
 
   String _getNativeV3PoolToken1Address(YieldDto forYield) {
     if (forYield.isToken1Native) return forYield.network.wrappedNativeTokenAddress;
-    return forYield.token1.addresses[forYield.network.chainId]!;
+    return forYield.token1.address;
   }
 
   Future<String> _getPancakeSwapInfinityPoolBytesParameters(YieldDto forYield) async {

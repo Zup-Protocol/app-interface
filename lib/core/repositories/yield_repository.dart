@@ -27,11 +27,7 @@ class YieldRepository {
         if (group1Id != null) "group1Id": group1Id,
       },
       data: {
-        "filters": {
-          "minTvlUsd": searchSettings.minLiquidityUSD,
-          "blockedProtocols": blockedProtocolIds,
-          "allowedPoolTypes": [if (searchSettings.allowV3Search) "V3", if (searchSettings.allowV4Search) "V4"],
-        },
+        "filters": {"minimumTvlUsd": searchSettings.minLiquidityUSD, "blockedProtocols": blockedProtocolIds},
       },
     );
 
@@ -56,12 +52,8 @@ class YieldRepository {
         if (group1Id != null) "group1Id": group1Id,
       },
       data: {
-        "filters": {
-          "minTvlUsd": searchSettings.minLiquidityUSD,
-          "testnetMode": testnetMode,
-          "blockedProtocols": blockedProtocolIds,
-          "allowedPoolTypes": [if (searchSettings.allowV3Search) "V3", if (searchSettings.allowV4Search) "V4"],
-        },
+        "filters": {"minimumTvlUsd": searchSettings.minLiquidityUSD, "blockedProtocols": blockedProtocolIds},
+        "config": {"testnetMode": testnetMode},
       },
     );
 

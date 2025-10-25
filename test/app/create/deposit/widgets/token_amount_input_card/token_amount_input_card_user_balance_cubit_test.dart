@@ -5,7 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:web3kit/web3kit.dart';
 import 'package:zup_app/app/create/yields/%5Bid%5D/deposit/widgets/token_amount_input_card/token_amount_input_card_user_balance_cubit.dart';
-import 'package:zup_app/core/dtos/token_dto.dart';
+import 'package:zup_app/core/dtos/multi_chain_token_dto.dart';
 import 'package:zup_app/core/enums/networks.dart';
 import 'package:zup_core/zup_core.dart';
 
@@ -489,7 +489,7 @@ void main() {
         () {},
       );
 
-      final token = TokenDto.fixture();
+      final token = MultiChainTokenDto.fixture();
       const network = AppNetworks.sepolia;
 
       await sut0.updateTokenAndNetwork(token.addresses[network.chainId]!, network, asNativeToken: true);

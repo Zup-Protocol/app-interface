@@ -8,7 +8,7 @@ import 'package:zup_app/app/create/yields/%5Bid%5D/deposit/widgets/deposit_succe
 import 'package:zup_app/core/dtos/protocol_dto.dart';
 import 'package:zup_app/core/dtos/yield_dto.dart';
 import 'package:zup_app/core/injections.dart';
-import 'package:zup_app/widgets/zup_cached_image.dart';
+import 'package:zup_ui_kit/zup_network_image.dart';
 
 import '../../../../golden_config.dart';
 import '../../../../mocks.dart';
@@ -21,7 +21,7 @@ void main() {
 
     confettiController = ConfettiControllerMock();
 
-    inject.registerFactory<ZupCachedImage>(() => mockZupCachedImage());
+    inject.registerFactory<ZupNetworkImage>(() => mockZupNetworkImage());
     inject.registerFactory<ConfettiController>(
       () => confettiController,
       instanceName: InjectInstanceNames.confettiController10s,

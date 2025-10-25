@@ -2,21 +2,22 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:golden_toolkit/golden_toolkit.dart';
+import 'package:zup_app/core/dtos/pool_stats_dto.dart';
 import 'package:zup_app/core/dtos/protocol_dto.dart';
-import 'package:zup_app/core/dtos/token_dto.dart';
+import 'package:zup_app/core/dtos/single_chain_token_dto.dart';
 import 'package:zup_app/core/dtos/yield_dto.dart';
-import 'package:zup_app/core/enums/yield_timeframe.dart';
+import 'package:zup_app/core/enums/pool_data_timeframe.dart';
 import 'package:zup_app/core/injections.dart';
 import 'package:zup_app/widgets/yield_card.dart';
-import 'package:zup_app/widgets/zup_cached_image.dart';
-import 'package:zup_core/extensions/widget_tester_extension.dart';
+import 'package:zup_core/test_utils.dart';
+import 'package:zup_ui_kit/zup_ui_kit.dart';
 
 import '../golden_config.dart';
 import '../mocks.dart';
 
 void main() {
   setUp(() {
-    inject.registerFactory<ZupCachedImage>(() => mockZupCachedImage());
+    inject.registerLazySingleton<ZupNetworkImage>(() => mockZupNetworkImage());
     inject.registerFactory<bool>(() => false, instanceName: InjectInstanceNames.infinityAnimationAutoPlay);
   });
 
@@ -25,21 +26,23 @@ void main() {
   Future<DeviceBuilder> goldenBuilder({
     bool isHotestYield = true,
     YieldDto? yieldPool,
-    YieldTimeFrame? yieldTimeFrame,
+    PoolDataTimeframe? yieldTimeFrame,
     bool snapshotDarkMode = false,
     bool showYieldTimeframe = false,
+    ZupIconButton? secondaryButton,
   }) async => await goldenDeviceBuilder(
     darkMode: snapshotDarkMode,
     Center(
       child: SizedBox(
-        height: 310,
+        height: 315,
         width: 340,
         child: YieldCard(
           showTimeframe: showYieldTimeframe,
           showHotestYieldAnimation: false,
           yieldPool: yieldPool ?? YieldDto.fixture(),
-          yieldTimeFrame: yieldTimeFrame ?? YieldTimeFrame.day,
-          mainButton: const SizedBox(),
+          yieldTimeFrame: yieldTimeFrame ?? PoolDataTimeframe.day,
+          secondaryButton: secondaryButton,
+          mainButton: ZupPrimaryButton(title: "Main Action", onPressed: (buttonContext) {}, height: 45),
         ),
       ),
     ),
@@ -50,8 +53,10 @@ void main() {
     it should show the day yield from the passed yield pool""",
     goldenFileName: "yield_card_day_timeframe",
     (tester) async {
-      final pool = YieldDto.fixture().copyWith(yield24h: 12518721);
-      await tester.pumpDeviceBuilder(await goldenBuilder(yieldTimeFrame: YieldTimeFrame.day, yieldPool: pool));
+      final pool = YieldDto.fixture().copyWith(
+        total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 12518721),
+      );
+      await tester.pumpDeviceBuilder(await goldenBuilder(yieldTimeFrame: PoolDataTimeframe.day, yieldPool: pool));
     },
   );
 
@@ -60,8 +65,10 @@ void main() {
     it should show the week yield from the passed yield pool""",
     goldenFileName: "yield_card_week_timeframe",
     (tester) async {
-      final pool = YieldDto.fixture().copyWith(yield7d: 111122111);
-      await tester.pumpDeviceBuilder(await goldenBuilder(yieldTimeFrame: YieldTimeFrame.week, yieldPool: pool));
+      final pool = YieldDto.fixture().copyWith(
+        total7dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 111122111),
+      );
+      await tester.pumpDeviceBuilder(await goldenBuilder(yieldTimeFrame: PoolDataTimeframe.week, yieldPool: pool));
     },
   );
 
@@ -70,8 +77,8 @@ void main() {
     it should show the month yield from the passed yield pool""",
     goldenFileName: "yield_card_month_timeframe",
     (tester) async {
-      final pool = YieldDto.fixture().copyWith(yield30d: 991);
-      await tester.pumpDeviceBuilder(await goldenBuilder(yieldTimeFrame: YieldTimeFrame.month, yieldPool: pool));
+      final pool = YieldDto.fixture().copyWith(total30dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 991));
+      await tester.pumpDeviceBuilder(await goldenBuilder(yieldTimeFrame: PoolDataTimeframe.month, yieldPool: pool));
     },
   );
 
@@ -80,8 +87,10 @@ void main() {
     it should show the three months yield from the passed yield pool""",
     goldenFileName: "yield_card_three_months_timeframe",
     (tester) async {
-      final pool = YieldDto.fixture().copyWith(yield90d: 654);
-      await tester.pumpDeviceBuilder(await goldenBuilder(yieldTimeFrame: YieldTimeFrame.threeMonth, yieldPool: pool));
+      final pool = YieldDto.fixture().copyWith(total90dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 654));
+      await tester.pumpDeviceBuilder(
+        await goldenBuilder(yieldTimeFrame: PoolDataTimeframe.threeMonth, yieldPool: pool),
+      );
     },
   );
 
@@ -111,7 +120,12 @@ void main() {
     explaining the yield percent, and showing other timesframes yields""",
     goldenFileName: "yield_card_yield_tooltip_hover",
     (tester) async {
-      final yieldPool = YieldDto.fixture().copyWith(yield24h: 1212, yield7d: 2919, yield30d: 9824, yield90d: 1111);
+      final yieldPool = YieldDto.fixture().copyWith(
+        total7dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 2919),
+        total30dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 9824),
+        total90dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 1111),
+        total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 1212),
+      );
       await tester.pumpDeviceBuilder(await goldenBuilder(yieldPool: yieldPool));
 
       await tester.hover(find.byKey(Key("yield-breakdown-tooltip-${yieldPool.poolAddress}")));
@@ -126,7 +140,12 @@ void main() {
     (tester) async {
       debugDefaultTargetPlatformOverride = TargetPlatform.android;
 
-      final yieldPool = YieldDto.fixture().copyWith(yield24h: 1212, yield7d: 2919, yield30d: 9824, yield90d: 1111);
+      final yieldPool = YieldDto.fixture().copyWith(
+        total7dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 2919),
+        total30dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 9824),
+        total90dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 1111),
+        total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 1212),
+      );
       await tester.pumpDeviceBuilder(await goldenBuilder(yieldPool: yieldPool));
 
       await tester.hover(find.byKey(Key("yield-card-yield-${yieldPool.poolAddress}")));
@@ -161,8 +180,12 @@ void main() {
     goldenFileName: "yield_card_overflow_token_symbol",
     (tester) async {
       final pool = YieldDto.fixture().copyWith(
-        token0: TokenDto.fixture().copyWith(symbol: "Lorem ipsum dolor sit amet consectetur adipiscing elit"),
-        token1: TokenDto.fixture().copyWith(symbol: "elit adipiscing consectetur amet sit dolor ipsum Lorem"),
+        token0: SingleChainTokenDto.fixture().copyWith(
+          symbol: "Lorem ipsum dolor sit amet consectetur adipiscing elit",
+        ),
+        token1: SingleChainTokenDto.fixture().copyWith(
+          symbol: "elit adipiscing consectetur amet sit dolor ipsum Lorem",
+        ),
       );
       await tester.pumpDeviceBuilder(await goldenBuilder(yieldPool: pool));
     },
@@ -172,9 +195,21 @@ void main() {
     "When passing 'showYieldTimframe' true, it should show the timeframe of the yield in the card",
     goldenFileName: "yield_card_show_yield_timeframe",
     (tester) async {
-      final pool = YieldDto.fixture().copyWith(yield90d: 654);
+      final pool = YieldDto.fixture().copyWith(total90dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 654));
       await tester.pumpDeviceBuilder(
-        await goldenBuilder(yieldTimeFrame: YieldTimeFrame.threeMonth, yieldPool: pool, showYieldTimeframe: true),
+        await goldenBuilder(yieldTimeFrame: PoolDataTimeframe.threeMonth, yieldPool: pool, showYieldTimeframe: true),
+      );
+    },
+  );
+
+  zGoldenTest(
+    "When passing a secondary button, it should be displayed in the card",
+    goldenFileName: "yield_card_secondary_button",
+    (tester) async {
+      await tester.pumpDeviceBuilder(
+        await goldenBuilder(
+          secondaryButton: ZupIconButton(icon: const Icon(Icons.place), onPressed: (_) {}),
+        ),
       );
     },
   );

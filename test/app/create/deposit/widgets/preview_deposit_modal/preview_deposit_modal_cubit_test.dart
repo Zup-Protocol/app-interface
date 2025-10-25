@@ -15,7 +15,7 @@ import 'package:zup_app/abis/uniswap_v3_pool.abi.g.dart';
 import 'package:zup_app/abis/uniswap_v3_position_manager.abi.g.dart';
 import 'package:zup_app/app/create/yields/%5Bid%5D/deposit/widgets/preview_deposit_modal/preview_deposit_modal_cubit.dart';
 import 'package:zup_app/core/concentrated_liquidity_utils/cl_pool_constants.dart';
-import 'package:zup_app/core/dtos/token_dto.dart';
+import 'package:zup_app/core/dtos/single_chain_token_dto.dart';
 import 'package:zup_app/core/dtos/yield_dto.dart';
 import 'package:zup_app/core/enums/networks.dart';
 import 'package:zup_app/core/enums/pool_type.dart';
@@ -23,7 +23,7 @@ import 'package:zup_app/core/injections.dart';
 import 'package:zup_app/core/pool_service.dart';
 import 'package:zup_app/core/slippage.dart';
 import 'package:zup_app/core/zup_analytics.dart';
-import 'package:zup_app/widgets/zup_cached_image.dart';
+import 'package:zup_ui_kit/zup_network_image.dart';
 
 import '../../../../../golden_config.dart';
 import '../../../../../mocks.dart';
@@ -317,8 +317,8 @@ void main() {
     () async {
       final customYield = YieldDto.fixture().copyWith(
         chainId: AppNetworks.sepolia.chainId,
-        token0: TokenDto.fixture().copyWith(addresses: {AppNetworks.sepolia.chainId: "Token 0 Address"}),
-        token1: TokenDto.fixture().copyWith(addresses: {AppNetworks.sepolia.chainId: "Token 1 Address"}),
+        token0: SingleChainTokenDto.fixture().copyWith(address: "Token 0 Address"),
+        token1: SingleChainTokenDto.fixture().copyWith(address: "Token 1 Address"),
       );
 
       sut = PreviewDepositModalCubit(
@@ -340,14 +340,14 @@ void main() {
 
       when(
         () => erc20.fromRpcProvider(
-          contractAddress: customYield.token0.addresses[customYield.network.chainId]!,
+          contractAddress: customYield.token0.address,
           rpcUrl: any(named: "rpcUrl"),
         ),
       ).thenReturn(token0Contract);
 
       when(
         () => erc20.fromRpcProvider(
-          contractAddress: customYield.token1.addresses[customYield.network.chainId]!,
+          contractAddress: customYield.token1.address,
           rpcUrl: any(named: "rpcUrl"),
         ),
       ).thenReturn(token1Contract);
@@ -379,7 +379,7 @@ void main() {
   );
 
   test("When calling `approveToken` it should emit the approving token state with the token symbol", () async {
-    final token = TokenDto.fixture().copyWith(symbol: "TOKE SYMB");
+    final token = SingleChainTokenDto.fixture().copyWith(symbol: "TOKE SYMB");
 
     expectLater(sut.stream, emits(PreviewDepositModalState.approvingToken(token.symbol)));
     await sut.approveToken(token, BigInt.one);
@@ -471,7 +471,7 @@ void main() {
 
       await sut.approveToken(token, tokenAmount);
 
-      verify(() => erc20.fromSigner(contractAddress: token.addresses[currentYield.chainId]!, signer: signer)).called(1);
+      verify(() => erc20.fromSigner(contractAddress: token.address, signer: signer)).called(1);
       verify(() => erc20Impl.approve(spender: currentYield.positionManagerAddress, value: tokenAmount)).called(1);
     },
   );
@@ -543,7 +543,7 @@ void main() {
 
       when(
         () => erc20.fromRpcProvider(
-          contractAddress: currentYield.token0.addresses[currentYield.chainId]!,
+          contractAddress: currentYield.token0.address,
           rpcUrl: any(named: "rpcUrl"),
         ),
       ).thenReturn(token0Erc20Impl);
@@ -576,7 +576,7 @@ void main() {
 
       when(
         () => erc20.fromRpcProvider(
-          contractAddress: currentYield.token1.addresses[currentYield.chainId]!,
+          contractAddress: currentYield.token1.address,
           rpcUrl: any(named: "rpcUrl"),
         ),
       ).thenReturn(token1Erc20Impl);
@@ -610,7 +610,7 @@ void main() {
 
       when(
         () => erc20.fromRpcProvider(
-          contractAddress: currentYield.token0.addresses[currentYield.chainId]!,
+          contractAddress: currentYield.token0.address,
           rpcUrl: any(named: "rpcUrl"),
         ),
       ).thenReturn(token0Erc20Impl);
@@ -654,7 +654,7 @@ void main() {
 
       when(
         () => erc20.fromRpcProvider(
-          contractAddress: currentYield.token1.addresses[currentYield.chainId]!,
+          contractAddress: currentYield.token1.address,
           rpcUrl: any(named: "rpcUrl"),
         ),
       ).thenReturn(token1Erc20Impl);
@@ -1066,8 +1066,8 @@ void main() {
           tickLower: CLPoolConversorsMixinWrapper().tickToClosestValidTick(
             tick: CLPoolConversorsMixinWrapper().priceToTick(
               price: minPrice,
-              poolToken0Decimals: currentYield.token0NetworkDecimals,
-              poolToken1Decimals: currentYield.token1NetworkDecimals,
+              poolToken0Decimals: currentYield.token0.decimals,
+              poolToken1Decimals: currentYield.token1.decimals,
               isReversed: false,
             ),
             tickSpacing: currentYield.tickSpacing,
@@ -1113,8 +1113,8 @@ void main() {
           tickLower: CLPoolConversorsMixinWrapper().tickToClosestValidTick(
             tick: CLPoolConversorsMixinWrapper().priceToTick(
               price: maxPrice,
-              poolToken0Decimals: currentYield.token0NetworkDecimals,
-              poolToken1Decimals: currentYield.token1NetworkDecimals,
+              poolToken0Decimals: currentYield.token0.decimals,
+              poolToken1Decimals: currentYield.token1.decimals,
               isReversed: isReversed,
             ),
             tickSpacing: currentYield.tickSpacing,
@@ -1235,8 +1235,8 @@ void main() {
           tickUpper: CLPoolConversorsMixinWrapper().tickToClosestValidTick(
             tick: CLPoolConversorsMixinWrapper().priceToTick(
               price: maxPrice,
-              poolToken0Decimals: currentYield.token0NetworkDecimals,
-              poolToken1Decimals: currentYield.token1NetworkDecimals,
+              poolToken0Decimals: currentYield.token0.decimals,
+              poolToken1Decimals: currentYield.token1.decimals,
               isReversed: false,
             ),
             tickSpacing: currentYield.tickSpacing,
@@ -1281,8 +1281,8 @@ void main() {
           tickUpper: CLPoolConversorsMixinWrapper().tickToClosestValidTick(
             tick: CLPoolConversorsMixinWrapper().priceToTick(
               price: minPrice,
-              poolToken0Decimals: currentYield.token0NetworkDecimals,
-              poolToken1Decimals: currentYield.token1NetworkDecimals,
+              poolToken0Decimals: currentYield.token0.decimals,
+              poolToken1Decimals: currentYield.token1.decimals,
               isReversed: isReversed,
             ),
             tickSpacing: currentYield.tickSpacing,
@@ -1526,7 +1526,7 @@ void main() {
     setUp(() {
       final confettiController = ConfettiControllerMock();
 
-      inject.registerFactory<ZupCachedImage>(() => mockZupCachedImage());
+      inject.registerFactory<ZupNetworkImage>(() => mockZupNetworkImage());
       inject.registerFactory<ConfettiController>(
         () => confettiController,
         instanceName: InjectInstanceNames.confettiController10s,
@@ -1609,7 +1609,7 @@ void main() {
           return TransactionReceipt(hash: "");
         });
 
-        await sut.approveToken(TokenDto.fixture(), BigInt.one);
+        await sut.approveToken(SingleChainTokenDto.fixture(), BigInt.one);
 
         // if waitConfirmation its not called, the test will fail. As the real test is
         // inside the stub of the waitConfirmation, it should change the `tested` variable
@@ -1639,7 +1639,7 @@ void main() {
           return TransactionReceipt(hash: "");
         });
 
-        await sut.approveToken(TokenDto.fixture(), BigInt.one);
+        await sut.approveToken(SingleChainTokenDto.fixture(), BigInt.one);
         await tester.pumpAndSettle();
 
         expect(sut.isClosed, true);
@@ -1752,8 +1752,8 @@ void main() {
       verify(
         () => zupAnalytics.logDeposit(
           depositedYield: currentYield,
-          amount0Formatted: token0amount.parseTokenAmount(decimals: currentYield.token0NetworkDecimals),
-          amount1Formatted: token1amount.parseTokenAmount(decimals: currentYield.token1NetworkDecimals),
+          amount0Formatted: token0amount.parseTokenAmount(decimals: currentYield.token0.decimals),
+          amount1Formatted: token1amount.parseTokenAmount(decimals: currentYield.token1.decimals),
           walletAddress: userAddress,
         ),
       ).called(1);
@@ -1823,7 +1823,7 @@ void main() {
 
       verify(
         () => permit2Impl.approve(
-          token: token.addresses[currentYield.network.chainId]!,
+          token: token.address,
           spender: currentYield0.positionManagerAddress,
           amount: EthereumConstants.uint160Max,
           expiration: EthereumConstants.uint48Max,
@@ -1872,7 +1872,7 @@ void main() {
 
       verifyNever(
         () => permit2Impl.approve(
-          token: token.addresses[currentYield.network.chainId]!,
+          token: token.address,
           spender: currentYield0.positionManagerAddress,
           amount: EthereumConstants.uint160Max,
           expiration: EthereumConstants.uint48Max,
@@ -1926,7 +1926,7 @@ void main() {
 
       verify(
         () => permit2Impl.approve(
-          token: token.addresses[currentYield.network.chainId]!,
+          token: token.address,
           spender: currentYield0.positionManagerAddress,
           amount: EthereumConstants.uint160Max,
           expiration: EthereumConstants.uint48Max,
@@ -1982,8 +1982,8 @@ void main() {
       final tickLower = CLPoolConversorsMixinWrapper().tickToClosestValidTick(
         tick: CLPoolConversorsMixinWrapper().priceToTick(
           price: minPrice,
-          poolToken0Decimals: currentYield0.token0NetworkDecimals,
-          poolToken1Decimals: currentYield0.token1NetworkDecimals,
+          poolToken0Decimals: currentYield0.token0.decimals,
+          poolToken1Decimals: currentYield0.token1.decimals,
         ),
         tickSpacing: currentYield0.tickSpacing,
       );
@@ -1991,8 +1991,8 @@ void main() {
       final tickUpper = CLPoolConversorsMixinWrapper().tickToClosestValidTick(
         tick: CLPoolConversorsMixinWrapper().priceToTick(
           price: maxPrice,
-          poolToken0Decimals: currentYield0.token0NetworkDecimals,
-          poolToken1Decimals: currentYield0.token1NetworkDecimals,
+          poolToken0Decimals: currentYield0.token0.decimals,
+          poolToken1Decimals: currentYield0.token1.decimals,
         ),
         tickSpacing: currentYield0.tickSpacing,
       );

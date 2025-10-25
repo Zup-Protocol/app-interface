@@ -22,7 +22,7 @@ import 'package:zup_app/core/dtos/token_price_dto.dart';
 import 'package:zup_app/core/dtos/yield_dto.dart';
 import 'package:zup_app/core/dtos/yields_dto.dart';
 import 'package:zup_app/core/enums/networks.dart';
-import 'package:zup_app/core/enums/yield_timeframe.dart';
+import 'package:zup_app/core/enums/pool_data_timeframe.dart';
 import 'package:zup_app/core/injections.dart';
 import 'package:zup_app/core/pool_service.dart';
 import 'package:zup_app/core/repositories/tokens_repository.dart';
@@ -31,8 +31,8 @@ import 'package:zup_app/core/zup_analytics.dart';
 import 'package:zup_app/core/zup_links.dart';
 import 'package:zup_app/core/zup_navigator.dart';
 import 'package:zup_app/core/zup_route_params_names.dart';
-import 'package:zup_app/widgets/zup_cached_image.dart';
 import 'package:zup_core/zup_core.dart';
+import 'package:zup_ui_kit/zup_network_image.dart';
 
 import '../../../golden_config.dart';
 import '../../../mocks.dart';
@@ -85,7 +85,7 @@ void main() {
     inject.registerFactory<GlobalKey<NavigatorState>>(() => GlobalKey());
     inject.registerFactory<ZupNavigator>(() => navigator);
     inject.registerFactory<Wallet>(() => wallet);
-    inject.registerFactory<ZupCachedImage>(() => mockZupCachedImage());
+    inject.registerFactory<ZupNetworkImage>(() => mockZupNetworkImage());
     inject.registerFactory<AppCubit>(() => appCubit);
     inject.registerFactory<ZupSingletonCache>(() => ZupSingletonCache.shared);
     inject.registerFactory<GlobalKey<ScaffoldMessengerState>>(() => GlobalKey());
@@ -114,7 +114,7 @@ void main() {
     when(() => cubit.poolSearchSettings).thenReturn(PoolSearchSettingsDto.fixture());
     when(() => cubit.yieldPool).thenReturn(YieldDto.fixture());
     when(() => navigator.getQueryParam(DepositRouteParamsNames().network)).thenReturn(AppNetworks.mainnet.name);
-    when(() => navigator.getQueryParam(DepositRouteParamsNames().timeframe)).thenReturn(YieldTimeFrame.day.name);
+    when(() => navigator.getQueryParam(DepositRouteParamsNames().timeframe)).thenReturn(PoolDataTimeframe.day.name);
     when(() => navigator.getQueryParam(DepositRouteParamsNames().parseWrappedToNative)).thenReturn(true.toString());
     when(() => navigator.canBack(any())).thenReturn(false);
   });
@@ -1716,16 +1716,10 @@ void main() {
         when(() => wallet.signerStream).thenAnswer((_) => Stream.value(signer));
 
         when(
-          () => cubit.getWalletTokenAmount(
-            selectedYield.token0.addresses[selectedYield.network.chainId]!,
-            network: any(named: "network"),
-          ),
+          () => cubit.getWalletTokenAmount(selectedYield.token0.address, network: any(named: "network")),
         ).thenAnswer((_) => Future.value(32567352673));
         when(
-          () => cubit.getWalletTokenAmount(
-            selectedYield.token1.addresses[selectedYield.network.chainId]!,
-            network: any(named: "network"),
-          ),
+          () => cubit.getWalletTokenAmount(selectedYield.token1.address, network: any(named: "network")),
         ).thenAnswer((_) => Future.value(0));
         when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
         when(() => cubit.yieldPool).thenReturn(selectedYield);
@@ -1757,16 +1751,10 @@ void main() {
         when(() => wallet.signer).thenReturn(null);
         when(() => wallet.signerStream).thenAnswer((_) => signerStreamController.stream);
         when(
-          () => cubit.getWalletTokenAmount(
-            selectedYield.token0.addresses[selectedYield.network.chainId]!,
-            network: any(named: "network"),
-          ),
+          () => cubit.getWalletTokenAmount(selectedYield.token0.address, network: any(named: "network")),
         ).thenAnswer((_) => Future.value(0));
         when(
-          () => cubit.getWalletTokenAmount(
-            selectedYield.token1.addresses[selectedYield.network.chainId]!,
-            network: any(named: "network"),
-          ),
+          () => cubit.getWalletTokenAmount(selectedYield.token1.address, network: any(named: "network")),
         ).thenAnswer((_) => Future.value(0));
         when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
         when(() => cubit.yieldPool).thenReturn(selectedYield);
@@ -1801,16 +1789,10 @@ void main() {
         when(() => wallet.signer).thenReturn(null);
         when(() => wallet.signerStream).thenAnswer((_) => signerStreamController.stream);
         when(
-          () => cubit.getWalletTokenAmount(
-            selectedYield.token0.addresses[selectedYield.network.chainId]!,
-            network: any(named: "network"),
-          ),
+          () => cubit.getWalletTokenAmount(selectedYield.token0.address, network: any(named: "network")),
         ).thenAnswer((_) => Future.value(347537253));
         when(
-          () => cubit.getWalletTokenAmount(
-            selectedYield.token1.addresses[selectedYield.network.chainId]!,
-            network: any(named: "network"),
-          ),
+          () => cubit.getWalletTokenAmount(selectedYield.token1.address, network: any(named: "network")),
         ).thenAnswer((_) => Future.value(0));
         when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
         when(() => cubit.yieldPool).thenReturn(selectedYield);
@@ -1845,16 +1827,10 @@ void main() {
         when(() => wallet.signer).thenReturn(signer);
         when(() => wallet.signerStream).thenAnswer((_) => Stream.value(signer));
         when(
-          () => cubit.getWalletTokenAmount(
-            selectedYield.token0.addresses[selectedYield.network.chainId]!,
-            network: any(named: "network"),
-          ),
+          () => cubit.getWalletTokenAmount(selectedYield.token0.address, network: any(named: "network")),
         ).thenAnswer((_) => Future.value(EthereumConstants.uint256Max.toDouble()));
         when(
-          () => cubit.getWalletTokenAmount(
-            selectedYield.token1.addresses[selectedYield.network.chainId]!,
-            network: any(named: "network"),
-          ),
+          () => cubit.getWalletTokenAmount(selectedYield.token1.address, network: any(named: "network")),
         ).thenAnswer((_) => Future.value(32576352673));
         when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
         when(() => cubit.yieldPool).thenReturn(selectedYield);
@@ -1887,16 +1863,10 @@ void main() {
         when(() => wallet.signer).thenReturn(signer);
         when(() => wallet.signerStream).thenAnswer((_) => Stream.value(signer));
         when(
-          () => cubit.getWalletTokenAmount(
-            selectedYield.token0.addresses[selectedYield.network.chainId]!,
-            network: any(named: "network"),
-          ),
+          () => cubit.getWalletTokenAmount(selectedYield.token0.address, network: any(named: "network")),
         ).thenAnswer((_) => Future.value(347537253));
         when(
-          () => cubit.getWalletTokenAmount(
-            selectedYield.token1.addresses[selectedYield.network.chainId]!,
-            network: any(named: "network"),
-          ),
+          () => cubit.getWalletTokenAmount(selectedYield.token1.address, network: any(named: "network")),
         ).thenAnswer((_) => Future.value(0));
         when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
         when(() => cubit.yieldPool).thenReturn(selectedYield);
@@ -1931,16 +1901,10 @@ void main() {
         when(() => wallet.signer).thenReturn(signer);
         when(() => wallet.signerStream).thenAnswer((_) => Stream.value(signer));
         when(
-          () => cubit.getWalletTokenAmount(
-            selectedYield.token0.addresses[selectedYield.network.chainId]!,
-            network: any(named: "network"),
-          ),
+          () => cubit.getWalletTokenAmount(selectedYield.token0.address, network: any(named: "network")),
         ).thenAnswer((_) => Future.value(0));
         when(
-          () => cubit.getWalletTokenAmount(
-            selectedYield.token1.addresses[selectedYield.network.chainId]!,
-            network: any(named: "network"),
-          ),
+          () => cubit.getWalletTokenAmount(selectedYield.token1.address, network: any(named: "network")),
         ).thenAnswer((_) => Future.value(3237526));
         when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
         when(() => cubit.yieldPool).thenReturn(selectedYield);
@@ -1980,16 +1944,10 @@ void main() {
         when(() => wallet.signer).thenReturn(signer);
         when(() => wallet.signerStream).thenAnswer((_) => Stream.value(signer));
         when(
-          () => cubit.getWalletTokenAmount(
-            selectedYield.token0.addresses[selectedYield.network.chainId]!,
-            network: any(named: "network"),
-          ),
+          () => cubit.getWalletTokenAmount(selectedYield.token0.address, network: any(named: "network")),
         ).thenAnswer((_) => Future.value(347537253));
         when(
-          () => cubit.getWalletTokenAmount(
-            selectedYield.token1.addresses[selectedYield.network.chainId]!,
-            network: any(named: "network"),
-          ),
+          () => cubit.getWalletTokenAmount(selectedYield.token1.address, network: any(named: "network")),
         ).thenAnswer((_) => Future.value(32576352673));
         when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
         when(() => cubit.yieldPool).thenReturn(selectedYield);
@@ -2379,16 +2337,10 @@ void main() {
         when(() => wallet.signer).thenReturn(signer);
         when(() => wallet.signerStream).thenAnswer((_) => Stream.value(signer));
         when(
-          () => cubit.getWalletTokenAmount(
-            selectedYield.token0.addresses[selectedYield.network.chainId]!,
-            network: any(named: "network"),
-          ),
+          () => cubit.getWalletTokenAmount(selectedYield.token0.address, network: any(named: "network")),
         ).thenAnswer((_) => Future.value(347537253));
         when(
-          () => cubit.getWalletTokenAmount(
-            selectedYield.token1.addresses[selectedYield.network.chainId]!,
-            network: any(named: "network"),
-          ),
+          () => cubit.getWalletTokenAmount(selectedYield.token1.address, network: any(named: "network")),
         ).thenAnswer((_) => Future.value(32576352673));
 
         when(() => cubit.state).thenReturn(DepositState.success(selectedYield));

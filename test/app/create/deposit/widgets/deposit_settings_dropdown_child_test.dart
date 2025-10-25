@@ -5,7 +5,7 @@ import 'package:url_launcher_platform_interface/url_launcher_platform_interface.
 import 'package:zup_app/app/create/yields/%5Bid%5D/deposit/widgets/deposit_settings_dropdown_child.dart';
 import 'package:zup_app/core/injections.dart';
 import 'package:zup_app/core/slippage.dart';
-import 'package:zup_core/zup_core.dart';
+import 'package:zup_core/test_utils.dart';
 
 import '../../../../golden_config.dart';
 import '../../../../mocks.dart';

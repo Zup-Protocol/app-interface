@@ -16,10 +16,10 @@ import 'package:zup_app/core/concentrated_liquidity_utils/cl_pool_conversors_mix
 import 'package:zup_app/core/concentrated_liquidity_utils/cl_pool_liquidity_calculations_mixin.dart';
 import 'package:zup_app/core/concentrated_liquidity_utils/cl_sqrt_price_math_mixin.dart';
 import 'package:zup_app/core/dtos/deposit_settings_dto.dart';
-import 'package:zup_app/core/dtos/token_dto.dart';
+import 'package:zup_app/core/dtos/single_chain_token_dto.dart';
 import 'package:zup_app/core/dtos/yield_dto.dart';
 import 'package:zup_app/core/enums/networks.dart';
-import 'package:zup_app/core/enums/yield_timeframe.dart';
+import 'package:zup_app/core/enums/pool_data_timeframe.dart';
 import 'package:zup_app/core/extensions/num_extension.dart';
 import 'package:zup_app/core/extensions/string_extension.dart';
 import 'package:zup_app/core/extensions/widget_extension.dart';
@@ -32,6 +32,7 @@ import 'package:zup_app/core/zup_navigator.dart';
 import 'package:zup_app/core/zup_route_params_names.dart';
 import 'package:zup_app/gen/assets.gen.dart';
 import 'package:zup_app/l10n/gen/app_localizations.dart';
+import 'package:zup_app/widgets/pool_info_modal/pool_info_modal.dart';
 import 'package:zup_app/widgets/yield_card.dart';
 import 'package:zup_app/widgets/zup_skeletonizer.dart';
 import 'package:zup_core/zup_core.dart';
@@ -86,14 +87,15 @@ class _DepositPageState extends State<DepositPage>
   AppNetworks get networkFromUrl =>
       AppNetworks.fromValue(_navigator.getQueryParam(DepositRouteParamsNames().network)!) ?? AppNetworks.mainnet;
 
-  YieldTimeFrame get yieldTimeFrameFromUrl =>
-      YieldTimeFrame.fromValue(_navigator.getQueryParam(DepositRouteParamsNames().timeframe)!) ?? YieldTimeFrame.day;
+  PoolDataTimeframe get yieldTimeFrameFromUrl =>
+      PoolDataTimeframe.fromValue(_navigator.getQueryParam(DepositRouteParamsNames().timeframe)!) ??
+      PoolDataTimeframe.day;
 
-  TokenDto get baseToken {
+  SingleChainTokenDto get baseToken {
     return areTokensReversed ? _cubit.yieldPool!.token1 : _cubit.yieldPool!.token0;
   }
 
-  TokenDto get quoteToken {
+  SingleChainTokenDto get quoteToken {
     return areTokensReversed ? _cubit.yieldPool!.token0 : _cubit.yieldPool!.token1;
   }
 
@@ -108,7 +110,7 @@ class _DepositPageState extends State<DepositPage>
   RangeController minRangeController = RangeController();
   RangeController maxRangeController = RangeController();
   StreamSubscription<BigInt?>? _poolSqrtPriceX96StreamSubscription;
-  YieldTimeFrame yieldPoolTimeFrame = YieldTimeFrame.day;
+  PoolDataTimeframe yieldPoolTimeFrame = PoolDataTimeframe.day;
 
   late Slippage selectedSlippage = _cubit.depositSettings.slippage;
   late Duration selectedDeadline = _cubit.depositSettings.deadline;
@@ -129,8 +131,8 @@ class _DepositPageState extends State<DepositPage>
 
     final price = sqrtPriceX96ToPrice(
       sqrtPriceX96: _cubit.latestPoolSqrtPriceX96!,
-      poolToken0Decimals: _cubit.yieldPool!.token0NetworkDecimals,
-      poolToken1Decimals: _cubit.yieldPool!.token1NetworkDecimals,
+      poolToken0Decimals: _cubit.yieldPool!.token0.decimals,
+      poolToken1Decimals: _cubit.yieldPool!.token1.decimals,
     );
 
     return areTokensReversed ? price.token1PerToken0 : price.token0PerToken1;
@@ -205,14 +207,14 @@ class _DepositPageState extends State<DepositPage>
 
     final maxTickPrice = tickToPrice(
       tick: CLPoolConstants.maxTick,
-      poolToken0Decimals: _cubit.yieldPool!.token0NetworkDecimals,
-      poolToken1Decimals: _cubit.yieldPool!.token1NetworkDecimals,
+      poolToken0Decimals: _cubit.yieldPool!.token0.decimals,
+      poolToken1Decimals: _cubit.yieldPool!.token1.decimals,
     );
 
     final minTickPrice = tickToPrice(
       tick: CLPoolConstants.minTick,
-      poolToken0Decimals: _cubit.yieldPool!.token0NetworkDecimals,
-      poolToken1Decimals: _cubit.yieldPool!.token1NetworkDecimals,
+      poolToken0Decimals: _cubit.yieldPool!.token0.decimals,
+      poolToken1Decimals: _cubit.yieldPool!.token1.decimals,
     );
 
     double getMinPrice() {
@@ -234,7 +236,7 @@ class _DepositPageState extends State<DepositPage>
         priceUpper: getMaxPrice(),
         tokenXAmount: double.tryParse(baseTokenAmountController.text) ?? 0,
       ).toString(),
-    )?.toStringAsFixed(quoteToken.decimals[_cubit.yieldPool!.network.chainId]!);
+    )?.toStringAsFixed(quoteToken.decimals);
 
     final newBaseTokenAmount = Decimal.tryParse(
       calculateToken0AmountFromToken1(
@@ -243,7 +245,7 @@ class _DepositPageState extends State<DepositPage>
         priceUpper: getMaxPrice(),
         tokenYAmount: double.tryParse(quoteTokenAmountController.text) ?? 0,
       ).toString(),
-    )?.toStringAsFixed(baseToken.decimals[_cubit.yieldPool!.network.chainId]!);
+    )?.toStringAsFixed(baseToken.decimals);
 
     if (isBaseTokenAmountUserInput) {
       if (newQuoteTokenAmount?.isEmptyOrZero ?? true) return quoteTokenAmountController.clear();
@@ -258,12 +260,12 @@ class _DepositPageState extends State<DepositPage>
 
   Future<({String title, Widget? icon, Function()? onPressed})> depositButtonState() async {
     final userWalletBaseTokenAmount = await _cubit.getWalletTokenAmount(
-      baseToken.addresses[_cubit.yieldPool!.network.chainId]!,
+      baseToken.address,
       network: _cubit.yieldPool!.network,
     );
 
     final userWalletQuoteTokenAmount = await _cubit.getWalletTokenAmount(
-      quoteToken.addresses[_cubit.yieldPool!.network.chainId]!,
+      quoteToken.address,
       network: _cubit.yieldPool!.network,
     );
 
@@ -398,7 +400,7 @@ class _DepositPageState extends State<DepositPage>
                                     ? S
                                           .of(context)
                                           .depositPagePercentSlippage(
-                                            valuePercent: selectedSlippage.value.formatPercent,
+                                            valuePercent: selectedSlippage.value.formatRoundingPercent,
                                           )
                                     : null,
                                 onPressed: (buttonContext) => ZupPopover.show(
@@ -495,7 +497,7 @@ class _DepositPageState extends State<DepositPage>
           ZupSkeletonizer(
             child: YieldCard(
               yieldPool: YieldDto.fixture().copyWith(chainId: networkFromUrl.chainId),
-              yieldTimeFrame: YieldTimeFrame.day,
+              yieldTimeFrame: PoolDataTimeframe.day,
               showHotestYieldAnimation: false,
             ),
           ).animate(
@@ -529,13 +531,19 @@ class _DepositPageState extends State<DepositPage>
     expandWidth: shouldYieldCardBeInColumn,
     showHotestYieldAnimation: false,
     showTimeframe: !_navigator.canBack(context),
-    mainButton: const ZupPrimaryButton(
-      title: "Pool Stats (Soon)",
+    mainButton: ZupPrimaryButton(
+      title: "Pool Stats",
       fixedIcon: true,
-      isTrailingIcon: true,
-      onPressed: null,
-      backgroundColor: ZupColors.gray6,
+      isTrailingIcon: false,
+      onPressed: (_) => PoolInfoModal.show(
+        context,
+        showAsBottomSheet: isMobileSize(context),
+        liquidityPool: yieldPool,
+        selectedTimeframe: yieldTimeFrameFromUrl,
+      ),
+      backgroundColor: ZupThemeColors.tertiaryButtonBackground.themed(context.brightness),
       foregroundColor: ZupColors.brand,
+      icon: Assets.icons.chartBar.svg(height: 13, width: 13),
       hoverElevation: 0,
     ),
   );
@@ -605,7 +613,7 @@ class _DepositPageState extends State<DepositPage>
                         builder: (context, poolSqrtPriceX96Snaphot) {
                           return Text(
                             "1 ${baseToken.symbol} ≈ ${() {
-                              final currentPrice = sqrtPriceX96ToPrice(sqrtPriceX96: poolSqrtPriceX96Snaphot.data ?? BigInt.zero, poolToken0Decimals: _cubit.yieldPool!.token0NetworkDecimals, poolToken1Decimals: _cubit.yieldPool!.token1NetworkDecimals);
+                              final currentPrice = sqrtPriceX96ToPrice(sqrtPriceX96: poolSqrtPriceX96Snaphot.data ?? BigInt.zero, poolToken0Decimals: _cubit.yieldPool!.token0.decimals, poolToken1Decimals: _cubit.yieldPool!.token1.decimals);
 
                               return areTokensReversed ? currentPrice.token1PerToken0 : currentPrice.token0PerToken1;
                             }.call().formatCurrency(useLessThan: true, maxDecimals: 4, isUSD: false)} ${quoteToken.symbol}",
@@ -685,8 +693,8 @@ class _DepositPageState extends State<DepositPage>
                 });
               },
               initialPrice: minPrice,
-              poolToken0Decimals: _cubit.yieldPool!.token0NetworkDecimals,
-              poolToken1Decimals: _cubit.yieldPool!.token1NetworkDecimals,
+              poolToken0Decimals: _cubit.yieldPool!.token0.decimals,
+              poolToken1Decimals: _cubit.yieldPool!.token1.decimals,
               isReversed: areTokensReversed,
               displayBaseTokenSymbol: baseToken.symbol,
               displayQuoteTokenSymbol: quoteToken.symbol,
@@ -733,8 +741,8 @@ class _DepositPageState extends State<DepositPage>
               type: RangeSelectorType.maxPrice,
               isInfinity: isMaxRangeInfinity,
               initialPrice: maxPrice,
-              poolToken0Decimals: _cubit.yieldPool!.token0NetworkDecimals,
-              poolToken1Decimals: _cubit.yieldPool!.token1NetworkDecimals,
+              poolToken0Decimals: _cubit.yieldPool!.token0.decimals,
+              poolToken1Decimals: _cubit.yieldPool!.token1.decimals,
               isReversed: areTokensReversed,
               tickSpacing: _cubit.yieldPool!.tickSpacing,
               rangeController: maxRangeController,
@@ -780,9 +788,7 @@ class _DepositPageState extends State<DepositPage>
               TokenAmountInputCard(
                 key: const Key("base-token-input-card"),
                 token: baseToken,
-                isNative: baseToken.addresses[_cubit.yieldPool!.network.chainId]!.lowercasedEquals(
-                  EthereumConstants.zeroAddress,
-                ),
+                isNative: baseToken.address.lowercasedEquals(EthereumConstants.zeroAddress),
                 onRefreshBalance: () => setState(() {}),
                 disabledText: () {
                   if (!isBaseTokenNeeded) {
@@ -809,9 +815,7 @@ class _DepositPageState extends State<DepositPage>
               TokenAmountInputCard(
                 key: const Key("quote-token-input-card"),
                 token: quoteToken,
-                isNative: quoteToken.addresses[_cubit.yieldPool!.network.chainId]!.lowercasedEquals(
-                  EthereumConstants.zeroAddress,
-                ),
+                isNative: quoteToken.address.lowercasedEquals(EthereumConstants.zeroAddress),
                 onRefreshBalance: () => setState(() {}),
                 disabledText: () {
                   if (!isQuoteTokenNeeded) {

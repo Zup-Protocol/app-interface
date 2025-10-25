@@ -96,13 +96,10 @@ class SEn extends S {
   String get dark => 'Dark';
 
   @override
-  String get depositPageLoadingTitle => 'Getting the pool ready for you...';
+  String get depositPageBackToNewPositionButtonTitle => 'Search other pools';
 
   @override
   String get depositPageBackToYieldsButtonTitle => 'Select Yield';
-
-  @override
-  String get depositPageBackToNewPositionButtonTitle => 'Search other pools';
 
   @override
   String get depositPageBestYieldsIn => 'Best Yields in';
@@ -187,6 +184,9 @@ class SEn extends S {
   @override
   String get depositPageLoadingStep4Title =>
       'Organizing the best pools for you…';
+
+  @override
+  String get depositPageLoadingTitle => 'Getting the pool ready for you...';
 
   @override
   String get depositPageMaxRangeOutOfRangeWarningText =>
@@ -354,6 +354,122 @@ class SEn extends S {
   String get noResultsFor => 'No results for';
 
   @override
+  String get poolInfoModalAboutPoolTabTitle => 'About Pool';
+
+  @override
+  String get poolInfoModalAddLiquidity => 'Add Liquidity';
+
+  @override
+  String get poolInfoModalBottomSheetTitle => 'Pool Information';
+
+  @override
+  String get poolInfoModalAboutPageCopyToken => 'Copy Token Address';
+
+  @override
+  String get poolInfoModalAboutPageTokenCopied => 'Copied!';
+
+  @override
+  String get poolInfoModalAboutPageCopyHook => 'Copy Hook Address';
+
+  @override
+  String get poolInfoModalAboutPageHookCopied => 'Copied!';
+
+  @override
+  String poolInfoModalAboutPageTimeCreatedAgo({required String timeAgo}) {
+    return 'Created $timeAgo';
+  }
+
+  @override
+  String get poolInfoModalAboutPageNetwork => 'Network';
+
+  @override
+  String get poolInfoModalAboutPageProtocol => 'Protocol';
+
+  @override
+  String get poolInfoModalAboutPageTokens => 'Tokens';
+
+  @override
+  String get poolInfoModalCopied => 'Copied!';
+
+  @override
+  String get poolInfoModalCopyPoolAddress => 'Copy Pool Address';
+
+  @override
+  String get poolInfoModalPoolStatsTabTitle => 'Pool Stats';
+
+  @override
+  String poolInfoModalStatePageSwapVolumeDescription({
+    required String formattedVolume,
+    required String timeframeLabel,
+  }) {
+    return '$formattedVolume in trades happened in the last $timeframeLabel at this pool';
+  }
+
+  @override
+  String poolInfoModalStatsPageFees({required String timeframeLabel}) {
+    return '$timeframeLabel Fees';
+  }
+
+  @override
+  String poolInfoModalStatsPageFeesDescription({
+    required String formattedFees,
+    required String timeframeLabel,
+  }) {
+    return 'This pool has distributed $formattedFees of fees in \$$timeframeLabel to liquidity providers';
+  }
+
+  @override
+  String poolInfoModalStatsPageNetInflow({required String timeframeLabel}) {
+    return '$timeframeLabel Net Inflow';
+  }
+
+  @override
+  String poolInfoModalStatsPageNetInflowDescription({
+    required String formattedNetInflow,
+    required String timeframeLabel,
+  }) {
+    return 'This pool’s TVL changed by $formattedNetInflow over the last $timeframeLabel from liquidity provider deposits and withdrawals. It may differ from the current TVL due to price movements';
+  }
+
+  @override
+  String poolInfoModalStatsPageSwapVolume({required String timeframeLabel}) {
+    return '$timeframeLabel Swap Volume';
+  }
+
+  @override
+  String get poolInfoModalStatsPageTimeframeTitle => 'Stats Timeframe';
+
+  @override
+  String poolInfoModalStatsPageTvlDescription({required String formattedTvl}) {
+    return 'This pool has $formattedTvl deposited in it, based on the current price of the tokens in the pool.';
+  }
+
+  @override
+  String poolInfoModalStatsPageYearlyYield({required String timeframeLabel}) {
+    return '$timeframeLabel Yearly Yield';
+  }
+
+  @override
+  String poolInfoModalStatsPageYearlyYieldDescription({
+    required String yearlyYieldFormatted,
+    required String timeframeLabel,
+  }) {
+    return 'This pool has an estimated yearly yield of $yearlyYieldFormatted based on $timeframeLabel of data from fees distributed to liquidity providers';
+  }
+
+  @override
+  String get poolTokensButtonViewAtDexcreener =>
+      'View this pool at DEX Screener';
+
+  @override
+  String get poolTypeV3Description =>
+      'This pool uses the Uniswap V3 model, which allows more efficient trading and customizable liquidity ranges';
+
+  @override
+  String get poolTypeV4Description =>
+      'This pool uses the Uniswap V4 model, which introduces hooks and a more flexible architecture for custom pool logic';
+
+  @override
   String get popularTokens => 'Popular Tokens';
 
   @override
@@ -452,6 +568,39 @@ class SEn extends S {
   String previewDepositModalApproveToken({required String tokenSymbol}) {
     return 'Approve $tokenSymbol';
   }
+
+  @override
+  String get poolInfoModalAboutPageFee => 'Fee';
+
+  @override
+  String poolInfoModalAboutPageFeeDescription({
+    required String isDynamicFee,
+    required String formattedFee,
+  }) {
+    String _temp0 = intl.Intl.selectLogic(isDynamicFee, {
+      'true': 'a dynamic',
+      'other': '$formattedFee',
+    });
+    return 'This pool takes $_temp0 fee on each trade and distributes it to the liquidity providers';
+  }
+
+  @override
+  String get poolInfoModalAboutPageType => 'Type';
+
+  @override
+  String poolInfoModalAboutPagePoolTypeValue({required String poolType}) {
+    return '$poolType Pool';
+  }
+
+  @override
+  String get poolInfoModalAboutPageHooksNo => 'No';
+
+  @override
+  String get poolInfoModalAboutPageHooksDescription =>
+      'Some pools can include hooks, which are small smart contracts attached to the pool that allow pools to add extra features or rules when people trade or add liquidity';
+
+  @override
+  String get poolInfoModalAboutPageHooks => 'Hooks';
 
   @override
   String previewDepositModalApprovingToken({required String tokenSymbol}) {
@@ -656,6 +805,123 @@ class SEn extends S {
 
   @override
   String get whatsThisQuestionText => 'What\'s this?';
+
+  @override
+  String xDaysAndHoursAgo({required int days, required int hours}) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: '$days days',
+      one: '$days day',
+    );
+    String _temp1 = intl.Intl.pluralLogic(
+      hours,
+      locale: localeName,
+      other: ' and $hours hours',
+      one: ' and $hours hour',
+      zero: '',
+    );
+    return '$_temp0$_temp1 ago';
+  }
+
+  @override
+  String xHoursAndMinutesAgo({required int hours, required int minutes}) {
+    String _temp0 = intl.Intl.pluralLogic(
+      hours,
+      locale: localeName,
+      other: '$hours hours',
+      one: '$hours hour',
+    );
+    String _temp1 = intl.Intl.pluralLogic(
+      minutes,
+      locale: localeName,
+      other: ' and $minutes minutes',
+      one: ' and $minutes minute',
+      zero: '',
+    );
+    return '$_temp0$_temp1 ago';
+  }
+
+  @override
+  String xMillisecondsAgo({required int milliseconds}) {
+    String _temp0 = intl.Intl.pluralLogic(
+      milliseconds,
+      locale: localeName,
+      other: '$milliseconds milliseconds',
+      one: '$milliseconds millisecond',
+    );
+    return '$_temp0 ago';
+  }
+
+  @override
+  String xMinutesAndSecondsAgo({required int minutes, required int seconds}) {
+    String _temp0 = intl.Intl.pluralLogic(
+      minutes,
+      locale: localeName,
+      other: '$minutes minutes',
+      one: '$minutes minute',
+    );
+    String _temp1 = intl.Intl.pluralLogic(
+      seconds,
+      locale: localeName,
+      other: '$seconds seconds',
+      one: '$seconds second',
+    );
+    String _temp2 = intl.Intl.pluralLogic(
+      seconds,
+      locale: localeName,
+      other: ' and $_temp1',
+      zero: '',
+    );
+    return '$_temp0$_temp2 ago';
+  }
+
+  @override
+  String xMonthsAndDaysAgo({required int months, required int days}) {
+    String _temp0 = intl.Intl.pluralLogic(
+      months,
+      locale: localeName,
+      other: '$months months',
+      one: '$months month',
+    );
+    String _temp1 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: ' and $days days',
+      one: ' and $days day',
+      zero: '',
+    );
+    return '$_temp0$_temp1 ago';
+  }
+
+  @override
+  String xSecondsAgo({required int seconds}) {
+    String _temp0 = intl.Intl.pluralLogic(
+      seconds,
+      locale: localeName,
+      other: '$seconds seconds',
+      one: '$seconds second',
+    );
+    return '$_temp0 ago';
+  }
+
+  @override
+  String xYearsAndMonthsAgo({required int years, required int months}) {
+    String _temp0 = intl.Intl.pluralLogic(
+      years,
+      locale: localeName,
+      other: '$years years',
+      one: '$years year',
+    );
+    String _temp1 = intl.Intl.pluralLogic(
+      months,
+      locale: localeName,
+      other: ' and $months months',
+      one: ' and $months month',
+      zero: '',
+    );
+    return '$_temp0$_temp1 ago';
+  }
 
   @override
   String get yieldCardAverageYieldYearly => 'Average Yearly Yield';

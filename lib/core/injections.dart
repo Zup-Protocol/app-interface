@@ -23,7 +23,6 @@ import 'package:zup_app/core/cache.dart';
 import 'package:zup_app/core/debouncer.dart';
 import 'package:zup_app/core/enums/app_environment.dart';
 import 'package:zup_app/core/pool_service.dart';
-import 'package:zup_app/core/repositories/positions_repository.dart';
 import 'package:zup_app/core/repositories/protocol_repository.dart';
 import 'package:zup_app/core/repositories/tokens_repository.dart';
 import 'package:zup_app/core/repositories/yield_repository.dart';
@@ -32,8 +31,8 @@ import 'package:zup_app/core/zup_links.dart';
 import 'package:zup_app/core/zup_navigator.dart';
 import 'package:zup_app/gen/assets.gen.dart';
 import 'package:zup_app/widgets/token_selector_modal/token_selector_modal_cubit.dart';
-import 'package:zup_app/widgets/zup_cached_image.dart';
 import 'package:zup_core/zup_core.dart';
+import 'package:zup_ui_kit/zup_ui_kit.dart';
 
 final inject = GetIt.instance;
 
@@ -72,8 +71,7 @@ Future<void> setupInjections() async {
   inject.registerLazySingleton<ZupNavigator>(() => ZupNavigator());
   inject.registerLazySingleton<Wallet>(() => Wallet.shared);
   inject.registerLazySingleton<AppCubit>(() => AppCubit(inject<Wallet>(), inject<Cache>()));
-  inject.registerLazySingleton<PositionsRepository>(() => PositionsRepository());
-  inject.registerLazySingleton<ZupCachedImage>(() => ZupCachedImage());
+  inject.registerLazySingleton<ZupNetworkImage>(() => ZupNetworkImage());
   inject.registerLazySingleton<bool>(() => true, instanceName: InjectInstanceNames.infinityAnimationAutoPlay);
   inject.registerLazySingleton<TokensRepository>(
     () => TokensRepository(inject<Dio>(instanceName: InjectInstanceNames.zupAPIDio)),

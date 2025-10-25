@@ -4,13 +4,12 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:intl/intl.dart';
 import 'package:skeletonizer/skeletonizer.dart' hide ShimmerEffect;
 import 'package:zup_app/core/dtos/yield_dto.dart';
-import 'package:zup_app/core/enums/yield_timeframe.dart';
+import 'package:zup_app/core/enums/pool_data_timeframe.dart';
 import 'package:zup_app/core/injections.dart';
 import 'package:zup_app/core/mixins/keys_mixin.dart';
 import 'package:zup_app/gen/assets.gen.dart';
 import 'package:zup_app/l10n/gen/app_localizations.dart';
-import 'package:zup_app/widgets/token_avatar.dart';
-import 'package:zup_app/widgets/zup_cached_image.dart';
+import 'package:zup_app/widgets/pool_tokens_avatar.dart';
 import 'package:zup_core/extensions/extensions.dart';
 import 'package:zup_core/mixins/device_info_mixin.dart';
 import 'package:zup_ui_kit/zup_ui_kit.dart';
@@ -24,25 +23,27 @@ class YieldCard extends StatefulWidget {
     this.mainButton,
     this.expandWidth = false,
     this.showTimeframe = false,
+    this.secondaryButton,
   });
 
   final YieldDto yieldPool;
   final bool showHotestYieldAnimation;
   final bool showTimeframe;
   final bool expandWidth;
-  final YieldTimeFrame yieldTimeFrame;
-  final Widget? mainButton;
+  final PoolDataTimeframe yieldTimeFrame;
+  final ZupPrimaryButton? mainButton;
+  final ZupIconButton? secondaryButton;
 
   @override
   State<YieldCard> createState() => _YieldCardState();
 }
 
 class _YieldCardState extends State<YieldCard> with DeviceInfoMixin, KeysMixin {
-  final zupCachedImage = inject<ZupCachedImage>();
+  final zupNetworkImage = inject<ZupNetworkImage>();
   final infinityAnimationAutoPlay = inject<bool>(instanceName: InjectInstanceNames.infinityAnimationAutoPlay);
 
-  List<YieldTimeFrame> get timeframesExcludingCurrent {
-    return YieldTimeFrame.values.where((timeframe) => timeframe != widget.yieldTimeFrame).toList();
+  List<PoolDataTimeframe> get timeframesExcludingCurrent {
+    return PoolDataTimeframe.values.where((timeframe) => timeframe != widget.yieldTimeFrame).toList();
   }
 
   @override
@@ -65,7 +66,7 @@ class _YieldCardState extends State<YieldCard> with DeviceInfoMixin, KeysMixin {
         constraints: const BoxConstraints(maxWidth: 450),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(24),
-          color: context.brightness.isDark ? ZupColors.black3 : ZupColors.white,
+          color: context.brightness.isDark ? ZupColors.black2 : ZupColors.white,
           border: context.brightness.isDark
               ? null
               : Border.all(width: 0.5, color: ZupThemeColors.borderOnBackgroundSurface.themed(context.brightness)),
@@ -79,16 +80,10 @@ class _YieldCardState extends State<YieldCard> with DeviceInfoMixin, KeysMixin {
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Stack(
-                    clipBehavior: Clip.none,
-                    children: [
-                      TokenAvatar(asset: widget.yieldPool.token0, size: 27),
-                      Positioned(left: 20, child: TokenAvatar(asset: widget.yieldPool.token1, size: 27)),
-                    ],
-                  ),
-                  const SizedBox(width: 27),
+                  PoolTokensAvatar(liquidityPool: widget.yieldPool, size: 27),
+                  const SizedBox(width: 3),
                   Text(
-                    "${widget.yieldPool.token0.symbol.clampMax(8)}/${widget.yieldPool.token1.symbol.clampMax(8)}",
+                    "${widget.yieldPool.token0.symbol.clamped(8)}/${widget.yieldPool.token1.symbol.clamped(8)}",
                     style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -147,6 +142,7 @@ class _YieldCardState extends State<YieldCard> with DeviceInfoMixin, KeysMixin {
                           const SizedBox(width: 5),
                           Skeleton.ignore(
                             child: ZupTooltip.widget(
+                              isChildBounded: true,
                               key: Key("yield-breakdown-tooltip-${widget.yieldPool.poolAddress}"),
                               tooltipChild: yieldBreakdownTooltipChild,
                               child: Assets.icons.infoCircle.svg(
@@ -189,13 +185,10 @@ class _YieldCardState extends State<YieldCard> with DeviceInfoMixin, KeysMixin {
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  zupCachedImage.build(
-                    context,
-                    widget.yieldPool.protocol.logo,
-                    radius: 20,
-                    height: 25,
-                    width: 25,
-                    backgroundColor: ZupColors.white,
+                  ZupRemoteAvatar(
+                    avatarUrl: widget.yieldPool.protocol.logo,
+                    size: 20,
+                    zupNetworkImage: zupNetworkImage,
                   ),
                   const SizedBox(width: 10),
                   Flexible(
@@ -207,23 +200,17 @@ class _YieldCardState extends State<YieldCard> with DeviceInfoMixin, KeysMixin {
                   ),
                 ],
               ),
-              if (widget.mainButton != null) ...[
-                const SizedBox(height: 30),
-                Row(
-                  children: [
-                    // ZupIconButton(
-                    //   icon: Assets.icons.chartBar.svg(height: 15, width: 15),
-                    //   onPressed: (_) {},
-                    //   backgroundColor: context.brightness.isDark
-                    //       ? ZupThemeColors.background.themed(Brightness.dark)
-                    //       : ZupColors.gray6,
-                    //   padding: const EdgeInsets.all(15),
-                    // ),
-                    // const SizedBox(width: 20),
-                    Expanded(child: widget.mainButton!),
+
+              if (widget.mainButton != null || widget.secondaryButton != null) const SizedBox(height: 30),
+              Row(
+                children: [
+                  if (widget.secondaryButton != null) ...[
+                    widget.secondaryButton!,
+                    if (widget.mainButton != null) const SizedBox(width: 10),
                   ],
-                ),
-              ],
+                  if (widget.mainButton != null) Expanded(child: widget.mainButton!),
+                ],
+              ),
             ],
           ),
         ),

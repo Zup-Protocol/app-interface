@@ -11,18 +11,19 @@ import 'package:zup_app/app/create/yields/yields_page.dart';
 import 'package:zup_app/core/cache.dart';
 import 'package:zup_app/core/dtos/pool_search_filters_dto.dart';
 import 'package:zup_app/core/dtos/pool_search_settings_dto.dart';
-import 'package:zup_app/core/dtos/token_dto.dart';
+import 'package:zup_app/core/dtos/pool_stats_dto.dart';
+import 'package:zup_app/core/dtos/single_chain_token_dto.dart';
 import 'package:zup_app/core/dtos/yield_dto.dart';
 import 'package:zup_app/core/dtos/yields_dto.dart';
 import 'package:zup_app/core/enums/networks.dart';
-import 'package:zup_app/core/enums/yield_timeframe.dart';
+import 'package:zup_app/core/enums/pool_data_timeframe.dart';
 import 'package:zup_app/core/injections.dart';
 import 'package:zup_app/core/zup_navigator.dart';
 import 'package:zup_app/core/zup_route_params_names.dart';
 import 'package:zup_app/gen/assets.gen.dart';
 import 'package:zup_app/widgets/yield_card.dart';
-import 'package:zup_app/widgets/zup_cached_image.dart';
-import 'package:zup_core/extensions/extensions.dart';
+import 'package:zup_core/test_utils.dart';
+import 'package:zup_ui_kit/zup_ui_kit.dart';
 
 import '../../../golden_config.dart';
 import '../../../mocks.dart';
@@ -35,7 +36,7 @@ void main() {
 
   setUp(() {
     registerFallbackValue(YieldDto.fixture());
-    registerFallbackValue(YieldTimeFrame.day);
+    registerFallbackValue(PoolDataTimeframe.day);
 
     navigator = ZupNavigatorMock();
     cubit = YieldsCubitMock();
@@ -76,7 +77,7 @@ void main() {
       instanceName: InjectInstanceNames.appScrollController,
     );
 
-    inject.registerFactory<ZupCachedImage>(() => mockZupCachedImage());
+    inject.registerFactory<ZupNetworkImage>(() => mockZupNetworkImage());
 
     inject.registerFactory<bool>(() => false, instanceName: InjectInstanceNames.infinityAnimationAutoPlay);
 
@@ -304,11 +305,11 @@ void main() {
         YieldsState.success(
           YieldsDto.fixture().copyWith(
             pools: [
-              YieldDto.fixture().copyWith(yield24h: 100),
-              YieldDto.fixture().copyWith(yield24h: 200),
-              YieldDto.fixture().copyWith(yield24h: 300),
-              YieldDto.fixture().copyWith(yield24h: 400),
-              YieldDto.fixture().copyWith(yield24h: 500),
+              YieldDto.fixture().copyWith(total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 100)),
+              YieldDto.fixture().copyWith(total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 200)),
+              YieldDto.fixture().copyWith(total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 300)),
+              YieldDto.fixture().copyWith(total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 400)),
+              YieldDto.fixture().copyWith(total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 500)),
             ],
           ),
         ),
@@ -331,11 +332,11 @@ void main() {
         YieldsState.success(
           YieldsDto.fixture().copyWith(
             pools: [
-              YieldDto.fixture().copyWith(yield24h: 100),
-              YieldDto.fixture().copyWith(yield24h: 200),
-              YieldDto.fixture().copyWith(yield24h: 300),
-              YieldDto.fixture().copyWith(yield24h: 400),
-              YieldDto.fixture().copyWith(yield24h: 500),
+              YieldDto.fixture().copyWith(total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 100)),
+              YieldDto.fixture().copyWith(total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 200)),
+              YieldDto.fixture().copyWith(total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 300)),
+              YieldDto.fixture().copyWith(total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 400)),
+              YieldDto.fixture().copyWith(total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 500)),
             ],
           ),
         ),
@@ -361,11 +362,11 @@ void main() {
         YieldsState.success(
           YieldsDto.fixture().copyWith(
             pools: [
-              YieldDto.fixture().copyWith(yield24h: 100),
-              YieldDto.fixture().copyWith(yield24h: 200),
-              YieldDto.fixture().copyWith(yield24h: 300),
-              YieldDto.fixture().copyWith(yield24h: 400),
-              YieldDto.fixture().copyWith(yield24h: 500),
+              YieldDto.fixture().copyWith(total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 100)),
+              YieldDto.fixture().copyWith(total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 200)),
+              YieldDto.fixture().copyWith(total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 300)),
+              YieldDto.fixture().copyWith(total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 400)),
+              YieldDto.fixture().copyWith(total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 500)),
             ],
           ),
         ),
@@ -407,11 +408,26 @@ void main() {
         YieldsState.success(
           YieldsDto.fixture().copyWith(
             pools: [
-              YieldDto.fixture().copyWith(yield7d: 1000, yield24h: 1),
-              YieldDto.fixture().copyWith(yield7d: 2000, yield24h: 10),
-              YieldDto.fixture().copyWith(yield7d: 3000, yield24h: 100),
-              YieldDto.fixture().copyWith(yield7d: 4000, yield24h: 1000),
-              YieldDto.fixture().copyWith(yield7d: 5000, yield24h: 1000),
+              YieldDto.fixture().copyWith(
+                total7dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 1000),
+                total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 1),
+              ),
+              YieldDto.fixture().copyWith(
+                total7dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 2000),
+                total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 10),
+              ),
+              YieldDto.fixture().copyWith(
+                total7dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 3000),
+                total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 100),
+              ),
+              YieldDto.fixture().copyWith(
+                total7dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 4000),
+                total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 1000),
+              ),
+              YieldDto.fixture().copyWith(
+                total7dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 5000),
+                total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 1000),
+              ),
             ],
           ),
         ),
@@ -420,7 +436,7 @@ void main() {
       await tester.pumpDeviceBuilder(await goldenBuilder());
       await tester.pumpAndSettle();
 
-      await tester.tap(find.byKey(Key("${YieldTimeFrame.week.name}-timeframe-button")));
+      await tester.tap(find.byKey(Key("${PoolDataTimeframe.week.name}-timeframe-button")));
       await tester.pumpAndSettle();
     },
   );
@@ -434,11 +450,31 @@ void main() {
         YieldsState.success(
           YieldsDto.fixture().copyWith(
             pools: [
-              YieldDto.fixture().copyWith(yield7d: 1000, yield24h: 1, yield30d: 2000),
-              YieldDto.fixture().copyWith(yield7d: 2000, yield24h: 10, yield30d: 4000),
-              YieldDto.fixture().copyWith(yield7d: 3000, yield24h: 100, yield30d: 6000),
-              YieldDto.fixture().copyWith(yield7d: 4000, yield24h: 1000, yield30d: 8000),
-              YieldDto.fixture().copyWith(yield7d: 5000, yield24h: 1000, yield30d: 10000),
+              YieldDto.fixture().copyWith(
+                total7dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 1000),
+                total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 1),
+                total30dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 2000),
+              ),
+              YieldDto.fixture().copyWith(
+                total7dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 2000),
+                total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 10),
+                total30dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 4000),
+              ),
+              YieldDto.fixture().copyWith(
+                total7dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 3000),
+                total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 100),
+                total30dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 6000),
+              ),
+              YieldDto.fixture().copyWith(
+                total7dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 4000),
+                total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 1000),
+                total30dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 8000),
+              ),
+              YieldDto.fixture().copyWith(
+                total7dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 5000),
+                total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 1000),
+                total30dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 10000),
+              ),
             ],
           ),
         ),
@@ -447,7 +483,7 @@ void main() {
       await tester.pumpDeviceBuilder(await goldenBuilder());
       await tester.pumpAndSettle();
 
-      await tester.tap(find.byKey(Key("${YieldTimeFrame.month.name}-timeframe-button")));
+      await tester.tap(find.byKey(Key("${PoolDataTimeframe.month.name}-timeframe-button")));
       await tester.pumpAndSettle();
     },
   );
@@ -461,11 +497,36 @@ void main() {
         YieldsState.success(
           YieldsDto.fixture().copyWith(
             pools: [
-              YieldDto.fixture().copyWith(yield7d: 1000, yield24h: 1, yield30d: 2000, yield90d: 4000),
-              YieldDto.fixture().copyWith(yield7d: 2000, yield24h: 10, yield30d: 4000, yield90d: 8000),
-              YieldDto.fixture().copyWith(yield7d: 3000, yield24h: 100, yield30d: 6000, yield90d: 12000),
-              YieldDto.fixture().copyWith(yield7d: 4000, yield24h: 1000, yield30d: 8000, yield90d: 16000),
-              YieldDto.fixture().copyWith(yield7d: 5000, yield24h: 1000, yield30d: 10000, yield90d: 20000),
+              YieldDto.fixture().copyWith(
+                total7dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 1000),
+                total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 1),
+                total30dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 2000),
+                total90dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 4000),
+              ),
+              YieldDto.fixture().copyWith(
+                total7dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 2000),
+                total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 10),
+                total30dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 4000),
+                total90dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 8000),
+              ),
+              YieldDto.fixture().copyWith(
+                total7dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 3000),
+                total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 100),
+                total30dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 6000),
+                total90dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 12000),
+              ),
+              YieldDto.fixture().copyWith(
+                total7dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 4000),
+                total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 1000),
+                total30dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 8000),
+                total90dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 16000),
+              ),
+              YieldDto.fixture().copyWith(
+                total7dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 5000),
+                total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 1000),
+                total30dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 10000),
+                total90dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 20000),
+              ),
             ],
           ),
         ),
@@ -474,7 +535,7 @@ void main() {
       await tester.pumpDeviceBuilder(await goldenBuilder());
       await tester.pumpAndSettle();
 
-      await tester.tap(find.byKey(Key("${YieldTimeFrame.threeMonth.name}-timeframe-button")));
+      await tester.tap(find.byKey(Key("${PoolDataTimeframe.threeMonth.name}-timeframe-button")));
       await tester.pumpAndSettle();
     },
   );
@@ -488,11 +549,36 @@ void main() {
         YieldsState.success(
           YieldsDto.fixture().copyWith(
             pools: [
-              YieldDto.fixture().copyWith(yield7d: 1000, yield24h: 1, yield30d: 2000, yield90d: 4000),
-              YieldDto.fixture().copyWith(yield7d: 2000, yield24h: 10, yield30d: 4000, yield90d: 8000),
-              YieldDto.fixture().copyWith(yield7d: 3000, yield24h: 100, yield30d: 6000, yield90d: 12000),
-              YieldDto.fixture().copyWith(yield7d: 4000, yield24h: 1000, yield30d: 8000, yield90d: 16000),
-              YieldDto.fixture().copyWith(yield7d: 5000, yield24h: 1000, yield30d: 10000, yield90d: 20000),
+              YieldDto.fixture().copyWith(
+                total7dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 1000),
+                total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 1),
+                total30dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 2000),
+                total90dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 4000),
+              ),
+              YieldDto.fixture().copyWith(
+                total7dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 2000),
+                total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 10),
+                total30dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 4000),
+                total90dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 8000),
+              ),
+              YieldDto.fixture().copyWith(
+                total7dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 3000),
+                total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 100),
+                total30dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 6000),
+                total90dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 12000),
+              ),
+              YieldDto.fixture().copyWith(
+                total7dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 4000),
+                total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 1000),
+                total30dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 8000),
+                total90dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 16000),
+              ),
+              YieldDto.fixture().copyWith(
+                total7dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 5000),
+                total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 1000),
+                total30dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 10000),
+                total90dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 20000),
+              ),
             ],
           ),
         ),
@@ -504,7 +590,7 @@ void main() {
       await tester.tap(find.byKey(const Key("move-to-next-yields-page-button")));
       await tester.pumpAndSettle();
 
-      await tester.tap(find.byKey(Key("${YieldTimeFrame.week.name}-timeframe-button")));
+      await tester.tap(find.byKey(Key("${PoolDataTimeframe.week.name}-timeframe-button")));
       await tester.pumpAndSettle();
     },
   );
@@ -518,11 +604,11 @@ void main() {
         YieldsState.success(
           YieldsDto.fixture().copyWith(
             pools: [
-              YieldDto.fixture().copyWith(yield24h: 100),
-              YieldDto.fixture().copyWith(yield24h: 200),
-              YieldDto.fixture().copyWith(yield24h: 300),
-              YieldDto.fixture().copyWith(yield24h: 400),
-              YieldDto.fixture().copyWith(yield24h: 500),
+              YieldDto.fixture().copyWith(total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 100)),
+              YieldDto.fixture().copyWith(total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 200)),
+              YieldDto.fixture().copyWith(total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 300)),
+              YieldDto.fixture().copyWith(total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 400)),
+              YieldDto.fixture().copyWith(total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 500)),
             ],
           ),
         ),
@@ -541,11 +627,11 @@ void main() {
     goldenFileName: "yields_page_success_odd_number_of_yields_last_page",
     (tester) async {
       final yields = [
-        YieldDto.fixture().copyWith(yield24h: 100),
-        YieldDto.fixture().copyWith(yield24h: 200),
-        YieldDto.fixture().copyWith(yield24h: 300),
-        YieldDto.fixture().copyWith(yield24h: 400),
-        YieldDto.fixture().copyWith(yield24h: 400),
+        YieldDto.fixture().copyWith(total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 100)),
+        YieldDto.fixture().copyWith(total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 200)),
+        YieldDto.fixture().copyWith(total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 300)),
+        YieldDto.fixture().copyWith(total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 400)),
+        YieldDto.fixture().copyWith(total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 500)),
       ];
       when(() => cubit.state).thenReturn(YieldsState.success(YieldsDto.fixture().copyWith(pools: yields)));
 
@@ -564,7 +650,9 @@ void main() {
     the page controller and page indicator should not be visible""",
     goldenFileName: "yields_page_success_one_yield_only",
     (tester) async {
-      final yields = [YieldDto.fixture().copyWith(yield24h: 100)];
+      final yields = [
+        YieldDto.fixture().copyWith(total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 100)),
+      ];
       when(() => cubit.state).thenReturn(YieldsState.success(YieldsDto.fixture().copyWith(pools: yields)));
 
       await tester.pumpDeviceBuilder(await goldenBuilder());
@@ -577,7 +665,10 @@ void main() {
     the page controller and page indicator should not be visible""",
     goldenFileName: "yields_page_success_two_yields_only",
     (tester) async {
-      final yields = [YieldDto.fixture().copyWith(yield24h: 100), YieldDto.fixture().copyWith(yield24h: 200)];
+      final yields = [
+        YieldDto.fixture().copyWith(total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 100)),
+        YieldDto.fixture().copyWith(total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 200)),
+      ];
       when(() => cubit.state).thenReturn(YieldsState.success(YieldsDto.fixture().copyWith(pools: yields)));
 
       await tester.pumpDeviceBuilder(await goldenBuilder());
@@ -590,7 +681,10 @@ void main() {
     the page indicator size should be bigger""",
     goldenFileName: "yields_page_success_hover_page_indicator",
     (tester) async {
-      final yields = List.generate(10, (_) => YieldDto.fixture().copyWith(yield24h: 100));
+      final yields = List.generate(
+        10,
+        (_) => YieldDto.fixture().copyWith(total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 100)),
+      );
 
       when(() => cubit.state).thenReturn(YieldsState.success(YieldsDto.fixture().copyWith(pools: yields)));
 
@@ -607,7 +701,11 @@ void main() {
     it should navigate to the corresponding page""",
     goldenFileName: "yields_page_success_click_page_indicator",
     (tester) async {
-      final yields = List.generate(10, (index) => YieldDto.fixture().copyWith(yield24h: 100 * index));
+      final yields = List.generate(
+        10,
+        (index) =>
+            YieldDto.fixture().copyWith(total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 100 * index)),
+      );
 
       when(() => cubit.state).thenReturn(YieldsState.success(YieldsDto.fixture().copyWith(pools: yields)));
 
@@ -625,7 +723,11 @@ void main() {
     search was only done for pools with a min tvl of the specified USD""",
     goldenFileName: "yields_page_success_min_tvl_warning",
     (tester) async {
-      final yields = List.generate(2, (index) => YieldDto.fixture().copyWith(yield24h: 100 * index));
+      final yields = List.generate(
+        2,
+        (index) =>
+            YieldDto.fixture().copyWith(total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 100 * index)),
+      );
 
       when(() => cubit.state).thenReturn(
         YieldsState.success(
@@ -643,7 +745,11 @@ void main() {
     it should refetch pools without the min usd filter (zero) but use
     the same params got from the url""",
     (tester) async {
-      final yields = List.generate(2, (index) => YieldDto.fixture().copyWith(yield24h: 100 * index));
+      final yields = List.generate(
+        2,
+        (index) =>
+            YieldDto.fixture().copyWith(total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 100 * index)),
+      );
       const token0Id = "xabas";
       const token1Id = "sabax";
       const group0Id = "iuyip";
@@ -685,7 +791,11 @@ void main() {
     that the search was fone for all pools without a min tvl""",
     goldenFileName: "yields_page_success_no_min_tvl_warning",
     (tester) async {
-      final yields = List.generate(2, (index) => YieldDto.fixture().copyWith(yield24h: 100 * index));
+      final yields = List.generate(
+        2,
+        (index) =>
+            YieldDto.fixture().copyWith(total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 100 * index)),
+      );
 
       when(() => appCache.getPoolSearchSettings()).thenReturn(PoolSearchSettingsDto(minLiquidityUSD: 122));
       when(() => cubit.state).thenReturn(
@@ -704,7 +814,11 @@ void main() {
     without min tvl, it should refetch pools with the flag to ignore min usd false and use
     the same params got from the url at the initial request""",
     (tester) async {
-      final yields = List.generate(2, (index) => YieldDto.fixture().copyWith(yield24h: 100 * index));
+      final yields = List.generate(
+        2,
+        (index) =>
+            YieldDto.fixture().copyWith(total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 100 * index)),
+      );
       const token0Id = "xabas";
       const token1Id = "sabax";
       const group0Id = "iuyip";
@@ -747,7 +861,10 @@ void main() {
     (tester) async {
       final yields = List.generate(
         2,
-        (index) => YieldDto.fixture().copyWith(yield24h: 100 * index, poolAddress: "0x$index"),
+        (index) => YieldDto.fixture().copyWith(
+          total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 100 * index),
+          poolAddress: "0x$index",
+        ),
       );
 
       when(
@@ -787,7 +904,10 @@ void main() {
     (tester) async {
       final yields = List.generate(
         2,
-        (index) => YieldDto.fixture().copyWith(yield24h: 100 * index, poolAddress: "0x$index"),
+        (index) => YieldDto.fixture().copyWith(
+          total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 100 * index),
+          poolAddress: "0x$index",
+        ),
       );
 
       when(
@@ -807,7 +927,7 @@ void main() {
       await tester.pumpDeviceBuilder(await goldenBuilder());
       await tester.pumpAndSettle();
 
-      await tester.tap(find.byKey(Key("${YieldTimeFrame.week.name}-timeframe-button")));
+      await tester.tap(find.byKey(Key("${PoolDataTimeframe.week.name}-timeframe-button")));
       await tester.pumpAndSettle();
 
       await tester.tap(find.byKey(Key("deposit-button-${yields[0].poolAddress}")));
@@ -817,7 +937,7 @@ void main() {
         () => navigator.navigateToDeposit(
           yieldPool: any(named: "yieldPool"),
           parseWrappedToNative: any(named: "parseWrappedToNative"),
-          selectedTimeframe: YieldTimeFrame.week,
+          selectedTimeframe: PoolDataTimeframe.week,
         ),
       ).called(1);
     },
@@ -830,7 +950,10 @@ void main() {
     (tester) async {
       final yields = List.generate(
         2,
-        (index) => YieldDto.fixture().copyWith(yield24h: 100 * index, poolAddress: "0x$index"),
+        (index) => YieldDto.fixture().copyWith(
+          total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 100 * index),
+          poolAddress: "0x$index",
+        ),
       );
 
       when(
@@ -850,7 +973,7 @@ void main() {
       await tester.pumpDeviceBuilder(await goldenBuilder());
       await tester.pumpAndSettle();
 
-      await tester.tap(find.byKey(Key("${YieldTimeFrame.month.name}-timeframe-button")));
+      await tester.tap(find.byKey(Key("${PoolDataTimeframe.month.name}-timeframe-button")));
       await tester.pumpAndSettle();
 
       await tester.tap(find.byKey(Key("deposit-button-${yields[0].poolAddress}")));
@@ -860,7 +983,7 @@ void main() {
         () => navigator.navigateToDeposit(
           yieldPool: any(named: "yieldPool"),
           parseWrappedToNative: any(named: "parseWrappedToNative"),
-          selectedTimeframe: YieldTimeFrame.month,
+          selectedTimeframe: PoolDataTimeframe.month,
         ),
       ).called(1);
     },
@@ -874,7 +997,10 @@ void main() {
     (tester) async {
       final yields = List.generate(
         2,
-        (index) => YieldDto.fixture().copyWith(yield24h: 100 * index, poolAddress: "0x$index"),
+        (index) => YieldDto.fixture().copyWith(
+          total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 100 * index),
+          poolAddress: "0x$index",
+        ),
       );
 
       when(
@@ -894,7 +1020,7 @@ void main() {
       await tester.pumpDeviceBuilder(await goldenBuilder());
       await tester.pumpAndSettle();
 
-      await tester.tap(find.byKey(Key("${YieldTimeFrame.day.name}-timeframe-button")));
+      await tester.tap(find.byKey(Key("${PoolDataTimeframe.day.name}-timeframe-button")));
       await tester.pumpAndSettle();
 
       await tester.tap(find.byKey(Key("deposit-button-${yields[0].poolAddress}")));
@@ -904,7 +1030,7 @@ void main() {
         () => navigator.navigateToDeposit(
           yieldPool: any(named: "yieldPool"),
           parseWrappedToNative: any(named: "parseWrappedToNative"),
-          selectedTimeframe: YieldTimeFrame.day,
+          selectedTimeframe: PoolDataTimeframe.day,
         ),
       ).called(1);
     },
@@ -921,10 +1047,10 @@ void main() {
       final yields = List.generate(
         2,
         (index) => YieldDto.fixture().copyWith(
-          yield24h: 100 * index,
+          total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 100 * index),
           poolAddress: "0x$index",
           chainId: yieldNetwork.chainId,
-          token0: TokenDto(addresses: {yieldNetwork.chainId: EthereumConstants.zeroAddress}),
+          token0: const SingleChainTokenDto(address: EthereumConstants.zeroAddress),
         ),
       );
 
@@ -969,10 +1095,10 @@ void main() {
       final yields = List.generate(
         2,
         (index) => YieldDto.fixture().copyWith(
-          yield24h: 100 * index,
+          total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 100 * index),
           poolAddress: "0x$index",
           chainId: yieldNetwork.chainId,
-          token1: TokenDto(addresses: {yieldNetwork.chainId: EthereumConstants.zeroAddress}),
+          token1: const SingleChainTokenDto(address: EthereumConstants.zeroAddress),
         ),
       );
 
@@ -1017,10 +1143,10 @@ void main() {
       final yields = List.generate(
         2,
         (index) => YieldDto.fixture().copyWith(
-          yield24h: 100 * index,
+          total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 100 * index),
           poolAddress: "0x$index",
           chainId: yieldNetwork.chainId,
-          token1: TokenDto(addresses: {yieldNetwork.chainId: yieldNetwork.wrappedNativeTokenAddress}),
+          token1: SingleChainTokenDto(address: yieldNetwork.wrappedNativeTokenAddress),
         ),
       );
 
@@ -1065,10 +1191,10 @@ void main() {
       final yields = List.generate(
         2,
         (index) => YieldDto.fixture().copyWith(
-          yield24h: 100 * index,
+          total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 100 * index),
           poolAddress: "0x$index",
           chainId: yieldNetwork.chainId,
-          token0: TokenDto(addresses: {yieldNetwork.chainId: yieldNetwork.wrappedNativeTokenAddress}),
+          token0: SingleChainTokenDto(address: yieldNetwork.wrappedNativeTokenAddress),
         ),
       );
 
@@ -1099,6 +1225,36 @@ void main() {
           selectedTimeframe: any(named: "selectedTimeframe"),
         ),
       ).called(1);
+    },
+  );
+
+  zGoldenTest(
+    "When clicking the pool stats button in the yield card, it should open the pool info side panel",
+    goldenFileName: "yields_page_open_pool_stats_modal",
+    (tester) async {
+      final yields = [YieldDto.fixture()];
+      when(() => cubit.state).thenReturn(YieldsState.success(YieldsDto.fixture().copyWith(pools: yields)));
+
+      await tester.pumpDeviceBuilder(await goldenBuilder(), wrapper: GoldenConfig.localizationsWrapper());
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(Key("pool-stats-button-${yields[0].poolAddress}")));
+      await tester.pumpAndSettle();
+    },
+  );
+
+  zGoldenTest(
+    "When clicking the pool stats button in the yield card, and the device is mobile, it should open the pool info as bottom sheet",
+    goldenFileName: "yields_page_open_pool_stats_modal_as_bottom_sheet",
+    (tester) async {
+      final yields = [YieldDto.fixture()];
+      when(() => cubit.state).thenReturn(YieldsState.success(YieldsDto.fixture().copyWith(pools: yields)));
+
+      await tester.pumpDeviceBuilder(await goldenBuilder(isMobile: true), wrapper: GoldenConfig.localizationsWrapper());
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(Key("pool-stats-button-${yields[0].poolAddress}")));
+      await tester.pumpAndSettle();
     },
   );
 }

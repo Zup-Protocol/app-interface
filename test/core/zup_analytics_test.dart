@@ -39,10 +39,10 @@ void main() {
     final token1Price = TokenPriceDto.fixture().copyWith(usdPrice: 21);
 
     when(
-      () => tokensRepository.getTokenPrice(depositedYield.token0.addresses[depositedYield.network.chainId]!, any()),
+      () => tokensRepository.getTokenPrice(depositedYield.token0.address, any()),
     ).thenAnswer((_) async => token0Price);
     when(
-      () => tokensRepository.getTokenPrice(depositedYield.token1.addresses[depositedYield.network.chainId]!, any()),
+      () => tokensRepository.getTokenPrice(depositedYield.token1.address, any()),
     ).thenAnswer((_) async => token1Price);
 
     await sut.logDeposit(
@@ -56,8 +56,8 @@ void main() {
       () => firebaseAnalytics.logEvent(
         name: "user_deposited",
         parameters: {
-          "token0_address": "hex:${depositedYield.token0.addresses[depositedYield.network.chainId]!}",
-          "token1_address": "hex:${depositedYield.token1.addresses[depositedYield.network.chainId]!}",
+          "token0_address": "hex:${depositedYield.token0.address}",
+          "token1_address": "hex:${depositedYield.token1.address}",
           "amount0": amount0,
           "amount1": amount1,
           "network": depositedYield.network.label,

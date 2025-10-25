@@ -24,8 +24,8 @@ sealed class ProtocolDto with _$ProtocolDto {
   factory ProtocolDto.fixture() => ProtocolDto(
     rawId: ProtocolId.velodromeSlipstream.toRawJsonValue,
     id: ProtocolId.velodromeSlipstream,
-    name: "Uniswap",
+    name: "Uniswap V3",
     url: "https://app.uniswap.org/pool",
-    logo: "https://raw.githubusercontent.com/trustwallet/assets/master/dapps/app.uniswap.org.png",
+    logo: "https://assets-cdn.trustwallet.com/dapps/app.uniswap.org.png",
   );
 }

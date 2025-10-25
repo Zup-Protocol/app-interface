@@ -1,7 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:zup_app/core/dtos/token_dto.dart';
+import 'package:zup_app/core/dtos/multi_chain_token_dto.dart';
+import 'package:zup_app/core/dtos/single_chain_token_dto.dart';
 import 'package:zup_app/core/dtos/token_list_dto.dart';
 import 'package:zup_app/core/dtos/token_price_dto.dart';
 import 'package:zup_app/core/enums/networks.dart';
@@ -18,7 +19,7 @@ void main() {
     sut = TokensRepository(dio);
   });
 
-  test("When calling `searchToken` it should call the correct endpoint", () async {
+  test("When calling `searchToken` passing a query and a network it should call the correct endpoint", () async {
     const query = "dale";
     const network = AppNetworks.sepolia;
 
@@ -29,21 +30,22 @@ void main() {
         cancelToken: any(named: "cancelToken"),
       ),
     ).thenAnswer(
-      (_) async => Response(data: [TokenDto.fixture().toJson()], statusCode: 200, requestOptions: RequestOptions()),
+      (_) async =>
+          Response(data: [SingleChainTokenDto.fixture().toJson()], statusCode: 200, requestOptions: RequestOptions()),
     );
 
     await sut.searchToken(query, network);
 
     verify(
       () => dio.get(
-        "/tokens/search",
+        "/tokens/search/${network.chainId}",
         cancelToken: any(named: "cancelToken"),
-        queryParameters: {"chainId": network.chainId, "query": query},
+        queryParameters: {"query": query},
       ),
     );
   });
 
-  test("When calling 'searchToken' and the network is all networks, it should not pass the chainId param", () async {
+  test("When calling 'searchToken' and the network is all networks, it should call the correct endpoint", () async {
     const query = "dale";
 
     when(
@@ -53,22 +55,39 @@ void main() {
         cancelToken: any(named: "cancelToken"),
       ),
     ).thenAnswer(
-      (_) async => Response(data: [TokenDto.fixture().toJson()], statusCode: 200, requestOptions: RequestOptions()),
+      (_) async =>
+          Response(data: [MultiChainTokenDto.fixture().toJson()], statusCode: 200, requestOptions: RequestOptions()),
     );
 
     await sut.searchToken(query, AppNetworks.allNetworks);
 
     verify(
       () => dio.get(
-        "/tokens/search",
+        "/tokens/search/all",
         cancelToken: any(named: "cancelToken"),
         queryParameters: {"query": query},
       ),
     );
   });
 
-  test("When calling `searchToken` it should correctly parse the response", () async {
-    final tokens = [TokenDto.fixture(), TokenDto.fixture(), TokenDto.fixture()];
+  test("When calling `searchToken` for a specific network it should correctly parse the response", () async {
+    final tokensResponse = [
+      SingleChainTokenDto.fixture().toJson(),
+      SingleChainTokenDto.fixture().toJson(),
+      SingleChainTokenDto.fixture().toJson(),
+    ];
+
+    final expectedParsedTokens = tokensResponse
+        .map(
+          (token) => MultiChainTokenDto(
+            addresses: {AppNetworks.sepolia.chainId: token["address"]},
+            decimals: {AppNetworks.sepolia.chainId: token["decimals"]},
+            logoUrl: token["logoUrl"],
+            name: token["name"],
+            symbol: token["symbol"],
+          ),
+        )
+        .toList();
 
     when(
       () => dio.get(
@@ -76,17 +95,11 @@ void main() {
         queryParameters: any(named: "queryParameters"),
         cancelToken: any(named: "cancelToken"),
       ),
-    ).thenAnswer(
-      (_) async => Response(
-        data: [TokenDto.fixture().toJson(), TokenDto.fixture().toJson(), TokenDto.fixture().toJson()],
-        statusCode: 200,
-        requestOptions: RequestOptions(),
-      ),
-    );
+    ).thenAnswer((_) async => Response(data: tokensResponse, statusCode: 200, requestOptions: RequestOptions()));
 
     final response = await sut.searchToken("query", AppNetworks.sepolia);
 
-    expect(response, tokens);
+    expect(response, expectedParsedTokens);
   });
 
   test(
@@ -127,7 +140,7 @@ void main() {
 
     await sut.getTokenPrice(address, network);
 
-    verify(() => dio.get("/tokens/price", queryParameters: {"address": address, "chainId": network.chainId})).called(1);
+    verify(() => dio.get("/tokens/$address/${network.chainId}/price")).called(1);
   });
 
   test("When calling `getTokenPrice` it should correctly parse the response", () async {

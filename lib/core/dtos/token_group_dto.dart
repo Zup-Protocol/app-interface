@@ -1,5 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:zup_app/core/dtos/token_dto.dart';
+import 'package:zup_app/core/dtos/multi_chain_token_dto.dart';
 import 'package:zup_app/core/enums/app_environment.dart';
 
 part 'token_group_dto.freezed.dart';
@@ -13,7 +13,7 @@ sealed class TokenGroupDto with _$TokenGroupDto {
   const factory TokenGroupDto({
     @Default("") String id,
     @Default("") String name,
-    @Default(<TokenDto>[]) List<TokenDto> tokens,
+    @Default(<MultiChainTokenDto>[]) List<MultiChainTokenDto> tokens,
   }) = _TokenGroupDto;
 
   String get logoUrl => "${AppEnvironment.current.apiUrl}/static/group-icons/$id.png";
@@ -21,5 +21,5 @@ sealed class TokenGroupDto with _$TokenGroupDto {
   factory TokenGroupDto.fromJson(Map<String, dynamic> json) => _$TokenGroupDtoFromJson(json);
 
   factory TokenGroupDto.fixture() =>
-      TokenGroupDto(id: "usd-stablecoins-group", name: "USD Stablecoins", tokens: [TokenDto.fixture()]);
+      TokenGroupDto(id: "usd-stablecoins-group", name: "USD Stablecoins", tokens: [MultiChainTokenDto.fixture()]);
 }

@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:zup_app/core/dtos/token_dto.dart';
+import 'package:zup_app/core/dtos/multi_chain_token_dto.dart';
 import 'package:zup_app/core/dtos/token_group_dto.dart';
 import 'package:zup_app/core/injections.dart';
 import 'package:zup_app/gen/assets.gen.dart';
 import 'package:zup_app/l10n/gen/app_localizations.dart';
-import 'package:zup_app/widgets/token_avatar.dart';
 import 'package:zup_app/widgets/token_selector_button/token_selector_button_controller.dart';
 import 'package:zup_app/widgets/token_selector_modal/token_selector_modal.dart';
-import 'package:zup_app/widgets/zup_cached_image.dart';
 import 'package:zup_core/zup_core.dart';
 import 'package:zup_ui_kit/zup_ui_kit.dart';
 
@@ -21,8 +19,8 @@ class TokenSelectorButton extends StatefulWidget {
 }
 
 class _TokenSelectorButtonState extends State<TokenSelectorButton> with DeviceInfoMixin {
-  final zupCachedImage = inject<ZupCachedImage>();
-  TokenDto? get selectedToken => widget.controller.selectedToken;
+  final zupNetworkImage = inject<ZupNetworkImage>();
+  MultiChainTokenDto? get selectedToken => widget.controller.selectedToken;
   TokenGroupDto? get selectedGroup => widget.controller.selectedTokenGroup;
 
   bool get hasSelection => widget.controller.hasSelection;
@@ -102,23 +100,15 @@ class _TokenSelectorButtonState extends State<TokenSelectorButton> with DeviceIn
                       colorFilter: const ColorFilter.mode(ZupColors.brand, BlendMode.srcIn),
                     )
                   else ...[
-                    if (selectedToken != null) TokenAvatar(asset: selectedToken!, size: 30),
-                    if (selectedGroup != null)
-                      zupCachedImage.build(
-                        context,
-                        selectedGroup!.logoUrl,
-                        height: 30,
-                        width: 30,
-                        radius: 50,
-                        errorWidget: (_, __, ___) => Container(
-                          height: 30,
-                          width: 30,
-                          color: ZupColors.gray6,
-                          child: const Center(
-                            child: Text("?", style: TextStyle(color: ZupColors.gray, fontSize: 16)),
-                          ),
-                        ),
+                    if (selectedToken != null)
+                      ZupRemoteAvatar(
+                        avatarUrl: selectedToken!.logoUrl,
+                        errorPlaceholder: selectedToken!.name[0],
+                        zupNetworkImage: zupNetworkImage,
+                        size: 30,
                       ),
+                    if (selectedGroup != null)
+                      ZupRemoteAvatar(avatarUrl: selectedGroup!.logoUrl, errorPlaceholder: "?", size: 30),
                   ],
                   const SizedBox(width: 10),
                   Expanded(

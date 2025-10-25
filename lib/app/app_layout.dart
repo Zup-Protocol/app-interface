@@ -77,27 +77,29 @@ class _AppPageState extends State<AppPage> with DeviceInfoMixin {
         backgroundColor: ZupThemeColors.background.themed(context.brightness),
         bottomNavigationBar: shouldShowBottomNavigationBar ? const AppBottomNavigationBar() : null,
         extendBody: shouldShowBottomNavigationBar,
-        body: CustomScrollView(
+        body: PrimaryScrollController(
           controller: appScrollController,
-          shrinkWrap: true,
-          physics: const ClampingScrollPhysics(),
-          slivers: [
-            SliverAppBar(
-              clipBehavior: Clip.none,
-              forceMaterialTransparency: true,
-              pinned: true,
-              titleSpacing: 0,
-              title: AppHeader(height: appBarHeight),
-              toolbarHeight: appBarHeight,
-            ),
-            const SliverFillRemaining(hasScrollBody: false, child: RouterOutlet(key: Key("screen"))),
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: EdgeInsets.only(bottom: shouldShowBottomNavigationBar ? AppBottomNavigationBar.height : 0),
-                child: const AppFooter(),
+          child: CustomScrollView(
+            primary: true,
+            physics: const ClampingScrollPhysics(),
+            slivers: [
+              SliverAppBar(
+                clipBehavior: Clip.none,
+                forceMaterialTransparency: true,
+                pinned: true,
+                titleSpacing: 0,
+                title: AppHeader(height: appBarHeight),
+                toolbarHeight: appBarHeight,
               ),
-            ),
-          ],
+              const SliverFillRemaining(hasScrollBody: false, child: RouterOutlet(key: Key("screen"))),
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: EdgeInsets.only(bottom: shouldShowBottomNavigationBar ? AppBottomNavigationBar.height : 0),
+                  child: const AppFooter(),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

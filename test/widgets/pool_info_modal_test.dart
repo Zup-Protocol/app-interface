@@ -101,18 +101,18 @@ void main() {
   zGoldenTest(
     """When pressing the copy pool address button, while hovering
     it should change the tooltip to "Copied!" and show a checkmark icon""",
-    goldenFileName: "pool_info_modal_copy_pool_address_tooltip_copied",
     (tester) async {
-      await tester.runAsync(() async {
-        await tester.pumpDeviceBuilder(await goldenBuilder(), wrapper: GoldenConfig.localizationsWrapper());
-        await tester.pumpAndSettle();
+      await tester.pumpDeviceBuilder(await goldenBuilder(), wrapper: GoldenConfig.localizationsWrapper());
+      await tester.pumpAndSettle();
 
-        await tester.hover(find.byKey(const Key("pool-info-modal-copy-pool-address")));
-        await tester.pumpAndSettle();
+      await tester.hover(find.byKey(const Key("pool-info-modal-copy-pool-address")));
+      await tester.pumpAndSettle();
 
-        await tester.tap(find.byKey(const Key("pool-info-modal-copy-pool-address")));
-        await tester.pumpAndSettle();
-      });
+      await tester.tap(find.byKey(const Key("pool-info-modal-copy-pool-address")));
+      await tester.pumpAndSettle();
+
+      await screenMatchesGolden(tester, "pool_info_modal_copy_pool_address_tooltip_copied");
+      await tester.pumpAndSettle(const Duration(seconds: 10));
     },
   );
 
@@ -798,29 +798,29 @@ void main() {
     zGoldenTest(
       """When the pool is v4, the hooks are not null, and the user hover the copy button,
       then click, it should show a tooltip that the address was copied""",
-      goldenFileName: "pool_info_modal_about_tab_v4_hooks_copied_tooltip",
       (tester) async {
-        await tester.runAsync(() async {
-          await tester.pumpDeviceBuilder(
-            await goldenBuilder(
-              customPool: poolWithAbout.copyWith(
-                poolType: PoolType.v4,
-                hook: const HookDto(address: "0x1234567891011", isDynamicFee: false),
-              ),
+        await tester.pumpDeviceBuilder(
+          await goldenBuilder(
+            customPool: poolWithAbout.copyWith(
+              poolType: PoolType.v4,
+              hook: const HookDto(address: "0x1234567891011", isDynamicFee: false),
             ),
-            wrapper: GoldenConfig.localizationsWrapper(),
-          );
-          await tester.pumpAndSettle();
+          ),
+          wrapper: GoldenConfig.localizationsWrapper(),
+        );
+        await tester.pumpAndSettle();
 
-          await tester.tap(find.byKey(const Key("about-tab")));
-          await tester.pumpAndSettle();
+        await tester.tap(find.byKey(const Key("about-tab")));
+        await tester.pumpAndSettle();
 
-          await tester.hover(find.byKey(const Key("copy-hook-button")));
-          await tester.pumpAndSettle();
+        await tester.hover(find.byKey(const Key("copy-hook-button")));
+        await tester.pumpAndSettle();
 
-          await tester.tap(find.byKey(const Key("copy-hook-button")));
-          await tester.pumpAndSettle();
-        });
+        await tester.tap(find.byKey(const Key("copy-hook-button")));
+        await tester.pumpAndSettle();
+
+        await screenMatchesGolden(tester, "pool_info_modal_about_tab_v4_hooks_copied_tooltip");
+        await tester.pumpAndSettle(const Duration(seconds: 10));
       },
     );
 
@@ -938,48 +938,48 @@ void main() {
     zGoldenTest(
       """When the token 0 is not native, and hovering the copy token address button
       then clicking it, it should show a tooltip saying the address was copied""",
-      goldenFileName: "pool_info_modal_about_tab_token_0_copied_tooltip",
       (tester) async {
-        await tester.runAsync(() async {
-          await tester.pumpDeviceBuilder(
-            await goldenBuilder(customPool: poolWithAbout),
-            wrapper: GoldenConfig.localizationsWrapper(),
-          );
-          await tester.pumpAndSettle();
+        await tester.pumpDeviceBuilder(
+          await goldenBuilder(customPool: poolWithAbout),
+          wrapper: GoldenConfig.localizationsWrapper(),
+        );
+        await tester.pumpAndSettle();
 
-          await tester.tap(find.byKey(const Key("about-tab")));
-          await tester.pumpAndSettle();
+        await tester.tap(find.byKey(const Key("about-tab")));
+        await tester.pumpAndSettle();
 
-          await tester.hover(find.byKey(Key("${poolWithAbout.token0.address}-copy-button")));
-          await tester.pumpAndSettle();
+        await tester.hover(find.byKey(Key("${poolWithAbout.token0.address}-copy-button")));
+        await tester.pumpAndSettle();
 
-          await tester.tap(find.byKey(Key("${poolWithAbout.token0.address}-copy-button")));
-          await tester.pumpAndSettle();
-        });
+        await tester.tap(find.byKey(Key("${poolWithAbout.token0.address}-copy-button")));
+        await tester.pumpAndSettle();
+
+        await screenMatchesGolden(tester, "pool_info_modal_about_tab_token_0_copied_tooltip");
+        await tester.pumpAndSettle(const Duration(seconds: 10));
       },
     );
 
     zGoldenTest(
       """When the token 1 is not native, and hovering the copy token address button
       then clicking it, it should show a tooltip saying the address was copied""",
-      goldenFileName: "pool_info_modal_about_tab_token_1_copied_tooltip",
       (tester) async {
-        await tester.runAsync(() async {
-          await tester.pumpDeviceBuilder(
-            await goldenBuilder(customPool: poolWithAbout),
-            wrapper: GoldenConfig.localizationsWrapper(),
-          );
-          await tester.pumpAndSettle();
+        await tester.pumpDeviceBuilder(
+          await goldenBuilder(customPool: poolWithAbout),
+          wrapper: GoldenConfig.localizationsWrapper(),
+        );
+        await tester.pumpAndSettle();
 
-          await tester.tap(find.byKey(const Key("about-tab")));
-          await tester.pumpAndSettle();
+        await tester.tap(find.byKey(const Key("about-tab")));
+        await tester.pumpAndSettle();
 
-          await tester.hover(find.byKey(Key("${poolWithAbout.token1.address}-copy-button")));
-          await tester.pumpAndSettle();
+        await tester.hover(find.byKey(Key("${poolWithAbout.token1.address}-copy-button")));
+        await tester.pumpAndSettle();
 
-          await tester.tap(find.byKey(Key("${poolWithAbout.token1.address}-copy-button")));
-          await tester.pumpAndSettle();
-        });
+        await tester.tap(find.byKey(Key("${poolWithAbout.token1.address}-copy-button")));
+        await tester.pumpAndSettle();
+
+        await screenMatchesGolden(tester, "pool_info_modal_about_tab_token_1_copied_tooltip");
+        await tester.pumpAndSettle(const Duration(seconds: 10));
       },
     );
 

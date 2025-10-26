@@ -12,8 +12,8 @@ import 'package:zup_app/abis/uniswap_v3_position_manager.abi.g.dart';
 import 'package:zup_app/app/create/yields/%5Bid%5D/deposit/widgets/deposit_success_modal.dart';
 import 'package:zup_app/core/concentrated_liquidity_utils/cl_pool_constants.dart';
 import 'package:zup_app/core/concentrated_liquidity_utils/cl_pool_conversors_mixin.dart';
+import 'package:zup_app/core/dtos/liquidity_pool_dto.dart';
 import 'package:zup_app/core/dtos/single_chain_token_dto.dart';
-import 'package:zup_app/core/dtos/yield_dto.dart';
 import 'package:zup_app/core/pool_service.dart';
 import 'package:zup_app/core/slippage.dart';
 import 'package:zup_app/core/zup_analytics.dart';
@@ -28,7 +28,7 @@ class PreviewDepositModalCubit extends Cubit<PreviewDepositModalState> with CLPo
   PreviewDepositModalCubit({
     required BigInt currentPriceX96,
     required PoolService poolService,
-    required YieldDto currentYield,
+    required LiquidityPoolDto currentYield,
     required Erc20 erc20,
     required Wallet wallet,
     required UniswapV3PositionManager uniswapPositionManager,
@@ -47,7 +47,7 @@ class PreviewDepositModalCubit extends Cubit<PreviewDepositModalState> with CLPo
 
   final PoolService _poolRepository;
   final Erc20 _erc20;
-  final YieldDto _yield;
+  final LiquidityPoolDto _yield;
   final Wallet _wallet;
   final GlobalKey<NavigatorState> _navigatorKey;
 

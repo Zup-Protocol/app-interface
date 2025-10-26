@@ -3,9 +3,9 @@ import 'package:mocktail/mocktail.dart';
 import 'package:zup_app/app/app_cubit/app_cubit.dart';
 import 'package:zup_app/app/create/yields/yields_cubit.dart';
 import 'package:zup_app/core/cache.dart';
+import 'package:zup_app/core/dtos/liquidity_pools_search_result_dto.dart';
 import 'package:zup_app/core/dtos/pool_search_filters_dto.dart';
 import 'package:zup_app/core/dtos/pool_search_settings_dto.dart';
-import 'package:zup_app/core/dtos/yields_dto.dart';
 import 'package:zup_app/core/enums/networks.dart';
 import 'package:zup_app/core/repositories/yield_repository.dart';
 import 'package:zup_app/core/zup_analytics.dart';
@@ -283,7 +283,7 @@ void main() {
           searchSettings: any(named: "searchSettings"),
           blockedProtocolIds: any(named: "blockedProtocolIds"),
         ),
-      ).thenAnswer((_) async => const YieldsDto(pools: [], filters: expectedFilters));
+      ).thenAnswer((_) async => const LiquidityPoolsSearchResultDto(pools: [], filters: expectedFilters));
 
       await sut.fetchYields(
         token0AddressOrId: "token0AddressOrId",
@@ -314,7 +314,7 @@ void main() {
           searchSettings: any(named: "searchSettings"),
           blockedProtocolIds: any(named: "blockedProtocolIds"),
         ),
-      ).thenAnswer((_) async => const YieldsDto(pools: [], filters: expectedFilters));
+      ).thenAnswer((_) async => const LiquidityPoolsSearchResultDto(pools: [], filters: expectedFilters));
 
       await sut.fetchYields(
         token0AddressOrId: "token0AddressOrId",
@@ -332,7 +332,7 @@ void main() {
     yield search, it should emit the success state,passing the
     whole DTO to the state""",
     () async {
-      final expectedYields = YieldsDto.fixture();
+      final expectedYields = LiquidityPoolsSearchResultDto.fixture();
 
       when(() => appCubit.selectedNetwork).thenReturn(AppNetworks.allNetworks);
 
@@ -364,7 +364,7 @@ void main() {
     yield search, it should emit the success state, passing the
     whole DTO to the state""",
     () async {
-      final expectedYields = YieldsDto.fixture();
+      final expectedYields = LiquidityPoolsSearchResultDto.fixture();
 
       when(() => appCubit.selectedNetwork).thenReturn(AppNetworks.mainnet);
 

@@ -15,8 +15,8 @@ import 'package:zup_app/abis/uniswap_v3_pool.abi.g.dart';
 import 'package:zup_app/abis/uniswap_v3_position_manager.abi.g.dart';
 import 'package:zup_app/app/create/yields/%5Bid%5D/deposit/widgets/preview_deposit_modal/preview_deposit_modal_cubit.dart';
 import 'package:zup_app/core/concentrated_liquidity_utils/cl_pool_constants.dart';
+import 'package:zup_app/core/dtos/liquidity_pool_dto.dart';
 import 'package:zup_app/core/dtos/single_chain_token_dto.dart';
-import 'package:zup_app/core/dtos/yield_dto.dart';
 import 'package:zup_app/core/enums/networks.dart';
 import 'package:zup_app/core/enums/pool_type.dart';
 import 'package:zup_app/core/injections.dart';
@@ -31,7 +31,7 @@ import '../../../../../wrappers.dart';
 
 void main() {
   final BigInt initialPoolSqrtPriceX96 = BigInt.from(21765);
-  final YieldDto currentYield = YieldDto.fixture();
+  final LiquidityPoolDto currentYield = LiquidityPoolDto.fixture();
   const transactionHash = "0x21";
 
   late PreviewDepositModalCubit sut;
@@ -81,7 +81,7 @@ void main() {
     registerFallbackValue(Slippage.halfPercent);
     registerFallbackValue(BigInt.one);
     registerFallbackValue((amount: BigInt.from(1), token: ""));
-    registerFallbackValue(YieldDto.fixture());
+    registerFallbackValue(LiquidityPoolDto.fixture());
     registerFallbackValue(Duration.zero);
     registerFallbackValue((
       amount0Desired: BigInt.zero,
@@ -233,7 +233,7 @@ void main() {
     Erc20? customErc20,
     Wallet? customWallet,
     UniswapV3PositionManager? customUniswapPositionManager,
-    YieldDto? customYield,
+    LiquidityPoolDto? customYield,
     GlobalKey<NavigatorState>? customNavigatorKey,
     UniswapPermit2? customPermit2,
     PoolService? customPoolService,
@@ -315,7 +315,7 @@ void main() {
     """When calling `setup` it should get the yield tokens allowance from the connected signer
     and then emit the initial state with the allowance values""",
     () async {
-      final customYield = YieldDto.fixture().copyWith(
+      final customYield = LiquidityPoolDto.fixture().copyWith(
         chainId: AppNetworks.sepolia.chainId,
         token0: SingleChainTokenDto.fixture().copyWith(address: "Token 0 Address"),
         token1: SingleChainTokenDto.fixture().copyWith(address: "Token 1 Address"),
@@ -391,7 +391,7 @@ void main() {
     ask to switch the network""",
     () async {
       const yieldNetwork = AppNetworks.sepolia;
-      final customYield = YieldDto.fixture().copyWith(chainId: yieldNetwork.chainId);
+      final customYield = LiquidityPoolDto.fixture().copyWith(chainId: yieldNetwork.chainId);
 
       sut = PreviewDepositModalCubit(
         navigatorKey: GlobalKey(),
@@ -423,7 +423,7 @@ void main() {
     ask to switch the network""",
     () async {
       const yieldNetwork = AppNetworks.sepolia;
-      final customYield = YieldDto.fixture().copyWith(chainId: yieldNetwork.chainId);
+      final customYield = LiquidityPoolDto.fixture().copyWith(chainId: yieldNetwork.chainId);
 
       sut = PreviewDepositModalCubit(
         navigatorKey: GlobalKey(),

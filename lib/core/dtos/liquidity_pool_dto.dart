@@ -11,14 +11,14 @@ import 'package:zup_app/core/enums/pool_data_timeframe.dart';
 import 'package:zup_app/core/enums/pool_type.dart';
 import 'package:zup_app/core/extensions/num_extension.dart';
 
-part 'yield_dto.freezed.dart';
-part 'yield_dto.g.dart';
+part 'liquidity_pool_dto.freezed.dart';
+part 'liquidity_pool_dto.g.dart';
 
 @freezed
-sealed class YieldDto with _$YieldDto {
-  const YieldDto._();
+sealed class LiquidityPoolDto with _$LiquidityPoolDto {
+  const LiquidityPoolDto._();
   @JsonSerializable(explicitToJson: true)
-  const factory YieldDto({
+  const factory LiquidityPoolDto({
     required SingleChainTokenDto token0,
     required SingleChainTokenDto token1,
     required String poolAddress,
@@ -42,7 +42,7 @@ sealed class YieldDto with _$YieldDto {
     @JsonKey(name: "poolManagerAddress") String? v4PoolManager,
     @JsonKey(name: "stateViewAddress") String? v4StateView,
     @JsonKey(name: "permit2Address") String? permit2,
-  }) = _YieldDto;
+  }) = _LiquidityPoolDto;
 
   AppNetworks get network => AppNetworks.fromChainId(chainId)!;
 
@@ -122,9 +122,9 @@ sealed class YieldDto with _$YieldDto {
     }
   }
 
-  factory YieldDto.fromJson(Map<String, dynamic> json) => _$YieldDtoFromJson(json);
+  factory LiquidityPoolDto.fromJson(Map<String, dynamic> json) => _$LiquidityPoolDtoFromJson(json);
 
-  factory YieldDto.fixture() => YieldDto(
+  factory LiquidityPoolDto.fixture() => LiquidityPoolDto(
     initialFeeTier: 0,
     currentFeeTier: 0,
     createdAtTimestamp: (clock.now().copyWith(year: 2024, month: 2, day: 23).millisecondsSinceEpoch / 1000).toInt(),

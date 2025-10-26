@@ -1,6 +1,6 @@
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
-import 'package:zup_app/core/dtos/yield_dto.dart';
+import 'package:zup_app/core/dtos/liquidity_pool_dto.dart';
 import 'package:zup_app/core/repositories/tokens_repository.dart';
 
 class ZupAnalytics {
@@ -22,7 +22,7 @@ class ZupAnalytics {
   }
 
   Future<void> logDeposit({
-    required YieldDto depositedYield,
+    required LiquidityPoolDto depositedYield,
     required num amount0Formatted,
     required num amount1Formatted,
     required String walletAddress,

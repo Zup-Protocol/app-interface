@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:web3kit/web3kit.dart';
+import 'package:zup_app/core/dtos/liquidity_pool_dto.dart';
 import 'package:zup_app/core/dtos/single_chain_token_dto.dart';
-import 'package:zup_app/core/dtos/yield_dto.dart';
 import 'package:zup_app/core/enums/pool_data_timeframe.dart';
 import 'package:zup_app/core/extensions/num_extension.dart';
 import 'package:zup_app/core/extensions/time_ago_extension.dart';
@@ -25,12 +25,12 @@ enum _PoolInfoPages { stats, about }
 class PoolInfoModal extends StatefulWidget with DeviceInfoMixin {
   const PoolInfoModal({super.key, required this.liquidityPool, required this.selectedTimeframe});
 
-  final YieldDto liquidityPool;
+  final LiquidityPoolDto liquidityPool;
   final PoolDataTimeframe selectedTimeframe;
 
   static show(
     BuildContext context, {
-    required YieldDto liquidityPool,
+    required LiquidityPoolDto liquidityPool,
     required PoolDataTimeframe selectedTimeframe,
     required bool showAsBottomSheet,
   }) {

@@ -2,10 +2,10 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:golden_toolkit/golden_toolkit.dart';
+import 'package:zup_app/core/dtos/liquidity_pool_dto.dart';
 import 'package:zup_app/core/dtos/pool_stats_dto.dart';
 import 'package:zup_app/core/dtos/protocol_dto.dart';
 import 'package:zup_app/core/dtos/single_chain_token_dto.dart';
-import 'package:zup_app/core/dtos/yield_dto.dart';
 import 'package:zup_app/core/enums/pool_data_timeframe.dart';
 import 'package:zup_app/core/injections.dart';
 import 'package:zup_app/widgets/yield_card.dart';
@@ -25,7 +25,7 @@ void main() {
 
   Future<DeviceBuilder> goldenBuilder({
     bool isHotestYield = true,
-    YieldDto? yieldPool,
+    LiquidityPoolDto? yieldPool,
     PoolDataTimeframe? yieldTimeFrame,
     bool snapshotDarkMode = false,
     bool showYieldTimeframe = false,
@@ -39,7 +39,7 @@ void main() {
         child: YieldCard(
           showTimeframe: showYieldTimeframe,
           showHotestYieldAnimation: false,
-          yieldPool: yieldPool ?? YieldDto.fixture(),
+          yieldPool: yieldPool ?? LiquidityPoolDto.fixture(),
           yieldTimeFrame: yieldTimeFrame ?? PoolDataTimeframe.day,
           secondaryButton: secondaryButton,
           mainButton: ZupPrimaryButton(title: "Main Action", onPressed: (buttonContext) {}, height: 45),
@@ -53,7 +53,7 @@ void main() {
     it should show the day yield from the passed yield pool""",
     goldenFileName: "yield_card_day_timeframe",
     (tester) async {
-      final pool = YieldDto.fixture().copyWith(
+      final pool = LiquidityPoolDto.fixture().copyWith(
         total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 12518721),
       );
       await tester.pumpDeviceBuilder(await goldenBuilder(yieldTimeFrame: PoolDataTimeframe.day, yieldPool: pool));
@@ -65,7 +65,7 @@ void main() {
     it should show the week yield from the passed yield pool""",
     goldenFileName: "yield_card_week_timeframe",
     (tester) async {
-      final pool = YieldDto.fixture().copyWith(
+      final pool = LiquidityPoolDto.fixture().copyWith(
         total7dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 111122111),
       );
       await tester.pumpDeviceBuilder(await goldenBuilder(yieldTimeFrame: PoolDataTimeframe.week, yieldPool: pool));
@@ -77,7 +77,9 @@ void main() {
     it should show the month yield from the passed yield pool""",
     goldenFileName: "yield_card_month_timeframe",
     (tester) async {
-      final pool = YieldDto.fixture().copyWith(total30dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 991));
+      final pool = LiquidityPoolDto.fixture().copyWith(
+        total30dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 991),
+      );
       await tester.pumpDeviceBuilder(await goldenBuilder(yieldTimeFrame: PoolDataTimeframe.month, yieldPool: pool));
     },
   );
@@ -87,7 +89,9 @@ void main() {
     it should show the three months yield from the passed yield pool""",
     goldenFileName: "yield_card_three_months_timeframe",
     (tester) async {
-      final pool = YieldDto.fixture().copyWith(total90dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 654));
+      final pool = LiquidityPoolDto.fixture().copyWith(
+        total90dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 654),
+      );
       await tester.pumpDeviceBuilder(
         await goldenBuilder(yieldTimeFrame: PoolDataTimeframe.threeMonth, yieldPool: pool),
       );
@@ -107,7 +111,7 @@ void main() {
     explaining that the pool is at n blockchain""",
     goldenFileName: "yield_card_blockchain_tooltip_hover",
     (tester) async {
-      final yieldPool = YieldDto.fixture();
+      final yieldPool = LiquidityPoolDto.fixture();
       await tester.pumpDeviceBuilder(await goldenBuilder(yieldPool: yieldPool));
 
       await tester.hover(find.byKey(Key("yield-card-network-${yieldPool.network.label}")));
@@ -120,7 +124,7 @@ void main() {
     explaining the yield percent, and showing other timesframes yields""",
     goldenFileName: "yield_card_yield_tooltip_hover",
     (tester) async {
-      final yieldPool = YieldDto.fixture().copyWith(
+      final yieldPool = LiquidityPoolDto.fixture().copyWith(
         total7dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 2919),
         total30dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 9824),
         total90dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 1111),
@@ -140,7 +144,7 @@ void main() {
     (tester) async {
       debugDefaultTargetPlatformOverride = TargetPlatform.android;
 
-      final yieldPool = YieldDto.fixture().copyWith(
+      final yieldPool = LiquidityPoolDto.fixture().copyWith(
         total7dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 2919),
         total30dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 9824),
         total90dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 1111),
@@ -159,7 +163,7 @@ void main() {
     "When the tvl decimals is greater than 2, the tvl should be compact",
     goldenFileName: "yield_card_compacte_tvl",
     (tester) async {
-      final pool = YieldDto.fixture().copyWith(totalValueLockedUSD: 112152871.219201);
+      final pool = LiquidityPoolDto.fixture().copyWith(totalValueLockedUSD: 112152871.219201);
       await tester.pumpDeviceBuilder(await goldenBuilder(yieldPool: pool));
     },
   );
@@ -168,7 +172,7 @@ void main() {
     "When the protocol name is too big, it add a overflow ellipsis",
     goldenFileName: "yield_card_overflow_protocol_name",
     (tester) async {
-      final pool = YieldDto.fixture().copyWith(
+      final pool = LiquidityPoolDto.fixture().copyWith(
         protocol: ProtocolDto.fixture().copyWith(name: "Lorem ipsum dolor sit amet consectetur adipiscing elit"),
       );
       await tester.pumpDeviceBuilder(await goldenBuilder(yieldPool: pool));
@@ -179,7 +183,7 @@ void main() {
     "When the token symbol pass 8 chars, it should be overflowed with an ellipsis",
     goldenFileName: "yield_card_overflow_token_symbol",
     (tester) async {
-      final pool = YieldDto.fixture().copyWith(
+      final pool = LiquidityPoolDto.fixture().copyWith(
         token0: SingleChainTokenDto.fixture().copyWith(
           symbol: "Lorem ipsum dolor sit amet consectetur adipiscing elit",
         ),
@@ -195,7 +199,9 @@ void main() {
     "When passing 'showYieldTimframe' true, it should show the timeframe of the yield in the card",
     goldenFileName: "yield_card_show_yield_timeframe",
     (tester) async {
-      final pool = YieldDto.fixture().copyWith(total90dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 654));
+      final pool = LiquidityPoolDto.fixture().copyWith(
+        total90dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 654),
+      );
       await tester.pumpDeviceBuilder(
         await goldenBuilder(yieldTimeFrame: PoolDataTimeframe.threeMonth, yieldPool: pool, showYieldTimeframe: true),
       );

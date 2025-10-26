@@ -1,8 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:zup_app/core/dtos/liquidity_pools_search_result_dto.dart';
 import 'package:zup_app/core/dtos/pool_search_settings_dto.dart';
-import 'package:zup_app/core/dtos/yields_dto.dart';
 import 'package:zup_app/core/enums/networks.dart';
 import 'package:zup_app/core/repositories/yield_repository.dart';
 
@@ -18,7 +18,7 @@ void main() {
   });
 
   test("When calling `getSingleNetworkYield` it should call the correct endpoint with the correct params", () async {
-    final yields = YieldsDto.fixture();
+    final yields = LiquidityPoolsSearchResultDto.fixture();
 
     when(
       () => dio.post(
@@ -67,7 +67,7 @@ void main() {
   });
 
   test("When calling `getYields` it should correctly parse the response", () async {
-    final yields = YieldsDto.fixture();
+    final yields = LiquidityPoolsSearchResultDto.fixture();
 
     when(
       () => dio.post(
@@ -95,7 +95,7 @@ void main() {
   });
 
   test("when calling 'getAllNetworksYield' it should call the correct endpoint with the correct params", () async {
-    final yields = YieldsDto.fixture();
+    final yields = LiquidityPoolsSearchResultDto.fixture();
 
     when(
       () => dio.post(
@@ -138,7 +138,7 @@ void main() {
   });
 
   test("when calling 'getAllNetworksYield' it should correctly parse the response", () async {
-    final yields = YieldsDto.fixture();
+    final yields = LiquidityPoolsSearchResultDto.fixture();
 
     when(
       () => dio.post(

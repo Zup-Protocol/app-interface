@@ -5,10 +5,10 @@ import 'package:mocktail/mocktail.dart';
 import 'package:url_launcher_platform_interface/url_launcher_platform_interface.dart';
 import 'package:web3kit/core/core.dart';
 import 'package:zup_app/core/dtos/hook_dto.dart';
+import 'package:zup_app/core/dtos/liquidity_pool_dto.dart';
 import 'package:zup_app/core/dtos/pool_stats_dto.dart';
 import 'package:zup_app/core/dtos/protocol_dto.dart';
 import 'package:zup_app/core/dtos/single_chain_token_dto.dart';
-import 'package:zup_app/core/dtos/yield_dto.dart';
 import 'package:zup_app/core/enums/networks.dart';
 import 'package:zup_app/core/enums/pool_data_timeframe.dart';
 import 'package:zup_app/core/enums/pool_type.dart';
@@ -26,7 +26,7 @@ void main() {
   late ZupNavigator navigator;
 
   setUp(() {
-    registerFallbackValue(YieldDto.fixture());
+    registerFallbackValue(LiquidityPoolDto.fixture());
     registerFallbackValue(PoolDataTimeframe.day);
 
     UrlLauncherPlatform.instance = UrlLauncherPlatformCustomMock();
@@ -48,7 +48,7 @@ void main() {
   tearDown(() => inject.reset());
 
   Future<DeviceBuilder> goldenBuilder({
-    YieldDto? customPool,
+    LiquidityPoolDto? customPool,
     PoolDataTimeframe selectedTimeframe = PoolDataTimeframe.day,
     bool isMobile = false,
   }) async => await goldenDeviceBuilder(
@@ -58,7 +58,7 @@ void main() {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           PoolInfoModal.show(
             context,
-            liquidityPool: customPool ?? YieldDto.fixture(),
+            liquidityPool: customPool ?? LiquidityPoolDto.fixture(),
             selectedTimeframe: selectedTimeframe,
             showAsBottomSheet: isMobile,
           );
@@ -75,7 +75,7 @@ void main() {
     tester.onSetClipboard((clipboardText) => clipboardData = clipboardText);
 
     const poolAddress = "xabasMaPol";
-    final pool = YieldDto.fixture().copyWith(poolAddress: poolAddress);
+    final pool = LiquidityPoolDto.fixture().copyWith(poolAddress: poolAddress);
     await tester.pumpDeviceBuilder(await goldenBuilder(customPool: pool), wrapper: GoldenConfig.localizationsWrapper());
     await tester.pumpAndSettle();
 
@@ -122,7 +122,7 @@ void main() {
     goldenFileName: "pool_info_modal_add_liquidity_pop",
     (tester) async {
       const expectedTimeframe = PoolDataTimeframe.week;
-      final expectedPool = YieldDto.fixture().copyWith(poolAddress: "some random address");
+      final expectedPool = LiquidityPoolDto.fixture().copyWith(poolAddress: "some random address");
 
       await tester.pumpDeviceBuilder(
         await goldenBuilder(customPool: expectedPool, selectedTimeframe: expectedTimeframe),
@@ -149,7 +149,7 @@ void main() {
     (tester) async {
       await tester.pumpDeviceBuilder(
         await goldenBuilder(
-          customPool: YieldDto.fixture().copyWith(
+          customPool: LiquidityPoolDto.fixture().copyWith(
             token0: const SingleChainTokenDto(address: EthereumConstants.zeroAddress),
             token1: const SingleChainTokenDto(address: "0x123"),
           ),
@@ -178,7 +178,7 @@ void main() {
     (tester) async {
       await tester.pumpDeviceBuilder(
         await goldenBuilder(
-          customPool: YieldDto.fixture().copyWith(
+          customPool: LiquidityPoolDto.fixture().copyWith(
             token0: const SingleChainTokenDto(address: "0x123"),
             token1: const SingleChainTokenDto(address: EthereumConstants.zeroAddress),
           ),
@@ -208,7 +208,7 @@ void main() {
     (tester) async {
       await tester.pumpDeviceBuilder(
         await goldenBuilder(
-          customPool: YieldDto.fixture().copyWith(
+          customPool: LiquidityPoolDto.fixture().copyWith(
             token0: const SingleChainTokenDto(address: "0x123"),
             token1: const SingleChainTokenDto(address: "0x456"),
           ),
@@ -232,7 +232,7 @@ void main() {
   );
 
   group("Pool Stats Page Tests", () {
-    final poolWithTimeframeStats = YieldDto.fixture().copyWith(
+    final poolWithTimeframeStats = LiquidityPoolDto.fixture().copyWith(
       totalValueLockedUSD: 787878,
       total24hStats: const PoolTotalStatsDTO(
         totalFees: 242424,
@@ -582,7 +582,7 @@ void main() {
   });
 
   group("About pool page", () {
-    final poolWithAbout = YieldDto.fixture().copyWith(
+    final poolWithAbout = LiquidityPoolDto.fixture().copyWith(
       currentFeeTier: 1200,
       chainId: AppNetworks.base.chainId,
       poolType: PoolType.v3,

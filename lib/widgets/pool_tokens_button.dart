@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:zup_app/core/dtos/yield_dto.dart';
+import 'package:zup_app/core/dtos/liquidity_pool_dto.dart';
 import 'package:zup_app/gen/assets.gen.dart';
 import 'package:zup_app/l10n/gen/app_localizations.dart';
 import 'package:zup_app/widgets/pool_tokens_avatar.dart';
@@ -10,7 +10,7 @@ import 'package:zup_ui_kit/zup_ui_kit.dart';
 class PoolTokensButton extends StatelessWidget {
   const PoolTokensButton({super.key, required this.liquidityPool});
 
-  final YieldDto liquidityPool;
+  final LiquidityPoolDto liquidityPool;
 
   bool get canLaunchAtDexscreener => liquidityPool.network.dexscreenerUrl != null;
 

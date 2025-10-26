@@ -354,25 +354,49 @@ class SEn extends S {
   String get noResultsFor => 'No results for';
 
   @override
-  String get poolInfoModalAboutPoolTabTitle => 'About Pool';
-
-  @override
-  String get poolInfoModalAddLiquidity => 'Add Liquidity';
-
-  @override
-  String get poolInfoModalBottomSheetTitle => 'Pool Information';
+  String get poolInfoModalAboutPageCopyHook => 'Copy Hook Address';
 
   @override
   String get poolInfoModalAboutPageCopyToken => 'Copy Token Address';
 
   @override
-  String get poolInfoModalAboutPageTokenCopied => 'Copied!';
+  String get poolInfoModalAboutPageFee => 'Fee';
 
   @override
-  String get poolInfoModalAboutPageCopyHook => 'Copy Hook Address';
+  String poolInfoModalAboutPageFeeDescription({
+    required String isDynamicFee,
+    required String formattedFee,
+  }) {
+    String _temp0 = intl.Intl.selectLogic(isDynamicFee, {
+      'true': 'a dynamic',
+      'other': '$formattedFee',
+    });
+    return 'This pool takes $_temp0 fee on each trade and distributes it to the liquidity providers';
+  }
 
   @override
   String get poolInfoModalAboutPageHookCopied => 'Copied!';
+
+  @override
+  String get poolInfoModalAboutPageHooks => 'Hooks';
+
+  @override
+  String get poolInfoModalAboutPageHooksDescription =>
+      'Some pools can include hooks, which are small smart contracts attached to the pool that allow pools to add extra features or rules when people trade or add liquidity';
+
+  @override
+  String get poolInfoModalAboutPageHooksNo => 'No';
+
+  @override
+  String get poolInfoModalAboutPageNetwork => 'Network';
+
+  @override
+  String poolInfoModalAboutPagePoolTypeValue({required String poolType}) {
+    return '$poolType Pool';
+  }
+
+  @override
+  String get poolInfoModalAboutPageProtocol => 'Protocol';
 
   @override
   String poolInfoModalAboutPageTimeCreatedAgo({required String timeAgo}) {
@@ -380,13 +404,22 @@ class SEn extends S {
   }
 
   @override
-  String get poolInfoModalAboutPageNetwork => 'Network';
-
-  @override
-  String get poolInfoModalAboutPageProtocol => 'Protocol';
+  String get poolInfoModalAboutPageTokenCopied => 'Copied!';
 
   @override
   String get poolInfoModalAboutPageTokens => 'Tokens';
+
+  @override
+  String get poolInfoModalAboutPageType => 'Type';
+
+  @override
+  String get poolInfoModalAboutPoolTabTitle => 'About Pool';
+
+  @override
+  String get poolInfoModalAddLiquidity => 'Add Liquidity';
+
+  @override
+  String get poolInfoModalBottomSheetTitle => 'Pool Information';
 
   @override
   String get poolInfoModalCopied => 'Copied!';
@@ -568,39 +601,6 @@ class SEn extends S {
   String previewDepositModalApproveToken({required String tokenSymbol}) {
     return 'Approve $tokenSymbol';
   }
-
-  @override
-  String get poolInfoModalAboutPageFee => 'Fee';
-
-  @override
-  String poolInfoModalAboutPageFeeDescription({
-    required String isDynamicFee,
-    required String formattedFee,
-  }) {
-    String _temp0 = intl.Intl.selectLogic(isDynamicFee, {
-      'true': 'a dynamic',
-      'other': '$formattedFee',
-    });
-    return 'This pool takes $_temp0 fee on each trade and distributes it to the liquidity providers';
-  }
-
-  @override
-  String get poolInfoModalAboutPageType => 'Type';
-
-  @override
-  String poolInfoModalAboutPagePoolTypeValue({required String poolType}) {
-    return '$poolType Pool';
-  }
-
-  @override
-  String get poolInfoModalAboutPageHooksNo => 'No';
-
-  @override
-  String get poolInfoModalAboutPageHooksDescription =>
-      'Some pools can include hooks, which are small smart contracts attached to the pool that allow pools to add extra features or rules when people trade or add liquidity';
-
-  @override
-  String get poolInfoModalAboutPageHooks => 'Hooks';
 
   @override
   String previewDepositModalApprovingToken({required String tokenSymbol}) {

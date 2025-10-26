@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:intl/intl.dart';
 import 'package:skeletonizer/skeletonizer.dart' hide ShimmerEffect;
-import 'package:zup_app/core/dtos/yield_dto.dart';
+import 'package:zup_app/core/dtos/liquidity_pool_dto.dart';
 import 'package:zup_app/core/enums/pool_data_timeframe.dart';
 import 'package:zup_app/core/injections.dart';
 import 'package:zup_app/core/mixins/keys_mixin.dart';
@@ -26,7 +26,7 @@ class YieldCard extends StatefulWidget {
     this.secondaryButton,
   });
 
-  final YieldDto yieldPool;
+  final LiquidityPoolDto yieldPool;
   final bool showHotestYieldAnimation;
   final bool showTimeframe;
   final bool expandWidth;

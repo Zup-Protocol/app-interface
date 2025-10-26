@@ -1,8 +1,8 @@
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:zup_app/core/dtos/liquidity_pool_dto.dart';
 import 'package:zup_app/core/dtos/token_price_dto.dart';
-import 'package:zup_app/core/dtos/yield_dto.dart';
 import 'package:zup_app/core/enums/networks.dart';
 import 'package:zup_app/core/repositories/tokens_repository.dart';
 import 'package:zup_app/core/zup_analytics.dart';
@@ -30,7 +30,7 @@ void main() {
   });
 
   test("when calling `logDeposit` it should log the event with the correct name and params", () async {
-    final depositedYield = YieldDto.fixture();
+    final depositedYield = LiquidityPoolDto.fixture();
 
     const amount0 = 1.0;
     const amount1 = 2.0;
@@ -102,7 +102,7 @@ void main() {
     ).thenThrow(Exception());
 
     await sut.logDeposit(
-      depositedYield: YieldDto.fixture(),
+      depositedYield: LiquidityPoolDto.fixture(),
       amount0Formatted: 1.0,
       amount1Formatted: 1.0,
       walletAddress: "0x123",

@@ -5,8 +5,8 @@ import 'package:golden_toolkit/golden_toolkit.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:url_launcher_platform_interface/url_launcher_platform_interface.dart';
 import 'package:zup_app/app/create/yields/%5Bid%5D/deposit/widgets/deposit_success_modal.dart';
+import 'package:zup_app/core/dtos/liquidity_pool_dto.dart';
 import 'package:zup_app/core/dtos/protocol_dto.dart';
-import 'package:zup_app/core/dtos/yield_dto.dart';
 import 'package:zup_app/core/injections.dart';
 import 'package:zup_ui_kit/zup_network_image.dart';
 
@@ -33,14 +33,14 @@ void main() {
 
   tearDown(() => inject.reset());
 
-  Future<DeviceBuilder> goldenBuilder({YieldDto? customYield, bool showAsBottomSheet = false}) async =>
+  Future<DeviceBuilder> goldenBuilder({LiquidityPoolDto? customYield, bool showAsBottomSheet = false}) async =>
       await goldenDeviceBuilder(
         Builder(
           builder: (context) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
               DepositSuccessModal.show(
                 context,
-                depositedYield: customYield ?? YieldDto.fixture().copyWith(),
+                depositedYield: customYield ?? LiquidityPoolDto.fixture().copyWith(),
                 showAsBottomSheet: showAsBottomSheet,
               );
             });
@@ -84,7 +84,7 @@ void main() {
 
       await tester.pumpDeviceBuilder(
         await goldenBuilder(
-          customYield: YieldDto.fixture().copyWith(protocol: ProtocolDto.fixture().copyWith(url: protocolUrl)),
+          customYield: LiquidityPoolDto.fixture().copyWith(protocol: ProtocolDto.fixture().copyWith(url: protocolUrl)),
         ),
         wrapper: GoldenConfig.localizationsWrapper(),
       );

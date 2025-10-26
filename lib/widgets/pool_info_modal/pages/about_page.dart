@@ -3,7 +3,7 @@ part of '../pool_info_modal.dart';
 class _AboutPage extends StatefulWidget {
   const _AboutPage(this.liquidityPool);
 
-  final YieldDto liquidityPool;
+  final LiquidityPoolDto liquidityPool;
 
   @override
   State<_AboutPage> createState() => _AboutPageState();

@@ -17,10 +17,10 @@ import 'package:zup_app/app/create/yields/%5Bid%5D/deposit/deposit_page.dart';
 import 'package:zup_app/app/create/yields/%5Bid%5D/deposit/widgets/preview_deposit_modal/preview_deposit_modal.dart';
 import 'package:zup_app/core/cache.dart';
 import 'package:zup_app/core/dtos/deposit_settings_dto.dart';
+import 'package:zup_app/core/dtos/liquidity_pool_dto.dart';
+import 'package:zup_app/core/dtos/liquidity_pools_search_result_dto.dart';
 import 'package:zup_app/core/dtos/pool_search_settings_dto.dart';
 import 'package:zup_app/core/dtos/token_price_dto.dart';
-import 'package:zup_app/core/dtos/yield_dto.dart';
-import 'package:zup_app/core/dtos/yields_dto.dart';
 import 'package:zup_app/core/enums/networks.dart';
 import 'package:zup_app/core/enums/pool_data_timeframe.dart';
 import 'package:zup_app/core/injections.dart';
@@ -112,7 +112,7 @@ void main() {
     when(() => cubit.saveDepositSettings(any(), any())).thenAnswer((_) async => ());
     when(() => cubit.depositSettings).thenReturn(DepositSettingsDto.fixture());
     when(() => cubit.poolSearchSettings).thenReturn(PoolSearchSettingsDto.fixture());
-    when(() => cubit.yieldPool).thenReturn(YieldDto.fixture());
+    when(() => cubit.yieldPool).thenReturn(LiquidityPoolDto.fixture());
     when(() => navigator.getQueryParam(DepositRouteParamsNames().network)).thenReturn(AppNetworks.mainnet.name);
     when(() => navigator.getQueryParam(DepositRouteParamsNames().timeframe)).thenReturn(PoolDataTimeframe.day.name);
     when(() => navigator.getQueryParam(DepositRouteParamsNames().parseWrappedToNative)).thenReturn(true.toString());
@@ -185,7 +185,7 @@ void main() {
     tester,
   ) async {
     await tester.runAsync(() async {
-      final pool = YieldDto.fixture();
+      final pool = LiquidityPoolDto.fixture();
 
       when(() => cubit.state).thenReturn(DepositState.success(pool));
 
@@ -205,7 +205,7 @@ void main() {
           () => cubit.depositSettings,
         ).thenReturn(const DepositSettingsDto(deadlineMinutes: 10, maxSlippage: DepositSettingsDto.defaultMaxSlippage));
 
-        when(() => cubit.state).thenReturn(DepositState.success(YieldDto.fixture()));
+        when(() => cubit.state).thenReturn(DepositState.success(LiquidityPoolDto.fixture()));
 
         await tester.pumpDeviceBuilder(await goldenBuilder(isMobile: true));
         await tester.pumpAndSettle();
@@ -219,7 +219,7 @@ void main() {
 
   zGoldenTest("When clicking back in the success state, it should navigate to the choose tokens page", (tester) async {
     when(() => navigator.navigateToNewPosition()).thenAnswer((_) async {});
-    when(() => cubit.state).thenReturn(DepositState.success(YieldDto.fixture()));
+    when(() => cubit.state).thenReturn(DepositState.success(LiquidityPoolDto.fixture()));
 
     await tester.runAsync(() async {
       await tester.pumpDeviceBuilder(await goldenBuilder());
@@ -238,7 +238,7 @@ void main() {
     (tester) async {
       when(() => navigator.canBack(any())).thenReturn(true);
       when(() => navigator.navigateToNewPosition()).thenAnswer((_) async {});
-      when(() => cubit.state).thenReturn(DepositState.success(YieldDto.fixture()));
+      when(() => cubit.state).thenReturn(DepositState.success(LiquidityPoolDto.fixture()));
 
       await tester.runAsync(() async {
         await tester.pumpDeviceBuilder(await goldenBuilder());
@@ -259,7 +259,7 @@ void main() {
     (tester) async {
       when(() => navigator.canBack(any())).thenReturn(true);
       when(() => navigator.navigateToNewPosition()).thenAnswer((_) async {});
-      when(() => cubit.state).thenReturn(DepositState.success(YieldDto.fixture()));
+      when(() => cubit.state).thenReturn(DepositState.success(LiquidityPoolDto.fixture()));
 
       await tester.runAsync(() async {
         await tester.pumpDeviceBuilder(await goldenBuilder());
@@ -273,7 +273,7 @@ void main() {
     goldenFileName: "deposit_page_reverse_tokens",
     (tester) async {
       await tester.runAsync(() async {
-        final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
+        final selectedYield = LiquidityPoolsSearchResultDto.fixture().poolsSortedBy24hYield.first;
 
         when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
         when(() => cubit.yieldPool).thenReturn(selectedYield);
@@ -292,7 +292,7 @@ void main() {
     goldenFileName: "deposit_page_reverse_tokens_back",
     (tester) async {
       await tester.runAsync(() async {
-        final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
+        final selectedYield = LiquidityPoolsSearchResultDto.fixture().poolsSortedBy24hYield.first;
 
         when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
         when(() => cubit.yieldPool).thenReturn(selectedYield);
@@ -314,7 +314,7 @@ void main() {
     goldenFileName: "deposit_page_reverse_tokens_back",
     (tester) async {
       await tester.runAsync(() async {
-        final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
+        final selectedYield = LiquidityPoolsSearchResultDto.fixture().poolsSortedBy24hYield.first;
 
         when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
         when(() => cubit.yieldPool).thenReturn(selectedYield);
@@ -337,7 +337,7 @@ void main() {
     goldenFileName: "deposit_page_calculate_price",
     (tester) async {
       await tester.runAsync(() async {
-        final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
+        final selectedYield = LiquidityPoolsSearchResultDto.fixture().poolsSortedBy24hYield.first;
 
         when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
         when(() => cubit.yieldPool).thenReturn(selectedYield);
@@ -355,7 +355,7 @@ void main() {
     goldenFileName: "deposit_page_calculate_price_reversed",
     (tester) async {
       await tester.runAsync(() async {
-        final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
+        final selectedYield = LiquidityPoolsSearchResultDto.fixture().poolsSortedBy24hYield.first;
 
         when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
         when(() => cubit.yieldPool).thenReturn(selectedYield);
@@ -378,7 +378,7 @@ void main() {
     goldenFileName: "deposit_page_min_price_out_of_range",
     (tester) async {
       await tester.runAsync(() async {
-        final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
+        final selectedYield = LiquidityPoolsSearchResultDto.fixture().poolsSortedBy24hYield.first;
         final currentPriceAsTick = BigInt.parse("79121973566864535878904");
 
         when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
@@ -405,7 +405,7 @@ void main() {
     goldenFileName: "deposit_page_min_price_out_of_range_reversed_in_range",
     (tester) async {
       await tester.runAsync(() async {
-        final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
+        final selectedYield = LiquidityPoolsSearchResultDto.fixture().poolsSortedBy24hYield.first;
         final currentPriceAsSqrtPriceX96 = BigInt.parse("79121973566864535878904");
 
         when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
@@ -433,7 +433,7 @@ void main() {
     goldenFileName: "deposit_page_min_price_out_of_range_reversed",
     (tester) async {
       await tester.runAsync(() async {
-        final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
+        final selectedYield = LiquidityPoolsSearchResultDto.fixture().poolsSortedBy24hYield.first;
         final currentPriceAsTick = BigInt.parse("79121973566864535878904");
 
         when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
@@ -458,7 +458,7 @@ void main() {
     goldenFileName: "deposit_page_max_price_less_than_min_price",
     (tester) async {
       await tester.runAsync(() async {
-        final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
+        final selectedYield = LiquidityPoolsSearchResultDto.fixture().poolsSortedBy24hYield.first;
         final currentPriceAsTick = BigInt.parse("79121973566864535878904");
 
         when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
@@ -489,7 +489,7 @@ void main() {
     goldenFileName: "deposit_page_max_price_out_of_range",
     (tester) async {
       await tester.runAsync(() async {
-        final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
+        final selectedYield = LiquidityPoolsSearchResultDto.fixture().poolsSortedBy24hYield.first;
         final currentPriceAsTick = BigInt.parse("79121973566864535878904");
 
         when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
@@ -516,7 +516,7 @@ void main() {
     goldenFileName: "deposit_page_max_price_set_to_infinity",
     (tester) async {
       await tester.runAsync(() async {
-        final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
+        final selectedYield = LiquidityPoolsSearchResultDto.fixture().poolsSortedBy24hYield.first;
         final currentPriceAsTick = BigInt.parse("79121973566864535878904");
 
         when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
@@ -550,7 +550,7 @@ void main() {
     goldenFileName: "deposit_page_min_price_set_to_full_range",
     (tester) async {
       await tester.runAsync(() async {
-        final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
+        final selectedYield = LiquidityPoolsSearchResultDto.fixture().poolsSortedBy24hYield.first;
         final currentPriceAsTick = BigInt.parse("79121973566864535878904");
 
         when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
@@ -575,7 +575,7 @@ void main() {
     goldenFileName: "deposit_page_5_percent_set_to_full_range",
     (tester) async {
       await tester.runAsync(() async {
-        final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
+        final selectedYield = LiquidityPoolsSearchResultDto.fixture().poolsSortedBy24hYield.first;
         final currentPriceAsTick = BigInt.parse("79121973566864535878904");
 
         when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
@@ -602,7 +602,7 @@ void main() {
     goldenFileName: "deposit_page_5_percent_set_to_full_range_reverse_tokens",
     (tester) async {
       await tester.runAsync(() async {
-        final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
+        final selectedYield = LiquidityPoolsSearchResultDto.fixture().poolsSortedBy24hYield.first;
         final currentPriceAsTick = BigInt.parse("79121973566864535878904");
 
         when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
@@ -632,7 +632,7 @@ void main() {
     goldenFileName: "deposit_page_set_5_percent_range",
     (tester) async {
       await tester.runAsync(() async {
-        final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
+        final selectedYield = LiquidityPoolsSearchResultDto.fixture().poolsSortedBy24hYield.first;
         final currentPriceAsTick = BigInt.parse("79121973566864535878904");
 
         when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
@@ -657,7 +657,7 @@ void main() {
     goldenFileName: "deposit_page_set_5_percent_range_reverse_tokens",
     (tester) async {
       await tester.runAsync(() async {
-        final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
+        final selectedYield = LiquidityPoolsSearchResultDto.fixture().poolsSortedBy24hYield.first;
         final currentPriceAsTick = BigInt.parse("79121973566864535878904");
 
         when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
@@ -683,7 +683,7 @@ void main() {
     goldenFileName: "deposit_page_set_20_percent_range",
     (tester) async {
       await tester.runAsync(() async {
-        final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
+        final selectedYield = LiquidityPoolsSearchResultDto.fixture().poolsSortedBy24hYield.first;
         final currentPriceAsTick = BigInt.parse("79121973566864535878904");
 
         when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
@@ -708,7 +708,7 @@ void main() {
     goldenFileName: "deposit_page_set_20_percent_range_reverse_tokens",
     (tester) async {
       await tester.runAsync(() async {
-        final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
+        final selectedYield = LiquidityPoolsSearchResultDto.fixture().poolsSortedBy24hYield.first;
         final currentPriceAsTick = BigInt.parse("79121973566864535878904");
 
         when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
@@ -734,7 +734,7 @@ void main() {
     goldenFileName: "deposit_page_set_50_percent_range",
     (tester) async {
       await tester.runAsync(() async {
-        final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
+        final selectedYield = LiquidityPoolsSearchResultDto.fixture().poolsSortedBy24hYield.first;
         final currentPriceAsTick = BigInt.parse("79121973566864535878904");
 
         when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
@@ -759,7 +759,7 @@ void main() {
     goldenFileName: "deposit_page_set_50_percent_range_reverse_tokens",
     (tester) async {
       await tester.runAsync(() async {
-        final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
+        final selectedYield = LiquidityPoolsSearchResultDto.fixture().poolsSortedBy24hYield.first;
         final currentPriceAsTick = BigInt.parse("79121973566864535878904");
 
         when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
@@ -784,7 +784,7 @@ void main() {
     goldenFileName: "deposit_page_max_price_set_to_full_range",
     (tester) async {
       await tester.runAsync(() async {
-        final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
+        final selectedYield = LiquidityPoolsSearchResultDto.fixture().poolsSortedBy24hYield.first;
         final currentPriceAsTick = BigInt.parse("79121973566864535878904");
 
         when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
@@ -811,7 +811,7 @@ void main() {
     goldenFileName: "deposit_page_set_percentage_range_then_type_max_price_reverse_tokens",
     (tester) async {
       await tester.runAsync(() async {
-        final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
+        final selectedYield = LiquidityPoolsSearchResultDto.fixture().poolsSortedBy24hYield.first;
         final currentPriceAsTick = BigInt.parse("79121973566864535878904");
 
         when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
@@ -841,7 +841,7 @@ void main() {
     goldenFileName: "deposit_page_set_percentage_range_then_type_min_price_reverse_tokens",
     (tester) async {
       await tester.runAsync(() async {
-        final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
+        final selectedYield = LiquidityPoolsSearchResultDto.fixture().poolsSortedBy24hYield.first;
         final currentPriceAsTick = BigInt.parse("79121973566864535878904");
 
         when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
@@ -870,7 +870,7 @@ void main() {
     goldenFileName: "deposit_page_min_and_max_price_set_to_full_range",
     (tester) async {
       await tester.runAsync(() async {
-        final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
+        final selectedYield = LiquidityPoolsSearchResultDto.fixture().poolsSortedBy24hYield.first;
         final currentPriceAsTick = BigInt.parse("79121973566864535878904");
 
         when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
@@ -898,7 +898,7 @@ void main() {
     goldenFileName: "deposit_page_invalid_range_deposit_section",
     (tester) async {
       await tester.runAsync(() async {
-        final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
+        final selectedYield = LiquidityPoolsSearchResultDto.fixture().poolsSortedBy24hYield.first;
         final currentPriceAsTick = BigInt.parse("79121973566864535878904");
 
         when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
@@ -931,7 +931,7 @@ void main() {
     goldenFileName: "deposit_page_input_base_token_amount",
     (tester) async {
       await tester.runAsync(() async {
-        final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
+        final selectedYield = LiquidityPoolsSearchResultDto.fixture().poolsSortedBy24hYield.first;
         final currentPriceAsSqrtPriceX96 = BigInt.parse("5239001873626858491699987");
 
         when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
@@ -956,7 +956,7 @@ void main() {
     goldenFileName: "deposit_page_input_quote_token_amount",
     (tester) async {
       await tester.runAsync(() async {
-        final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
+        final selectedYield = LiquidityPoolsSearchResultDto.fixture().poolsSortedBy24hYield.first;
         final currentPriceAsTick = BigInt.parse("79121973566864535878904");
 
         when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
@@ -982,7 +982,7 @@ void main() {
     goldenFileName: "deposit_page_input_base_token_amount_and_reverse",
     (tester) async {
       await tester.runAsync(() async {
-        final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
+        final selectedYield = LiquidityPoolsSearchResultDto.fixture().poolsSortedBy24hYield.first;
         final currentPriceAsTick = BigInt.parse("79121973566864535878904");
 
         when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
@@ -1011,7 +1011,7 @@ void main() {
     goldenFileName: "deposit_page_input_quote_token_amount_and_reverse",
     (tester) async {
       await tester.runAsync(() async {
-        final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
+        final selectedYield = LiquidityPoolsSearchResultDto.fixture().poolsSortedBy24hYield.first;
         final currentPriceAsTick = BigInt.parse("79121973566864535878904");
 
         when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
@@ -1038,7 +1038,7 @@ void main() {
     goldenFileName: "deposit_page_input_base_token_amount_reversed",
     (tester) async {
       await tester.runAsync(() async {
-        final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
+        final selectedYield = LiquidityPoolsSearchResultDto.fixture().poolsSortedBy24hYield.first;
         final currentPriceAsTick = BigInt.parse("79121973566864535878904");
 
         when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
@@ -1065,7 +1065,7 @@ void main() {
     goldenFileName: "deposit_page_input_quote_token_amount_reversed",
     (tester) async {
       await tester.runAsync(() async {
-        final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
+        final selectedYield = LiquidityPoolsSearchResultDto.fixture().poolsSortedBy24hYield.first;
         final currentPriceAsTick = BigInt.parse("79121973566864535878904");
 
         when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
@@ -1094,7 +1094,7 @@ void main() {
     goldenFileName: "deposit_page_input_base_token_amount_and_reverse_back",
     (tester) async {
       await tester.runAsync(() async {
-        final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
+        final selectedYield = LiquidityPoolsSearchResultDto.fixture().poolsSortedBy24hYield.first;
         final currentPriceAsTick = BigInt.parse("79121973566864535878904");
 
         when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
@@ -1126,7 +1126,7 @@ void main() {
     goldenFileName: "deposit_page_input_quote_token_amount_and_reverse_back",
     (tester) async {
       await tester.runAsync(() async {
-        final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
+        final selectedYield = LiquidityPoolsSearchResultDto.fixture().poolsSortedBy24hYield.first;
         final currentPriceAsTick = BigInt.parse("79121973566864535878904");
 
         when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
@@ -1156,7 +1156,7 @@ void main() {
     goldenFileName: "deposit_page_input_base_token_amount_and_change_range",
     (tester) async {
       await tester.runAsync(() async {
-        final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
+        final selectedYield = LiquidityPoolsSearchResultDto.fixture().poolsSortedBy24hYield.first;
         final currentPriceAsTick = BigInt.parse("79121973566864535878904");
 
         when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
@@ -1192,7 +1192,7 @@ void main() {
     goldenFileName: "deposit_page_input_quote_token_amount_and_change_range",
     (tester) async {
       await tester.runAsync(() async {
-        final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
+        final selectedYield = LiquidityPoolsSearchResultDto.fixture().poolsSortedBy24hYield.first;
         final currentPriceAsTick = BigInt.parse("79121973566864535878904");
 
         when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
@@ -1228,7 +1228,7 @@ void main() {
     goldenFileName: "deposit_page_input_base_token_amount_reverse_tokens_and_change_range",
     (tester) async {
       await tester.runAsync(() async {
-        final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
+        final selectedYield = LiquidityPoolsSearchResultDto.fixture().poolsSortedBy24hYield.first;
         final currentPriceAsTick = BigInt.parse("79121973566864535878904");
 
         when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
@@ -1266,7 +1266,7 @@ void main() {
     goldenFileName: "deposit_page_input_quote_token_amount_reverse_tokens_and_change_range",
     (tester) async {
       await tester.runAsync(() async {
-        final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
+        final selectedYield = LiquidityPoolsSearchResultDto.fixture().poolsSortedBy24hYield.first;
         final currentPriceAsTick = BigInt.parse("79121973566864535878904");
 
         when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
@@ -1305,7 +1305,7 @@ void main() {
     goldenFileName: "deposit_page_input_range_then_input_base_token_amount",
     (tester) async {
       await tester.runAsync(() async {
-        final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
+        final selectedYield = LiquidityPoolsSearchResultDto.fixture().poolsSortedBy24hYield.first;
         final currentPriceAsTick = BigInt.parse("79121973566864535878904");
 
         when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
@@ -1341,7 +1341,7 @@ void main() {
     goldenFileName: "deposit_page_input_range_then_input_quote_token_amount",
     (tester) async {
       await tester.runAsync(() async {
-        final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
+        final selectedYield = LiquidityPoolsSearchResultDto.fixture().poolsSortedBy24hYield.first;
         final currentPriceAsTick = BigInt.parse("79121973566864535878904");
 
         when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
@@ -1376,7 +1376,7 @@ void main() {
     goldenFileName: "deposit_page_input_range_then_reverse_tokens_then_input_base_token_amount",
     (tester) async {
       await tester.runAsync(() async {
-        final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
+        final selectedYield = LiquidityPoolsSearchResultDto.fixture().poolsSortedBy24hYield.first;
         final currentPriceAsTick = BigInt.parse("79121973566864535878904");
 
         when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
@@ -1418,7 +1418,7 @@ void main() {
     goldenFileName: "deposit_page_input_range_then_reverse_tokens_then_input_quote_token_amount",
     (tester) async {
       await tester.runAsync(() async {
-        final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
+        final selectedYield = LiquidityPoolsSearchResultDto.fixture().poolsSortedBy24hYield.first;
         final currentPriceAsTick = BigInt.parse("79121973566864535878904");
 
         when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
@@ -1460,7 +1460,7 @@ void main() {
     goldenFileName: "deposit_page_input_base_token_amount_then_set_max_price_out_of_range",
     (tester) async {
       await tester.runAsync(() async {
-        final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
+        final selectedYield = LiquidityPoolsSearchResultDto.fixture().poolsSortedBy24hYield.first;
         final currentPriceAsTick = BigInt.parse("79121973566864535878904");
 
         when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
@@ -1494,7 +1494,7 @@ void main() {
     goldenFileName: "deposit_page_input_quote_token_amount_then_set_min_price_out_of_range",
     (tester) async {
       await tester.runAsync(() async {
-        final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
+        final selectedYield = LiquidityPoolsSearchResultDto.fixture().poolsSortedBy24hYield.first;
         final currentPriceAsTick = BigInt.parse("79121973566864535878904");
 
         when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
@@ -1525,7 +1525,7 @@ void main() {
     goldenFileName: "deposit_page_input_base_token_amount_then_reverse_tokens_then_set_max_price_out_of_range",
     (tester) async {
       await tester.runAsync(() async {
-        final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
+        final selectedYield = LiquidityPoolsSearchResultDto.fixture().poolsSortedBy24hYield.first;
         final currentPriceAsTick = BigInt.parse("79121973566864535878904");
 
         when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
@@ -1562,7 +1562,7 @@ void main() {
     goldenFileName: "deposit_page_input_quote_token_amount_then_reverse_tokens_then_set_min_price_out_of_range",
     (tester) async {
       await tester.runAsync(() async {
-        final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
+        final selectedYield = LiquidityPoolsSearchResultDto.fixture().poolsSortedBy24hYield.first;
         final currentPriceAsTick = BigInt.parse("79121973566864535878904");
 
         when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
@@ -1595,7 +1595,7 @@ void main() {
     goldenFileName: "deposit_page_not_connected",
     (tester) async {
       await tester.runAsync(() async {
-        final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
+        final selectedYield = LiquidityPoolsSearchResultDto.fixture().poolsSortedBy24hYield.first;
         final currentPriceAsTick = BigInt.parse("79121973566864535878904");
 
         when(() => wallet.signer).thenReturn(null);
@@ -1621,7 +1621,7 @@ void main() {
     goldenFileName: "deposit_page_not_connected_deposit_button_click",
     (tester) async {
       await tester.runAsync(() async {
-        final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
+        final selectedYield = LiquidityPoolsSearchResultDto.fixture().poolsSortedBy24hYield.first;
         final currentPriceAsTick = BigInt.parse("79121973566864535878904");
 
         when(() => wallet.signer).thenReturn(null);
@@ -1647,7 +1647,7 @@ void main() {
     goldenFileName: "deposit_page_no_amount_deposit_button",
     (tester) async {
       await tester.runAsync(() async {
-        final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
+        final selectedYield = LiquidityPoolsSearchResultDto.fixture().poolsSortedBy24hYield.first;
         final currentPriceAsTick = BigInt.parse("79121973566864535878904");
         final signer = SignerMock();
 
@@ -1676,7 +1676,7 @@ void main() {
     goldenFileName: "deposit_page_not_enough_base_token_balance_deposit_button",
     (tester) async {
       await tester.runAsync(() async {
-        final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
+        final selectedYield = LiquidityPoolsSearchResultDto.fixture().poolsSortedBy24hYield.first;
         final currentPriceAsTick = BigInt.parse("79121973566864535878904");
         final signer = SignerMock();
 
@@ -1708,7 +1708,7 @@ void main() {
     goldenFileName: "deposit_page_not_enough_quote_token_balance_deposit_button",
     (tester) async {
       await tester.runAsync(() async {
-        final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
+        final selectedYield = LiquidityPoolsSearchResultDto.fixture().poolsSortedBy24hYield.first;
         final currentPriceAsTick = BigInt.parse("79121973566864535878904");
         final signer = SignerMock();
 
@@ -1743,7 +1743,7 @@ void main() {
     goldenFileName: "deposit_page_not_enough_base_token_balance_deposit_button_after_connecting",
     (tester) async {
       await tester.runAsync(() async {
-        final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
+        final selectedYield = LiquidityPoolsSearchResultDto.fixture().poolsSortedBy24hYield.first;
         final currentPriceAsTick = BigInt.parse("79121973566864535878904");
         final signerStreamController = StreamController<Signer?>.broadcast();
         final signer = SignerMock();
@@ -1781,7 +1781,7 @@ void main() {
     goldenFileName: "deposit_page_not_enough_quote_token_balance_deposit_button_after_connecting",
     (tester) async {
       await tester.runAsync(() async {
-        final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
+        final selectedYield = LiquidityPoolsSearchResultDto.fixture().poolsSortedBy24hYield.first;
         final currentPriceAsTick = BigInt.parse("79121973566864535878904");
         final signerStreamController = StreamController<Signer?>.broadcast();
         final signer = SignerMock();
@@ -1819,7 +1819,7 @@ void main() {
     goldenFileName: "deposit_page_enough_balance_deposit_button",
     (tester) async {
       await tester.runAsync(() async {
-        final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
+        final selectedYield = LiquidityPoolsSearchResultDto.fixture().poolsSortedBy24hYield.first;
         final currentPriceAsTick = BigInt.parse("79121973566864535878904");
 
         final signer = SignerMock();
@@ -1855,7 +1855,7 @@ void main() {
     goldenFileName: "deposit_page_min_range_out_of_range_deposit_button",
     (tester) async {
       await tester.runAsync(() async {
-        final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
+        final selectedYield = LiquidityPoolsSearchResultDto.fixture().poolsSortedBy24hYield.first;
         final currentPriceAsTick = BigInt.parse("79121973566864535878904");
 
         final signer = SignerMock();
@@ -1893,7 +1893,7 @@ void main() {
     goldenFileName: "deposit_page_max_range_out_of_range_deposit_button",
     (tester) async {
       await tester.runAsync(() async {
-        final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
+        final selectedYield = LiquidityPoolsSearchResultDto.fixture().poolsSortedBy24hYield.first;
         final currentPriceAsTick = BigInt.parse("79121973566864535878904");
 
         final signer = SignerMock();
@@ -1936,7 +1936,7 @@ void main() {
     goldenFileName: "deposit_page_preview_modal",
     (tester) async {
       await tester.runAsync(() async {
-        final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
+        final selectedYield = LiquidityPoolsSearchResultDto.fixture().poolsSortedBy24hYield.first;
         final currentPriceAsTick = BigInt.parse("79121973566864535878904");
 
         final signer = SignerMock();
@@ -1973,7 +1973,7 @@ void main() {
     goldenFileName: "deposit_page_quote_token_input_loading",
     (tester) async {
       await tester.runAsync(() async {
-        final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
+        final selectedYield = LiquidityPoolsSearchResultDto.fixture().poolsSortedBy24hYield.first;
 
         when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
         when(() => cubit.yieldPool).thenReturn(selectedYield);
@@ -1997,7 +1997,7 @@ void main() {
     goldenFileName: "deposit_page_base_token_input_loading",
     (tester) async {
       await tester.runAsync(() async {
-        final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
+        final selectedYield = LiquidityPoolsSearchResultDto.fixture().poolsSortedBy24hYield.first;
 
         when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
         when(() => cubit.yieldPool).thenReturn(selectedYield);
@@ -2022,7 +2022,7 @@ void main() {
     goldenFileName: "deposit_page_quote_token_input_enabled_after_loading",
     (tester) async {
       await tester.runAsync(() async {
-        final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
+        final selectedYield = LiquidityPoolsSearchResultDto.fixture().poolsSortedBy24hYield.first;
 
         when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
         when(() => cubit.yieldPool).thenReturn(selectedYield);
@@ -2047,7 +2047,7 @@ void main() {
     goldenFileName: "deposit_page_base_token_input_enabled_after_loading",
     (tester) async {
       await tester.runAsync(() async {
-        final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
+        final selectedYield = LiquidityPoolsSearchResultDto.fixture().poolsSortedBy24hYield.first;
 
         when(() => cubit.state).thenReturn(DepositState.success(selectedYield));
         when(() => cubit.yieldPool).thenReturn(selectedYield);
@@ -2074,7 +2074,7 @@ void main() {
       const expectedDeadlineCallback = Duration(minutes: 21);
 
       when(() => cubit.saveDepositSettings(any(), any())).thenAnswer((_) async => () {});
-      when(() => cubit.state).thenReturn(DepositState.success(YieldDto.fixture()));
+      when(() => cubit.state).thenReturn(DepositState.success(LiquidityPoolDto.fixture()));
 
       await tester.runAsync(() async {
         await tester.pumpDeviceBuilder(await goldenBuilder(), wrapper: GoldenConfig.localizationsWrapper());
@@ -2100,7 +2100,7 @@ void main() {
     goldenFileName: "deposit_page_deposit_settings_button_slippage_title",
     (tester) async {
       when(() => cubit.saveDepositSettings(any(), any())).thenAnswer((_) async => () {});
-      when(() => cubit.state).thenReturn(DepositState.success(YieldDto.fixture()));
+      when(() => cubit.state).thenReturn(DepositState.success(LiquidityPoolDto.fixture()));
 
       await tester.runAsync(() async {
         await tester.pumpDeviceBuilder(await goldenBuilder(), wrapper: GoldenConfig.localizationsWrapper());
@@ -2119,7 +2119,7 @@ void main() {
     goldenFileName: "deposit_page_deposit_settings_button_orange",
     (tester) async {
       when(() => cubit.saveDepositSettings(any(), any())).thenAnswer((_) async => () {});
-      when(() => cubit.state).thenReturn(DepositState.success(YieldDto.fixture()));
+      when(() => cubit.state).thenReturn(DepositState.success(LiquidityPoolDto.fixture()));
 
       await tester.runAsync(() async {
         await tester.pumpDeviceBuilder(await goldenBuilder(), wrapper: GoldenConfig.localizationsWrapper());
@@ -2139,7 +2139,7 @@ void main() {
     goldenFileName: "deposit_page_deposit_settings_button_zup_purple_gray",
     (tester) async {
       when(() => cubit.saveDepositSettings(any(), any())).thenAnswer((_) async => () {});
-      when(() => cubit.state).thenReturn(DepositState.success(YieldDto.fixture()));
+      when(() => cubit.state).thenReturn(DepositState.success(LiquidityPoolDto.fixture()));
 
       await tester.runAsync(() async {
         await tester.pumpDeviceBuilder(await goldenBuilder(), wrapper: GoldenConfig.localizationsWrapper());
@@ -2160,7 +2160,7 @@ void main() {
     goldenFileName: "deposit_page_deposit_settings_button_red",
     (tester) async {
       when(() => cubit.saveDepositSettings(any(), any())).thenAnswer((_) async => () {});
-      when(() => cubit.state).thenReturn(DepositState.success(YieldDto.fixture()));
+      when(() => cubit.state).thenReturn(DepositState.success(LiquidityPoolDto.fixture()));
 
       await tester.runAsync(() async {
         await tester.pumpDeviceBuilder(await goldenBuilder(), wrapper: GoldenConfig.localizationsWrapper());
@@ -2182,7 +2182,7 @@ void main() {
       const expectedDeadlineCallback = Duration(minutes: 21);
 
       when(() => cubit.saveDepositSettings(any(), any())).thenAnswer((_) async => () {});
-      when(() => cubit.state).thenReturn(DepositState.success(YieldDto.fixture()));
+      when(() => cubit.state).thenReturn(DepositState.success(LiquidityPoolDto.fixture()));
 
       await tester.runAsync(() async {
         await tester.pumpDeviceBuilder(await goldenBuilder(), wrapper: GoldenConfig.localizationsWrapper());
@@ -2209,7 +2209,7 @@ void main() {
     (tester) async {
       const expectedDepositSettings = DepositSettingsDto(maxSlippage: 32.1, deadlineMinutes: 98);
       when(() => cubit.saveDepositSettings(any(), any())).thenAnswer((_) async => () {});
-      when(() => cubit.state).thenReturn(DepositState.success(YieldDto.fixture()));
+      when(() => cubit.state).thenReturn(DepositState.success(LiquidityPoolDto.fixture()));
       when(() => cubit.depositSettings).thenReturn(expectedDepositSettings);
 
       await tester.runAsync(() async {
@@ -2226,7 +2226,7 @@ void main() {
     goldenFileName: "deposit_page_deposit_settings_dropdown_reopening",
     (tester) async {
       when(() => cubit.saveDepositSettings(any(), any())).thenAnswer((_) async => () {});
-      when(() => cubit.state).thenReturn(DepositState.success(YieldDto.fixture()));
+      when(() => cubit.state).thenReturn(DepositState.success(LiquidityPoolDto.fixture()));
       await tester.runAsync(() async {
         await tester.pumpDeviceBuilder(await goldenBuilder(), wrapper: GoldenConfig.localizationsWrapper());
         await tester.tap(find.byKey(const Key("deposit-settings-button")));
@@ -2263,7 +2263,7 @@ void main() {
       const expectedDeadline = Duration(minutes: 76);
 
       await tester.runAsync(() async {
-        final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
+        final selectedYield = LiquidityPoolsSearchResultDto.fixture().poolsSortedBy24hYield.first;
         final currentPriceAsSqrtPriceX96 = BigInt.parse("5240418162556390792557189");
 
         final signer = SignerMock();
@@ -2327,7 +2327,7 @@ void main() {
     goldenFileName: "deposit_page_pool_tick_update_deposit_amount",
     (tester) async {
       await tester.runAsync(() async {
-        final selectedYield = YieldsDto.fixture().poolsSortedBy24hYield.first;
+        final selectedYield = LiquidityPoolsSearchResultDto.fixture().poolsSortedBy24hYield.first;
         final currentPriceAsSqrtPriceX96 = BigInt.parse("79121973566864535878904");
         final nextPriceAsSqrtPriceX96 = BigInt.parse("5240418162556390792557189");
         final poolSqrtPriceX96StreamController = StreamController<BigInt>.broadcast();

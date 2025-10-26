@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
+import 'package:zup_app/core/dtos/liquidity_pool_dto.dart';
+import 'package:zup_app/core/dtos/liquidity_pools_search_result_dto.dart';
 import 'package:zup_app/core/dtos/pool_search_settings_dto.dart';
-import 'package:zup_app/core/dtos/yield_dto.dart';
-import 'package:zup_app/core/dtos/yields_dto.dart';
 import 'package:zup_app/core/enums/networks.dart';
 
 class YieldRepository {
@@ -9,7 +9,7 @@ class YieldRepository {
 
   final Dio _zupAPIDio;
 
-  Future<YieldsDto> getSingleNetworkYield({
+  Future<LiquidityPoolsSearchResultDto> getSingleNetworkYield({
     required String? token0Address,
     required String? token1Address,
     required String? group0Id,
@@ -31,10 +31,10 @@ class YieldRepository {
       },
     );
 
-    return YieldsDto.fromJson(response.data);
+    return LiquidityPoolsSearchResultDto.fromJson(response.data);
   }
 
-  Future<YieldsDto> getAllNetworksYield({
+  Future<LiquidityPoolsSearchResultDto> getAllNetworksYield({
     required String? token0InternalId,
     required String? token1InternalId,
     required String? group0Id,
@@ -57,10 +57,10 @@ class YieldRepository {
       },
     );
 
-    return YieldsDto.fromJson(response.data);
+    return LiquidityPoolsSearchResultDto.fromJson(response.data);
   }
 
-  Future<YieldDto> getPoolInfo({
+  Future<LiquidityPoolDto> getPoolInfo({
     required String poolAddress,
     required AppNetworks poolNetwork,
     bool parseWrappedToNative = true,
@@ -70,6 +70,6 @@ class YieldRepository {
       queryParameters: {"parseWrappedToNative": parseWrappedToNative},
     );
 
-    return YieldDto.fromJson(response.data);
+    return LiquidityPoolDto.fromJson(response.data);
   }
 }

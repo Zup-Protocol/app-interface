@@ -15,9 +15,9 @@ import 'package:zup_app/abis/uniswap_v3_position_manager.abi.g.dart';
 import 'package:zup_app/app/create/yields/%5Bid%5D/deposit/widgets/preview_deposit_modal/preview_deposit_modal.dart';
 import 'package:zup_app/app/create/yields/%5Bid%5D/deposit/widgets/preview_deposit_modal/preview_deposit_modal_cubit.dart';
 import 'package:zup_app/core/concentrated_liquidity_utils/cl_pool_constants.dart';
+import 'package:zup_app/core/dtos/liquidity_pool_dto.dart';
 import 'package:zup_app/core/dtos/multi_chain_token_dto.dart';
 import 'package:zup_app/core/dtos/single_chain_token_dto.dart';
-import 'package:zup_app/core/dtos/yield_dto.dart';
 import 'package:zup_app/core/enums/networks.dart';
 import 'package:zup_app/core/enums/pool_data_timeframe.dart';
 import 'package:zup_app/core/injections.dart';
@@ -40,7 +40,7 @@ void main() {
   late PoolService poolService;
   late UniswapPermit2 permit2;
   final scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
-  final currentYield = YieldDto.fixture();
+  final currentYield = LiquidityPoolDto.fixture();
 
   setUp(() {
     navigator = ZupNavigatorMock();
@@ -114,7 +114,7 @@ void main() {
   });
 
   Future<DeviceBuilder> goldenBuilder({
-    YieldDto? customYield,
+    LiquidityPoolDto? customYield,
     bool isReversed = false,
     ({bool isInfinity, double price}) minPrice = (isInfinity: false, price: 1200),
     ({bool isInfinity, double price}) maxPrice = (isInfinity: false, price: 3000),
@@ -218,7 +218,7 @@ void main() {
       );
 
       await tester.pumpDeviceBuilder(
-        await goldenBuilder(customYield: YieldDto.fixture().copyWith(chainId: yieldNetwork.chainId)),
+        await goldenBuilder(customYield: LiquidityPoolDto.fixture().copyWith(chainId: yieldNetwork.chainId)),
         wrapper: GoldenConfig.localizationsWrapper(),
       );
       await tester.pumpAndSettle();

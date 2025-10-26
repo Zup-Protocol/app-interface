@@ -12,8 +12,8 @@ import 'package:zup_app/app/create/yields/%5Bid%5D/deposit/widgets/preview_depos
 import 'package:zup_app/core/concentrated_liquidity_utils/cl_pool_constants.dart';
 import 'package:zup_app/core/concentrated_liquidity_utils/cl_pool_conversors_mixin.dart';
 import 'package:zup_app/core/concentrated_liquidity_utils/cl_sqrt_price_math_mixin.dart';
+import 'package:zup_app/core/dtos/liquidity_pool_dto.dart';
 import 'package:zup_app/core/dtos/single_chain_token_dto.dart';
-import 'package:zup_app/core/dtos/yield_dto.dart';
 import 'package:zup_app/core/enums/pool_data_timeframe.dart';
 import 'package:zup_app/core/extensions/num_extension.dart';
 import 'package:zup_app/core/injections.dart';
@@ -42,7 +42,7 @@ class PreviewDepositModal extends StatefulWidget with DeviceInfoMixin {
     required this.yieldTimeFrame,
   });
 
-  final YieldDto currentYield;
+  final LiquidityPoolDto currentYield;
   final PoolDataTimeframe yieldTimeFrame;
   final bool isReversed;
   final ({double price, bool isInfinity}) minPrice;

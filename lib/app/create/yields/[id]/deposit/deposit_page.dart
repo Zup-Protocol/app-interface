@@ -17,7 +17,7 @@ import 'package:zup_app/core/concentrated_liquidity_utils/cl_pool_liquidity_calc
 import 'package:zup_app/core/concentrated_liquidity_utils/cl_sqrt_price_math_mixin.dart';
 import 'package:zup_app/core/dtos/deposit_settings_dto.dart';
 import 'package:zup_app/core/dtos/single_chain_token_dto.dart';
-import 'package:zup_app/core/dtos/yield_dto.dart';
+import 'package:zup_app/core/dtos/liquidity_pool_dto.dart';
 import 'package:zup_app/core/enums/networks.dart';
 import 'package:zup_app/core/enums/pool_data_timeframe.dart';
 import 'package:zup_app/core/extensions/num_extension.dart';
@@ -496,7 +496,7 @@ class _DepositPageState extends State<DepositPage>
         children: [
           ZupSkeletonizer(
             child: YieldCard(
-              yieldPool: YieldDto.fixture().copyWith(chainId: networkFromUrl.chainId),
+              yieldPool: LiquidityPoolDto.fixture().copyWith(chainId: networkFromUrl.chainId),
               yieldTimeFrame: PoolDataTimeframe.day,
               showHotestYieldAnimation: false,
             ),
@@ -525,7 +525,7 @@ class _DepositPageState extends State<DepositPage>
     );
   }
 
-  Widget _buildYieldCard(YieldDto yieldPool) => YieldCard(
+  Widget _buildYieldCard(LiquidityPoolDto yieldPool) => YieldCard(
     yieldPool: yieldPool,
     yieldTimeFrame: yieldTimeFrameFromUrl,
     expandWidth: shouldYieldCardBeInColumn,

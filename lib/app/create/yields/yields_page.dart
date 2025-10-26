@@ -6,8 +6,8 @@ import 'package:skeletonizer/skeletonizer.dart';
 import 'package:zup_app/app/app_cubit/app_cubit.dart';
 import 'package:zup_app/app/create/yields/yields_cubit.dart';
 import 'package:zup_app/core/cache.dart';
+import 'package:zup_app/core/dtos/liquidity_pools_search_result_dto.dart';
 import 'package:zup_app/core/dtos/pool_search_filters_dto.dart';
-import 'package:zup_app/core/dtos/yields_dto.dart';
 import 'package:zup_app/core/enums/networks.dart';
 import 'package:zup_app/core/enums/pool_data_timeframe.dart';
 import 'package:zup_app/core/enums/zup_navigator_paths.dart';
@@ -146,7 +146,7 @@ class _YieldsPageState extends State<YieldsPage> with DeviceInfoMixin, SingleTic
     );
   }
 
-  Widget _buildSuccessState(YieldsDto yields) {
+  Widget _buildSuccessState(LiquidityPoolsSearchResultDto yields) {
     int getYieldDisplayCountPerPage() {
       return yields.pools.length.clamp(1, isMobileSize(context) ? 1 : 2);
     }
@@ -278,7 +278,7 @@ class _YieldsPageState extends State<YieldsPage> with DeviceInfoMixin, SingleTic
   Widget _buildYieldsSection({
     required int yieldsPagesCount,
     required int yieldsCardPerPage,
-    required YieldsDto yields,
+    required LiquidityPoolsSearchResultDto yields,
   }) {
     final poolsSortedByTimeframe = yields.poolsSortedByTimeframe(selectedYieldTimeFrame);
 

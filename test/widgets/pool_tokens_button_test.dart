@@ -2,7 +2,7 @@ import 'package:flutter/src/widgets/basic.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:golden_toolkit/golden_toolkit.dart';
 import 'package:url_launcher_platform_interface/url_launcher_platform_interface.dart';
-import 'package:zup_app/core/dtos/yield_dto.dart';
+import 'package:zup_app/core/dtos/liquidity_pool_dto.dart';
 import 'package:zup_app/core/enums/networks.dart';
 import 'package:zup_app/core/injections.dart';
 import 'package:zup_app/widgets/pool_tokens_button.dart';
@@ -20,9 +20,9 @@ void main() {
 
   tearDown(() => inject.reset());
 
-  Future<DeviceBuilder> goldenBuilder({YieldDto? customPool}) async {
+  Future<DeviceBuilder> goldenBuilder({LiquidityPoolDto? customPool}) async {
     return await goldenDeviceBuilder(
-      Center(child: PoolTokensButton(liquidityPool: customPool ?? YieldDto.fixture())),
+      Center(child: PoolTokensButton(liquidityPool: customPool ?? LiquidityPoolDto.fixture())),
       device: GoldenDevice.square,
     );
   }
@@ -32,7 +32,7 @@ void main() {
     goldenFileName: "pool_tokens_button_disabled",
     (tester) async {
       await tester.pumpDeviceBuilder(
-        await goldenBuilder(customPool: YieldDto.fixture().copyWith(chainId: AppNetworks.sepolia.chainId)),
+        await goldenBuilder(customPool: LiquidityPoolDto.fixture().copyWith(chainId: AppNetworks.sepolia.chainId)),
       );
     },
   );
@@ -42,7 +42,7 @@ void main() {
     goldenFileName: "pool_tokens_button_enabled",
     (tester) async {
       await tester.pumpDeviceBuilder(
-        await goldenBuilder(customPool: YieldDto.fixture().copyWith(chainId: AppNetworks.mainnet.chainId)),
+        await goldenBuilder(customPool: LiquidityPoolDto.fixture().copyWith(chainId: AppNetworks.mainnet.chainId)),
       );
     },
   );
@@ -53,7 +53,7 @@ void main() {
     goldenFileName: "pool_tokens_button_tooltip",
     (tester) async {
       await tester.pumpDeviceBuilder(
-        await goldenBuilder(customPool: YieldDto.fixture().copyWith(chainId: AppNetworks.mainnet.chainId)),
+        await goldenBuilder(customPool: LiquidityPoolDto.fixture().copyWith(chainId: AppNetworks.mainnet.chainId)),
       );
 
       await tester.hover(find.byType(PoolTokensButton));
@@ -66,7 +66,7 @@ void main() {
     the current network and with the correct pool address""",
     (tester) async {
       const network = AppNetworks.unichain;
-      final pool = YieldDto.fixture().copyWith(chainId: network.chainId);
+      final pool = LiquidityPoolDto.fixture().copyWith(chainId: network.chainId);
 
       await tester.pumpDeviceBuilder(await goldenBuilder(customPool: pool));
 
@@ -79,7 +79,7 @@ void main() {
 
   zGoldenTest("""When the button is disabled, and is clicked, it should not launch anything""", (tester) async {
     const network = AppNetworks.sepolia;
-    final pool = YieldDto.fixture().copyWith(chainId: network.chainId);
+    final pool = LiquidityPoolDto.fixture().copyWith(chainId: network.chainId);
 
     await tester.pumpDeviceBuilder(await goldenBuilder(customPool: pool));
 

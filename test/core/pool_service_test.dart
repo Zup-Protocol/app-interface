@@ -18,9 +18,9 @@ import 'package:zup_app/core/concentrated_liquidity_utils/cl_pool_constants.dart
 import 'package:zup_app/core/concentrated_liquidity_utils/cl_pool_liquidity_calculations_mixin.dart';
 import 'package:zup_app/core/concentrated_liquidity_utils/v4_pool_constants.dart';
 import 'package:zup_app/core/dtos/hook_dto.dart';
+import 'package:zup_app/core/dtos/liquidity_pool_dto.dart';
 import 'package:zup_app/core/dtos/protocol_dto.dart';
 import 'package:zup_app/core/dtos/single_chain_token_dto.dart';
-import 'package:zup_app/core/dtos/yield_dto.dart';
 import 'package:zup_app/core/enums/networks.dart';
 import 'package:zup_app/core/enums/pool_type.dart';
 import 'package:zup_app/core/enums/protocol_id.dart';
@@ -40,7 +40,7 @@ void main() {
   late UniswapV4PositionManager positionManagerV4;
   late PancakeSwapInfinityClPoolManager pancakeSwapInfinityCLPoolManager;
   late Signer signer;
-  late YieldDto currentYield;
+  late LiquidityPoolDto currentYield;
   late TransactionResponse transactionResponse;
   late AerodromeV3PositionManager aerodromePositionManagerV3;
   late AerodromeV3Pool aerodromeV3Pool;
@@ -102,7 +102,7 @@ void main() {
     aerodromeV3PoolImpl = AerodromeV3PoolImplMock();
     pancakeSwapInfinityCLPositionManagerImpl = PancakeSwapInfinityCLPositionManagerImplMock();
 
-    currentYield = YieldDto.fixture().copyWith(
+    currentYield = LiquidityPoolDto.fixture().copyWith(
       protocol: ProtocolDto.fixture().copyWith(id: ProtocolId.unknown, rawId: "1"),
     );
 
@@ -2194,7 +2194,7 @@ void main() {
           token1: "",
         ));
 
-        registerFallbackValue(YieldDto.fixture());
+        registerFallbackValue(LiquidityPoolDto.fixture());
 
         when(
           () => aerodromePositionManagerV3.fromSigner(

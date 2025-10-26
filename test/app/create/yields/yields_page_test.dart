@@ -9,12 +9,12 @@ import 'package:zup_app/app/app_cubit/app_cubit.dart';
 import 'package:zup_app/app/create/yields/yields_cubit.dart';
 import 'package:zup_app/app/create/yields/yields_page.dart';
 import 'package:zup_app/core/cache.dart';
+import 'package:zup_app/core/dtos/liquidity_pool_dto.dart';
+import 'package:zup_app/core/dtos/liquidity_pools_search_result_dto.dart';
 import 'package:zup_app/core/dtos/pool_search_filters_dto.dart';
 import 'package:zup_app/core/dtos/pool_search_settings_dto.dart';
 import 'package:zup_app/core/dtos/pool_stats_dto.dart';
 import 'package:zup_app/core/dtos/single_chain_token_dto.dart';
-import 'package:zup_app/core/dtos/yield_dto.dart';
-import 'package:zup_app/core/dtos/yields_dto.dart';
 import 'package:zup_app/core/enums/networks.dart';
 import 'package:zup_app/core/enums/pool_data_timeframe.dart';
 import 'package:zup_app/core/injections.dart';
@@ -35,7 +35,7 @@ void main() {
   late Cache appCache;
 
   setUp(() {
-    registerFallbackValue(YieldDto.fixture());
+    registerFallbackValue(LiquidityPoolDto.fixture());
     registerFallbackValue(PoolDataTimeframe.day);
 
     navigator = ZupNavigatorMock();
@@ -286,8 +286,14 @@ void main() {
     (tester) async {
       when(() => cubit.state).thenReturn(
         YieldsState.success(
-          YieldsDto.fixture().copyWith(
-            pools: [YieldDto.fixture(), YieldDto.fixture(), YieldDto.fixture(), YieldDto.fixture(), YieldDto.fixture()],
+          LiquidityPoolsSearchResultDto.fixture().copyWith(
+            pools: [
+              LiquidityPoolDto.fixture(),
+              LiquidityPoolDto.fixture(),
+              LiquidityPoolDto.fixture(),
+              LiquidityPoolDto.fixture(),
+              LiquidityPoolDto.fixture(),
+            ],
           ),
         ),
       );
@@ -303,13 +309,23 @@ void main() {
     (tester) async {
       when(() => cubit.state).thenReturn(
         YieldsState.success(
-          YieldsDto.fixture().copyWith(
+          LiquidityPoolsSearchResultDto.fixture().copyWith(
             pools: [
-              YieldDto.fixture().copyWith(total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 100)),
-              YieldDto.fixture().copyWith(total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 200)),
-              YieldDto.fixture().copyWith(total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 300)),
-              YieldDto.fixture().copyWith(total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 400)),
-              YieldDto.fixture().copyWith(total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 500)),
+              LiquidityPoolDto.fixture().copyWith(
+                total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 100),
+              ),
+              LiquidityPoolDto.fixture().copyWith(
+                total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 200),
+              ),
+              LiquidityPoolDto.fixture().copyWith(
+                total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 300),
+              ),
+              LiquidityPoolDto.fixture().copyWith(
+                total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 400),
+              ),
+              LiquidityPoolDto.fixture().copyWith(
+                total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 500),
+              ),
             ],
           ),
         ),
@@ -330,13 +346,23 @@ void main() {
     (tester) async {
       when(() => cubit.state).thenReturn(
         YieldsState.success(
-          YieldsDto.fixture().copyWith(
+          LiquidityPoolsSearchResultDto.fixture().copyWith(
             pools: [
-              YieldDto.fixture().copyWith(total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 100)),
-              YieldDto.fixture().copyWith(total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 200)),
-              YieldDto.fixture().copyWith(total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 300)),
-              YieldDto.fixture().copyWith(total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 400)),
-              YieldDto.fixture().copyWith(total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 500)),
+              LiquidityPoolDto.fixture().copyWith(
+                total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 100),
+              ),
+              LiquidityPoolDto.fixture().copyWith(
+                total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 200),
+              ),
+              LiquidityPoolDto.fixture().copyWith(
+                total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 300),
+              ),
+              LiquidityPoolDto.fixture().copyWith(
+                total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 400),
+              ),
+              LiquidityPoolDto.fixture().copyWith(
+                total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 500),
+              ),
             ],
           ),
         ),
@@ -360,13 +386,23 @@ void main() {
     (tester) async {
       when(() => cubit.state).thenReturn(
         YieldsState.success(
-          YieldsDto.fixture().copyWith(
+          LiquidityPoolsSearchResultDto.fixture().copyWith(
             pools: [
-              YieldDto.fixture().copyWith(total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 100)),
-              YieldDto.fixture().copyWith(total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 200)),
-              YieldDto.fixture().copyWith(total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 300)),
-              YieldDto.fixture().copyWith(total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 400)),
-              YieldDto.fixture().copyWith(total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 500)),
+              LiquidityPoolDto.fixture().copyWith(
+                total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 100),
+              ),
+              LiquidityPoolDto.fixture().copyWith(
+                total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 200),
+              ),
+              LiquidityPoolDto.fixture().copyWith(
+                total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 300),
+              ),
+              LiquidityPoolDto.fixture().copyWith(
+                total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 400),
+              ),
+              LiquidityPoolDto.fixture().copyWith(
+                total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 500),
+              ),
             ],
           ),
         ),
@@ -383,8 +419,14 @@ void main() {
     (tester) async {
       when(() => cubit.state).thenReturn(
         YieldsState.success(
-          YieldsDto.fixture().copyWith(
-            pools: [YieldDto.fixture(), YieldDto.fixture(), YieldDto.fixture(), YieldDto.fixture(), YieldDto.fixture()],
+          LiquidityPoolsSearchResultDto.fixture().copyWith(
+            pools: [
+              LiquidityPoolDto.fixture(),
+              LiquidityPoolDto.fixture(),
+              LiquidityPoolDto.fixture(),
+              LiquidityPoolDto.fixture(),
+              LiquidityPoolDto.fixture(),
+            ],
           ),
         ),
       );
@@ -406,25 +448,25 @@ void main() {
     (tester) async {
       when(() => cubit.state).thenReturn(
         YieldsState.success(
-          YieldsDto.fixture().copyWith(
+          LiquidityPoolsSearchResultDto.fixture().copyWith(
             pools: [
-              YieldDto.fixture().copyWith(
+              LiquidityPoolDto.fixture().copyWith(
                 total7dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 1000),
                 total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 1),
               ),
-              YieldDto.fixture().copyWith(
+              LiquidityPoolDto.fixture().copyWith(
                 total7dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 2000),
                 total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 10),
               ),
-              YieldDto.fixture().copyWith(
+              LiquidityPoolDto.fixture().copyWith(
                 total7dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 3000),
                 total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 100),
               ),
-              YieldDto.fixture().copyWith(
+              LiquidityPoolDto.fixture().copyWith(
                 total7dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 4000),
                 total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 1000),
               ),
-              YieldDto.fixture().copyWith(
+              LiquidityPoolDto.fixture().copyWith(
                 total7dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 5000),
                 total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 1000),
               ),
@@ -448,29 +490,29 @@ void main() {
     (tester) async {
       when(() => cubit.state).thenReturn(
         YieldsState.success(
-          YieldsDto.fixture().copyWith(
+          LiquidityPoolsSearchResultDto.fixture().copyWith(
             pools: [
-              YieldDto.fixture().copyWith(
+              LiquidityPoolDto.fixture().copyWith(
                 total7dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 1000),
                 total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 1),
                 total30dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 2000),
               ),
-              YieldDto.fixture().copyWith(
+              LiquidityPoolDto.fixture().copyWith(
                 total7dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 2000),
                 total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 10),
                 total30dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 4000),
               ),
-              YieldDto.fixture().copyWith(
+              LiquidityPoolDto.fixture().copyWith(
                 total7dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 3000),
                 total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 100),
                 total30dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 6000),
               ),
-              YieldDto.fixture().copyWith(
+              LiquidityPoolDto.fixture().copyWith(
                 total7dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 4000),
                 total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 1000),
                 total30dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 8000),
               ),
-              YieldDto.fixture().copyWith(
+              LiquidityPoolDto.fixture().copyWith(
                 total7dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 5000),
                 total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 1000),
                 total30dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 10000),
@@ -495,33 +537,33 @@ void main() {
     (tester) async {
       when(() => cubit.state).thenReturn(
         YieldsState.success(
-          YieldsDto.fixture().copyWith(
+          LiquidityPoolsSearchResultDto.fixture().copyWith(
             pools: [
-              YieldDto.fixture().copyWith(
+              LiquidityPoolDto.fixture().copyWith(
                 total7dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 1000),
                 total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 1),
                 total30dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 2000),
                 total90dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 4000),
               ),
-              YieldDto.fixture().copyWith(
+              LiquidityPoolDto.fixture().copyWith(
                 total7dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 2000),
                 total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 10),
                 total30dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 4000),
                 total90dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 8000),
               ),
-              YieldDto.fixture().copyWith(
+              LiquidityPoolDto.fixture().copyWith(
                 total7dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 3000),
                 total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 100),
                 total30dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 6000),
                 total90dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 12000),
               ),
-              YieldDto.fixture().copyWith(
+              LiquidityPoolDto.fixture().copyWith(
                 total7dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 4000),
                 total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 1000),
                 total30dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 8000),
                 total90dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 16000),
               ),
-              YieldDto.fixture().copyWith(
+              LiquidityPoolDto.fixture().copyWith(
                 total7dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 5000),
                 total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 1000),
                 total30dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 10000),
@@ -547,33 +589,33 @@ void main() {
     (tester) async {
       when(() => cubit.state).thenReturn(
         YieldsState.success(
-          YieldsDto.fixture().copyWith(
+          LiquidityPoolsSearchResultDto.fixture().copyWith(
             pools: [
-              YieldDto.fixture().copyWith(
+              LiquidityPoolDto.fixture().copyWith(
                 total7dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 1000),
                 total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 1),
                 total30dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 2000),
                 total90dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 4000),
               ),
-              YieldDto.fixture().copyWith(
+              LiquidityPoolDto.fixture().copyWith(
                 total7dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 2000),
                 total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 10),
                 total30dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 4000),
                 total90dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 8000),
               ),
-              YieldDto.fixture().copyWith(
+              LiquidityPoolDto.fixture().copyWith(
                 total7dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 3000),
                 total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 100),
                 total30dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 6000),
                 total90dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 12000),
               ),
-              YieldDto.fixture().copyWith(
+              LiquidityPoolDto.fixture().copyWith(
                 total7dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 4000),
                 total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 1000),
                 total30dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 8000),
                 total90dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 16000),
               ),
-              YieldDto.fixture().copyWith(
+              LiquidityPoolDto.fixture().copyWith(
                 total7dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 5000),
                 total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 1000),
                 total30dStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 10000),
@@ -602,13 +644,23 @@ void main() {
     (tester) async {
       when(() => cubit.state).thenReturn(
         YieldsState.success(
-          YieldsDto.fixture().copyWith(
+          LiquidityPoolsSearchResultDto.fixture().copyWith(
             pools: [
-              YieldDto.fixture().copyWith(total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 100)),
-              YieldDto.fixture().copyWith(total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 200)),
-              YieldDto.fixture().copyWith(total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 300)),
-              YieldDto.fixture().copyWith(total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 400)),
-              YieldDto.fixture().copyWith(total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 500)),
+              LiquidityPoolDto.fixture().copyWith(
+                total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 100),
+              ),
+              LiquidityPoolDto.fixture().copyWith(
+                total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 200),
+              ),
+              LiquidityPoolDto.fixture().copyWith(
+                total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 300),
+              ),
+              LiquidityPoolDto.fixture().copyWith(
+                total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 400),
+              ),
+              LiquidityPoolDto.fixture().copyWith(
+                total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 500),
+              ),
             ],
           ),
         ),
@@ -627,13 +679,15 @@ void main() {
     goldenFileName: "yields_page_success_odd_number_of_yields_last_page",
     (tester) async {
       final yields = [
-        YieldDto.fixture().copyWith(total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 100)),
-        YieldDto.fixture().copyWith(total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 200)),
-        YieldDto.fixture().copyWith(total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 300)),
-        YieldDto.fixture().copyWith(total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 400)),
-        YieldDto.fixture().copyWith(total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 500)),
+        LiquidityPoolDto.fixture().copyWith(total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 100)),
+        LiquidityPoolDto.fixture().copyWith(total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 200)),
+        LiquidityPoolDto.fixture().copyWith(total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 300)),
+        LiquidityPoolDto.fixture().copyWith(total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 400)),
+        LiquidityPoolDto.fixture().copyWith(total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 500)),
       ];
-      when(() => cubit.state).thenReturn(YieldsState.success(YieldsDto.fixture().copyWith(pools: yields)));
+      when(
+        () => cubit.state,
+      ).thenReturn(YieldsState.success(LiquidityPoolsSearchResultDto.fixture().copyWith(pools: yields)));
 
       await tester.pumpDeviceBuilder(await goldenBuilder());
       await tester.pumpAndSettle();
@@ -651,9 +705,11 @@ void main() {
     goldenFileName: "yields_page_success_one_yield_only",
     (tester) async {
       final yields = [
-        YieldDto.fixture().copyWith(total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 100)),
+        LiquidityPoolDto.fixture().copyWith(total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 100)),
       ];
-      when(() => cubit.state).thenReturn(YieldsState.success(YieldsDto.fixture().copyWith(pools: yields)));
+      when(
+        () => cubit.state,
+      ).thenReturn(YieldsState.success(LiquidityPoolsSearchResultDto.fixture().copyWith(pools: yields)));
 
       await tester.pumpDeviceBuilder(await goldenBuilder());
       await tester.pumpAndSettle();
@@ -666,10 +722,12 @@ void main() {
     goldenFileName: "yields_page_success_two_yields_only",
     (tester) async {
       final yields = [
-        YieldDto.fixture().copyWith(total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 100)),
-        YieldDto.fixture().copyWith(total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 200)),
+        LiquidityPoolDto.fixture().copyWith(total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 100)),
+        LiquidityPoolDto.fixture().copyWith(total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 200)),
       ];
-      when(() => cubit.state).thenReturn(YieldsState.success(YieldsDto.fixture().copyWith(pools: yields)));
+      when(
+        () => cubit.state,
+      ).thenReturn(YieldsState.success(LiquidityPoolsSearchResultDto.fixture().copyWith(pools: yields)));
 
       await tester.pumpDeviceBuilder(await goldenBuilder());
       await tester.pumpAndSettle();
@@ -683,10 +741,13 @@ void main() {
     (tester) async {
       final yields = List.generate(
         10,
-        (_) => YieldDto.fixture().copyWith(total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 100)),
+        (_) =>
+            LiquidityPoolDto.fixture().copyWith(total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 100)),
       );
 
-      when(() => cubit.state).thenReturn(YieldsState.success(YieldsDto.fixture().copyWith(pools: yields)));
+      when(
+        () => cubit.state,
+      ).thenReturn(YieldsState.success(LiquidityPoolsSearchResultDto.fixture().copyWith(pools: yields)));
 
       await tester.pumpDeviceBuilder(await goldenBuilder());
       await tester.pumpAndSettle();
@@ -703,11 +764,14 @@ void main() {
     (tester) async {
       final yields = List.generate(
         10,
-        (index) =>
-            YieldDto.fixture().copyWith(total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 100 * index)),
+        (index) => LiquidityPoolDto.fixture().copyWith(
+          total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 100 * index),
+        ),
       );
 
-      when(() => cubit.state).thenReturn(YieldsState.success(YieldsDto.fixture().copyWith(pools: yields)));
+      when(
+        () => cubit.state,
+      ).thenReturn(YieldsState.success(LiquidityPoolsSearchResultDto.fixture().copyWith(pools: yields)));
 
       await tester.pumpDeviceBuilder(await goldenBuilder());
       await tester.pumpAndSettle();
@@ -725,13 +789,17 @@ void main() {
     (tester) async {
       final yields = List.generate(
         2,
-        (index) =>
-            YieldDto.fixture().copyWith(total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 100 * index)),
+        (index) => LiquidityPoolDto.fixture().copyWith(
+          total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 100 * index),
+        ),
       );
 
       when(() => cubit.state).thenReturn(
         YieldsState.success(
-          YieldsDto.fixture().copyWith(pools: yields, filters: const PoolSearchFiltersDto(minTvlUsd: 99898)),
+          LiquidityPoolsSearchResultDto.fixture().copyWith(
+            pools: yields,
+            filters: const PoolSearchFiltersDto(minTvlUsd: 99898),
+          ),
         ),
       );
 
@@ -747,8 +815,9 @@ void main() {
     (tester) async {
       final yields = List.generate(
         2,
-        (index) =>
-            YieldDto.fixture().copyWith(total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 100 * index)),
+        (index) => LiquidityPoolDto.fixture().copyWith(
+          total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 100 * index),
+        ),
       );
       const token0Id = "xabas";
       const token1Id = "sabax";
@@ -762,7 +831,10 @@ void main() {
 
       when(() => cubit.state).thenReturn(
         YieldsState.success(
-          YieldsDto.fixture().copyWith(pools: yields, filters: const PoolSearchFiltersDto(minTvlUsd: 99898)),
+          LiquidityPoolsSearchResultDto.fixture().copyWith(
+            pools: yields,
+            filters: const PoolSearchFiltersDto(minTvlUsd: 99898),
+          ),
         ),
       );
 
@@ -793,14 +865,18 @@ void main() {
     (tester) async {
       final yields = List.generate(
         2,
-        (index) =>
-            YieldDto.fixture().copyWith(total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 100 * index)),
+        (index) => LiquidityPoolDto.fixture().copyWith(
+          total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 100 * index),
+        ),
       );
 
       when(() => appCache.getPoolSearchSettings()).thenReturn(PoolSearchSettingsDto(minLiquidityUSD: 122));
       when(() => cubit.state).thenReturn(
         YieldsState.success(
-          YieldsDto.fixture().copyWith(pools: yields, filters: const PoolSearchFiltersDto(minTvlUsd: 0)),
+          LiquidityPoolsSearchResultDto.fixture().copyWith(
+            pools: yields,
+            filters: const PoolSearchFiltersDto(minTvlUsd: 0),
+          ),
         ),
       );
 
@@ -816,8 +892,9 @@ void main() {
     (tester) async {
       final yields = List.generate(
         2,
-        (index) =>
-            YieldDto.fixture().copyWith(total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 100 * index)),
+        (index) => LiquidityPoolDto.fixture().copyWith(
+          total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 100 * index),
+        ),
       );
       const token0Id = "xabas";
       const token1Id = "sabax";
@@ -832,7 +909,10 @@ void main() {
       when(() => appCache.getPoolSearchSettings()).thenReturn(PoolSearchSettingsDto(minLiquidityUSD: 122));
       when(() => cubit.state).thenReturn(
         YieldsState.success(
-          YieldsDto.fixture().copyWith(pools: yields, filters: const PoolSearchFiltersDto(minTvlUsd: 0)),
+          LiquidityPoolsSearchResultDto.fixture().copyWith(
+            pools: yields,
+            filters: const PoolSearchFiltersDto(minTvlUsd: 0),
+          ),
         ),
       );
 
@@ -861,7 +941,7 @@ void main() {
     (tester) async {
       final yields = List.generate(
         2,
-        (index) => YieldDto.fixture().copyWith(
+        (index) => LiquidityPoolDto.fixture().copyWith(
           total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 100 * index),
           poolAddress: "0x$index",
         ),
@@ -877,7 +957,10 @@ void main() {
 
       when(() => cubit.state).thenReturn(
         YieldsState.success(
-          YieldsDto.fixture().copyWith(pools: yields, filters: const PoolSearchFiltersDto(minTvlUsd: 0)),
+          LiquidityPoolsSearchResultDto.fixture().copyWith(
+            pools: yields,
+            filters: const PoolSearchFiltersDto(minTvlUsd: 0),
+          ),
         ),
       );
 
@@ -904,7 +987,7 @@ void main() {
     (tester) async {
       final yields = List.generate(
         2,
-        (index) => YieldDto.fixture().copyWith(
+        (index) => LiquidityPoolDto.fixture().copyWith(
           total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 100 * index),
           poolAddress: "0x$index",
         ),
@@ -920,7 +1003,10 @@ void main() {
 
       when(() => cubit.state).thenReturn(
         YieldsState.success(
-          YieldsDto.fixture().copyWith(pools: yields, filters: const PoolSearchFiltersDto(minTvlUsd: 0)),
+          LiquidityPoolsSearchResultDto.fixture().copyWith(
+            pools: yields,
+            filters: const PoolSearchFiltersDto(minTvlUsd: 0),
+          ),
         ),
       );
 
@@ -950,7 +1036,7 @@ void main() {
     (tester) async {
       final yields = List.generate(
         2,
-        (index) => YieldDto.fixture().copyWith(
+        (index) => LiquidityPoolDto.fixture().copyWith(
           total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 100 * index),
           poolAddress: "0x$index",
         ),
@@ -966,7 +1052,10 @@ void main() {
 
       when(() => cubit.state).thenReturn(
         YieldsState.success(
-          YieldsDto.fixture().copyWith(pools: yields, filters: const PoolSearchFiltersDto(minTvlUsd: 0)),
+          LiquidityPoolsSearchResultDto.fixture().copyWith(
+            pools: yields,
+            filters: const PoolSearchFiltersDto(minTvlUsd: 0),
+          ),
         ),
       );
 
@@ -997,7 +1086,7 @@ void main() {
     (tester) async {
       final yields = List.generate(
         2,
-        (index) => YieldDto.fixture().copyWith(
+        (index) => LiquidityPoolDto.fixture().copyWith(
           total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 100 * index),
           poolAddress: "0x$index",
         ),
@@ -1013,7 +1102,10 @@ void main() {
 
       when(() => cubit.state).thenReturn(
         YieldsState.success(
-          YieldsDto.fixture().copyWith(pools: yields, filters: const PoolSearchFiltersDto(minTvlUsd: 0)),
+          LiquidityPoolsSearchResultDto.fixture().copyWith(
+            pools: yields,
+            filters: const PoolSearchFiltersDto(minTvlUsd: 0),
+          ),
         ),
       );
 
@@ -1046,7 +1138,7 @@ void main() {
 
       final yields = List.generate(
         2,
-        (index) => YieldDto.fixture().copyWith(
+        (index) => LiquidityPoolDto.fixture().copyWith(
           total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 100 * index),
           poolAddress: "0x$index",
           chainId: yieldNetwork.chainId,
@@ -1064,7 +1156,10 @@ void main() {
 
       when(() => cubit.state).thenReturn(
         YieldsState.success(
-          YieldsDto.fixture().copyWith(pools: yields, filters: const PoolSearchFiltersDto(minTvlUsd: 0)),
+          LiquidityPoolsSearchResultDto.fixture().copyWith(
+            pools: yields,
+            filters: const PoolSearchFiltersDto(minTvlUsd: 0),
+          ),
         ),
       );
 
@@ -1094,7 +1189,7 @@ void main() {
 
       final yields = List.generate(
         2,
-        (index) => YieldDto.fixture().copyWith(
+        (index) => LiquidityPoolDto.fixture().copyWith(
           total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 100 * index),
           poolAddress: "0x$index",
           chainId: yieldNetwork.chainId,
@@ -1112,7 +1207,10 @@ void main() {
 
       when(() => cubit.state).thenReturn(
         YieldsState.success(
-          YieldsDto.fixture().copyWith(pools: yields, filters: const PoolSearchFiltersDto(minTvlUsd: 0)),
+          LiquidityPoolsSearchResultDto.fixture().copyWith(
+            pools: yields,
+            filters: const PoolSearchFiltersDto(minTvlUsd: 0),
+          ),
         ),
       );
 
@@ -1142,7 +1240,7 @@ void main() {
 
       final yields = List.generate(
         2,
-        (index) => YieldDto.fixture().copyWith(
+        (index) => LiquidityPoolDto.fixture().copyWith(
           total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 100 * index),
           poolAddress: "0x$index",
           chainId: yieldNetwork.chainId,
@@ -1160,7 +1258,10 @@ void main() {
 
       when(() => cubit.state).thenReturn(
         YieldsState.success(
-          YieldsDto.fixture().copyWith(pools: yields, filters: const PoolSearchFiltersDto(minTvlUsd: 0)),
+          LiquidityPoolsSearchResultDto.fixture().copyWith(
+            pools: yields,
+            filters: const PoolSearchFiltersDto(minTvlUsd: 0),
+          ),
         ),
       );
 
@@ -1190,7 +1291,7 @@ void main() {
 
       final yields = List.generate(
         2,
-        (index) => YieldDto.fixture().copyWith(
+        (index) => LiquidityPoolDto.fixture().copyWith(
           total24hStats: PoolTotalStatsDTO.fixture().copyWith(yearlyYield: 100 * index),
           poolAddress: "0x$index",
           chainId: yieldNetwork.chainId,
@@ -1208,7 +1309,10 @@ void main() {
 
       when(() => cubit.state).thenReturn(
         YieldsState.success(
-          YieldsDto.fixture().copyWith(pools: yields, filters: const PoolSearchFiltersDto(minTvlUsd: 0)),
+          LiquidityPoolsSearchResultDto.fixture().copyWith(
+            pools: yields,
+            filters: const PoolSearchFiltersDto(minTvlUsd: 0),
+          ),
         ),
       );
 
@@ -1232,8 +1336,10 @@ void main() {
     "When clicking the pool stats button in the yield card, it should open the pool info side panel",
     goldenFileName: "yields_page_open_pool_stats_modal",
     (tester) async {
-      final yields = [YieldDto.fixture()];
-      when(() => cubit.state).thenReturn(YieldsState.success(YieldsDto.fixture().copyWith(pools: yields)));
+      final yields = [LiquidityPoolDto.fixture()];
+      when(
+        () => cubit.state,
+      ).thenReturn(YieldsState.success(LiquidityPoolsSearchResultDto.fixture().copyWith(pools: yields)));
 
       await tester.pumpDeviceBuilder(await goldenBuilder(), wrapper: GoldenConfig.localizationsWrapper());
       await tester.pumpAndSettle();
@@ -1247,8 +1353,10 @@ void main() {
     "When clicking the pool stats button in the yield card, and the device is mobile, it should open the pool info as bottom sheet",
     goldenFileName: "yields_page_open_pool_stats_modal_as_bottom_sheet",
     (tester) async {
-      final yields = [YieldDto.fixture()];
-      when(() => cubit.state).thenReturn(YieldsState.success(YieldsDto.fixture().copyWith(pools: yields)));
+      final yields = [LiquidityPoolDto.fixture()];
+      when(
+        () => cubit.state,
+      ).thenReturn(YieldsState.success(LiquidityPoolsSearchResultDto.fixture().copyWith(pools: yields)));
 
       await tester.pumpDeviceBuilder(await goldenBuilder(isMobile: true), wrapper: GoldenConfig.localizationsWrapper());
       await tester.pumpAndSettle();

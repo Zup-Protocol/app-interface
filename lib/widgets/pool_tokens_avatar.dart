@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:zup_app/core/dtos/yield_dto.dart';
+import 'package:zup_app/core/dtos/liquidity_pool_dto.dart';
 import 'package:zup_app/core/injections.dart';
 import 'package:zup_ui_kit/zup_ui_kit.dart';
 
 class PoolTokensAvatar extends StatelessWidget {
   const PoolTokensAvatar({super.key, required this.liquidityPool, this.size = 27});
 
-  final YieldDto liquidityPool;
+  final LiquidityPoolDto liquidityPool;
   final double size;
 
   ZupNetworkImage get zupNetworkImage => inject<ZupNetworkImage>();

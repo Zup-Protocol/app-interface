@@ -1,45 +1,45 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:zup_app/core/dtos/liquidity_pool_dto.dart';
 import 'package:zup_app/core/dtos/pool_search_filters_dto.dart';
 import 'package:zup_app/core/dtos/pool_stats_dto.dart';
 import 'package:zup_app/core/dtos/protocol_dto.dart';
 import 'package:zup_app/core/dtos/single_chain_token_dto.dart';
-import 'package:zup_app/core/dtos/yield_dto.dart';
 import 'package:zup_app/core/enums/pool_data_timeframe.dart';
 import 'package:zup_app/core/enums/pool_type.dart';
 import 'package:zup_app/core/enums/protocol_id.dart';
 
-part 'yields_dto.freezed.dart';
-part 'yields_dto.g.dart';
+part 'liquidity_pools_search_result_dto.freezed.dart';
+part 'liquidity_pools_search_result_dto.g.dart';
 
 @freezed
-sealed class YieldsDto with _$YieldsDto {
-  const YieldsDto._();
+sealed class LiquidityPoolsSearchResultDto with _$LiquidityPoolsSearchResultDto {
+  const LiquidityPoolsSearchResultDto._();
 
   @JsonSerializable(explicitToJson: true)
-  const factory YieldsDto({
-    @Default(<YieldDto>[]) @JsonKey(name: "pools") List<YieldDto> pools,
+  const factory LiquidityPoolsSearchResultDto({
+    @Default(<LiquidityPoolDto>[]) @JsonKey(name: "pools") List<LiquidityPoolDto> pools,
     @Default(PoolSearchFiltersDto()) PoolSearchFiltersDto filters,
-  }) = _YieldsDto;
+  }) = _LiquidityPoolsSearchResultDto;
 
   bool get isEmpty => pools.isEmpty;
 
-  List<YieldDto> get poolsSortedBy24hYield {
+  List<LiquidityPoolDto> get poolsSortedBy24hYield {
     return [...pools]..sort((a, b) => b.total24hStats?.yearlyYield.compareTo(a.total24hStats?.yearlyYield ?? 0) ?? 0);
   }
 
-  List<YieldDto> get poolsSortedBy7dYield {
+  List<LiquidityPoolDto> get poolsSortedBy7dYield {
     return [...pools]..sort((a, b) => b.total7dStats?.yearlyYield.compareTo(a.total7dStats?.yearlyYield ?? 0) ?? 0);
   }
 
-  List<YieldDto> get poolsSortedBy30dYield {
+  List<LiquidityPoolDto> get poolsSortedBy30dYield {
     return [...pools]..sort((a, b) => b.total30dStats?.yearlyYield.compareTo(a.total30dStats?.yearlyYield ?? 0) ?? 0);
   }
 
-  List<YieldDto> get poolsSortedBy90dYield {
+  List<LiquidityPoolDto> get poolsSortedBy90dYield {
     return [...pools]..sort((a, b) => b.total90dStats?.yearlyYield.compareTo(a.total90dStats?.yearlyYield ?? 0) ?? 0);
   }
 
-  List<YieldDto> poolsSortedByTimeframe(PoolDataTimeframe timeframe) {
+  List<LiquidityPoolDto> poolsSortedByTimeframe(PoolDataTimeframe timeframe) {
     switch (timeframe) {
       case PoolDataTimeframe.day:
         return poolsSortedBy24hYield;
@@ -52,14 +52,15 @@ sealed class YieldsDto with _$YieldsDto {
     }
   }
 
-  factory YieldsDto.fromJson(Map<String, dynamic> json) => _$YieldsDtoFromJson(json);
+  factory LiquidityPoolsSearchResultDto.fromJson(Map<String, dynamic> json) =>
+      _$LiquidityPoolsSearchResultDtoFromJson(json);
 
-  factory YieldsDto.empty() => const YieldsDto(pools: []);
+  factory LiquidityPoolsSearchResultDto.empty() => const LiquidityPoolsSearchResultDto(pools: []);
 
-  factory YieldsDto.fixture() => YieldsDto(
+  factory LiquidityPoolsSearchResultDto.fixture() => LiquidityPoolsSearchResultDto(
     filters: PoolSearchFiltersDto.fixture(),
     pools: [
-      YieldDto(
+      LiquidityPoolDto(
         createdAtTimestamp: DateTime(1992).millisecondsSinceEpoch,
         latestTick: "637812562",
         latestSqrtPriceX96: "5240418162556390792557189",

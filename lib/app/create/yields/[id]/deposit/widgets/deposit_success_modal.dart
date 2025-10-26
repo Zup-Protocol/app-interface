@@ -1,7 +1,7 @@
 import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:zup_app/core/dtos/yield_dto.dart';
+import 'package:zup_app/core/dtos/liquidity_pool_dto.dart';
 import 'package:zup_app/core/injections.dart';
 import 'package:zup_app/gen/assets.gen.dart';
 import 'package:zup_app/l10n/gen/app_localizations.dart';
@@ -11,11 +11,11 @@ import 'package:zup_ui_kit/zup_ui_kit.dart';
 class DepositSuccessModal extends StatefulWidget {
   const DepositSuccessModal({super.key, required this.depositedYield});
 
-  final YieldDto depositedYield;
+  final LiquidityPoolDto depositedYield;
 
   static Future<void> show(
     BuildContext context, {
-    required YieldDto depositedYield,
+    required LiquidityPoolDto depositedYield,
     required showAsBottomSheet,
   }) async => ZupModal.show(
     context,

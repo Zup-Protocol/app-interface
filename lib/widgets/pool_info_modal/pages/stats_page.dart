@@ -3,7 +3,7 @@ part of '../pool_info_modal.dart';
 class _StatsPage extends StatefulWidget {
   const _StatsPage({required this.liquidityPool, required this.selectedTimeframe});
 
-  final YieldDto liquidityPool;
+  final LiquidityPoolDto liquidityPool;
   final PoolDataTimeframe selectedTimeframe;
 
   @override

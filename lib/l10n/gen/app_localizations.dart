@@ -675,6 +675,99 @@ abstract class S {
   /// **'No results for'**
   String get noResultsFor;
 
+  /// Used by the pool info modal to copy the pool hook address if any
+  ///
+  /// In en, this message translates to:
+  /// **'Copy Hook Address'**
+  String get poolInfoModalAboutPageCopyHook;
+
+  /// Used by the pool info modal to copy one of the pool tokens address
+  ///
+  /// In en, this message translates to:
+  /// **'Copy Token Address'**
+  String get poolInfoModalAboutPageCopyToken;
+
+  /// Used by the pool info modal as a title for the fee tier field in the about page
+  ///
+  /// In en, this message translates to:
+  /// **'Fee'**
+  String get poolInfoModalAboutPageFee;
+
+  /// No description provided for @poolInfoModalAboutPageFeeDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'This pool takes {isDynamicFee, select, true {a dynamic} other {{formattedFee}}} fee on each trade and distributes it to the liquidity providers'**
+  String poolInfoModalAboutPageFeeDescription({
+    required String isDynamicFee,
+    required String formattedFee,
+  });
+
+  /// Used by the pool info modal to notify the user that the pool hook address was copied
+  ///
+  /// In en, this message translates to:
+  /// **'Copied!'**
+  String get poolInfoModalAboutPageHookCopied;
+
+  /// Used by the pool info modal as a title for the hooks field in the about page
+  ///
+  /// In en, this message translates to:
+  /// **'Hooks'**
+  String get poolInfoModalAboutPageHooks;
+
+  /// Used by the pool info modal as a description for the hooks field in the about page to explain what hooks are to the user
+  ///
+  /// In en, this message translates to:
+  /// **'Some pools can include hooks, which are small smart contracts attached to the pool that allow pools to add extra features or rules when people trade or add liquidity'**
+  String get poolInfoModalAboutPageHooksDescription;
+
+  /// Used by the pool info modal as a value for the hooks field in the about page when there are no hooks in the pool
+  ///
+  /// In en, this message translates to:
+  /// **'No'**
+  String get poolInfoModalAboutPageHooksNo;
+
+  /// Used by the pool info modal as a title for the section that has information about the pool's blockchain, in the about page
+  ///
+  /// In en, this message translates to:
+  /// **'Network'**
+  String get poolInfoModalAboutPageNetwork;
+
+  /// Used by the pool info modal as a value for the pool type field in the about page
+  ///
+  /// In en, this message translates to:
+  /// **'{poolType} Pool'**
+  String poolInfoModalAboutPagePoolTypeValue({required String poolType});
+
+  /// Used by the pool info modal as a title for the section that has information about the pool's protocol, in the about page
+  ///
+  /// In en, this message translates to:
+  /// **'Protocol'**
+  String get poolInfoModalAboutPageProtocol;
+
+  /// Used by the pool info modal in the about page to show how long ago a pool was created
+  ///
+  /// In en, this message translates to:
+  /// **'Created {timeAgo}'**
+  String poolInfoModalAboutPageTimeCreatedAgo({required String timeAgo});
+
+  /// Used by the pool info modal to notify the user that one of the pool tokens address was copied
+  ///
+  /// In en, this message translates to:
+  /// **'Copied!'**
+  String get poolInfoModalAboutPageTokenCopied;
+
+  /// Used by the pool info modal as a title for the tokens section of the about page. This section lists the tokens in the pool
+  ///
+  /// In en, this message translates to:
+  /// **'Tokens'**
+  String get poolInfoModalAboutPageTokens;
+
+  /// Used by the pool info modal as a title for the pool type field in the about page
+  ///
+  /// In en, this message translates to:
+  /// **'Type'**
+  String get poolInfoModalAboutPageType;
+
   /// Used by the pool info modal to title the about pool tab at a tab bar
   ///
   /// In en, this message translates to:
@@ -692,54 +785,6 @@ abstract class S {
   /// In en, this message translates to:
   /// **'Pool Information'**
   String get poolInfoModalBottomSheetTitle;
-
-  /// Used by the pool info modal to copy one of the pool tokens address
-  ///
-  /// In en, this message translates to:
-  /// **'Copy Token Address'**
-  String get poolInfoModalAboutPageCopyToken;
-
-  /// Used by the pool info modal to notify the user that one of the pool tokens address was copied
-  ///
-  /// In en, this message translates to:
-  /// **'Copied!'**
-  String get poolInfoModalAboutPageTokenCopied;
-
-  /// Used by the pool info modal to copy the pool hook address if any
-  ///
-  /// In en, this message translates to:
-  /// **'Copy Hook Address'**
-  String get poolInfoModalAboutPageCopyHook;
-
-  /// Used by the pool info modal to notify the user that the pool hook address was copied
-  ///
-  /// In en, this message translates to:
-  /// **'Copied!'**
-  String get poolInfoModalAboutPageHookCopied;
-
-  /// Used by the pool info modal in the about page to show how long ago a pool was created
-  ///
-  /// In en, this message translates to:
-  /// **'Created {timeAgo}'**
-  String poolInfoModalAboutPageTimeCreatedAgo({required String timeAgo});
-
-  /// Used by the pool info modal as a title for the section that has information about the pool's blockchain, in the about page
-  ///
-  /// In en, this message translates to:
-  /// **'Network'**
-  String get poolInfoModalAboutPageNetwork;
-
-  /// Used by the pool info modal as a title for the section that has information about the pool's protocol, in the about page
-  ///
-  /// In en, this message translates to:
-  /// **'Protocol'**
-  String get poolInfoModalAboutPageProtocol;
-
-  /// Used by the pool info modal as a title for the tokens section of the about page. This section lists the tokens in the pool
-  ///
-  /// In en, this message translates to:
-  /// **'Tokens'**
-  String get poolInfoModalAboutPageTokens;
 
   /// Used by the pool info modal to notify the user that the pool address was copied
   ///
@@ -994,51 +1039,6 @@ abstract class S {
   /// In en, this message translates to:
   /// **'Approve {tokenSymbol}'**
   String previewDepositModalApproveToken({required String tokenSymbol});
-
-  /// Used by the pool info modal as a title for the fee tier field in the about page
-  ///
-  /// In en, this message translates to:
-  /// **'Fee'**
-  String get poolInfoModalAboutPageFee;
-
-  /// No description provided for @poolInfoModalAboutPageFeeDescription.
-  ///
-  /// In en, this message translates to:
-  /// **'This pool takes {isDynamicFee, select, true {a dynamic} other {{formattedFee}}} fee on each trade and distributes it to the liquidity providers'**
-  String poolInfoModalAboutPageFeeDescription({
-    required String isDynamicFee,
-    required String formattedFee,
-  });
-
-  /// Used by the pool info modal as a title for the pool type field in the about page
-  ///
-  /// In en, this message translates to:
-  /// **'Type'**
-  String get poolInfoModalAboutPageType;
-
-  /// Used by the pool info modal as a value for the pool type field in the about page
-  ///
-  /// In en, this message translates to:
-  /// **'{poolType} Pool'**
-  String poolInfoModalAboutPagePoolTypeValue({required String poolType});
-
-  /// Used by the pool info modal as a value for the hooks field in the about page when there are no hooks in the pool
-  ///
-  /// In en, this message translates to:
-  /// **'No'**
-  String get poolInfoModalAboutPageHooksNo;
-
-  /// Used by the pool info modal as a description for the hooks field in the about page to explain what hooks are to the user
-  ///
-  /// In en, this message translates to:
-  /// **'Some pools can include hooks, which are small smart contracts attached to the pool that allow pools to add extra features or rules when people trade or add liquidity'**
-  String get poolInfoModalAboutPageHooksDescription;
-
-  /// Used by the pool info modal as a title for the hooks field in the about page
-  ///
-  /// In en, this message translates to:
-  /// **'Hooks'**
-  String get poolInfoModalAboutPageHooks;
 
   /// No description provided for @previewDepositModalApprovingToken.
   ///

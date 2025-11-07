@@ -6,10 +6,10 @@ import 'package:skeletonizer/skeletonizer.dart';
 import 'package:zup_app/app/app_cubit/app_cubit.dart';
 import 'package:zup_app/app/create/yields/yields_cubit.dart';
 import 'package:zup_app/core/cache.dart';
+import 'package:zup_app/core/dtos/liquidity_pools_search_result_dto.dart';
 import 'package:zup_app/core/dtos/pool_search_filters_dto.dart';
-import 'package:zup_app/core/dtos/yields_dto.dart';
 import 'package:zup_app/core/enums/networks.dart';
-import 'package:zup_app/core/enums/yield_timeframe.dart';
+import 'package:zup_app/core/enums/pool_data_timeframe.dart';
 import 'package:zup_app/core/enums/zup_navigator_paths.dart';
 import 'package:zup_app/core/extensions/num_extension.dart';
 import 'package:zup_app/core/injections.dart';
@@ -20,6 +20,7 @@ import 'package:zup_app/core/zup_navigator.dart';
 import 'package:zup_app/core/zup_route_params_names.dart';
 import 'package:zup_app/gen/assets.gen.dart';
 import 'package:zup_app/l10n/gen/app_localizations.dart';
+import 'package:zup_app/widgets/pool_info_modal/pool_info_modal.dart';
 import 'package:zup_app/widgets/timeframe_selector.dart';
 import 'package:zup_app/widgets/yield_card.dart';
 import 'package:zup_app/widgets/zup_page_title.dart';
@@ -84,7 +85,7 @@ class _YieldsPageState extends State<YieldsPage> with DeviceInfoMixin, SingleTic
     return navigator.getQueryParam(ZupNavigatorPaths.yields.routeParamsNames<YieldsRouteParamsNames>().group1);
   }
 
-  YieldTimeFrame selectedYieldTimeFrame = YieldTimeFrame.day;
+  PoolDataTimeframe selectedYieldTimeFrame = PoolDataTimeframe.day;
   num currentYieldPage = 0;
   bool isYieldsPageGoingBackwards = false;
 
@@ -145,7 +146,7 @@ class _YieldsPageState extends State<YieldsPage> with DeviceInfoMixin, SingleTic
     );
   }
 
-  Widget _buildSuccessState(YieldsDto yields) {
+  Widget _buildSuccessState(LiquidityPoolsSearchResultDto yields) {
     int getYieldDisplayCountPerPage() {
       return yields.pools.length.clamp(1, isMobileSize(context) ? 1 : 2);
     }
@@ -171,7 +172,11 @@ class _YieldsPageState extends State<YieldsPage> with DeviceInfoMixin, SingleTic
                         child: Padding(
                           padding: const EdgeInsets.all(20),
                           child: ZupIconButton(
-                            icon: Assets.icons.arrowLeft.svg(height: 12, width: 12),
+                            icon: Assets.icons.arrowLeft.svg(
+                              height: 12,
+                              width: 12,
+                              colorFilter: const ColorFilter.mode(ZupColors.gray, BlendMode.srcIn),
+                            ),
                             onPressed: (context) async {
                               if (currentYieldPage.equals(0)) return;
                               isYieldsPageGoingBackwards = true;
@@ -209,18 +214,20 @@ class _YieldsPageState extends State<YieldsPage> with DeviceInfoMixin, SingleTic
                           ),
                           const SizedBox(height: 10),
                           TimeframeSelector(
+                            title: S.of(context).yieldsPageTimeframeSelectorTitle,
+                            tooltipMessage: S.of(context).yieldsPageTimeframeExplanation,
                             selectedTimeframe: selectedYieldTimeFrame,
                             onTimeframeSelected: (timeframe) {
                               setState(() {
                                 pageController.jumpTo(0);
-                                selectedYieldTimeFrame = timeframe ?? YieldTimeFrame.day;
+                                selectedYieldTimeFrame = timeframe;
                               });
                             },
                           ),
                         ],
                       ),
                     ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 10),
                     _buildYieldsSection(
                       yieldsPagesCount: yieldsPagesCount,
                       yieldsCardPerPage: getYieldDisplayCountPerPage(),
@@ -244,7 +251,11 @@ class _YieldsPageState extends State<YieldsPage> with DeviceInfoMixin, SingleTic
                         child: Padding(
                           padding: const EdgeInsets.all(20),
                           child: ZupIconButton(
-                            icon: Assets.icons.arrowRight.svg(height: 12, width: 12),
+                            icon: Assets.icons.arrowRight.svg(
+                              height: 12,
+                              width: 12,
+                              colorFilter: const ColorFilter.mode(ZupColors.gray, BlendMode.srcIn),
+                            ),
                             onPressed: (context) {
                               if (currentYieldPage.equals(yieldsPagesCount - 1)) return;
                               isYieldsPageGoingBackwards = false;
@@ -267,7 +278,7 @@ class _YieldsPageState extends State<YieldsPage> with DeviceInfoMixin, SingleTic
   Widget _buildYieldsSection({
     required int yieldsPagesCount,
     required int yieldsCardPerPage,
-    required YieldsDto yields,
+    required LiquidityPoolsSearchResultDto yields,
   }) {
     final poolsSortedByTimeframe = yields.poolsSortedByTimeframe(selectedYieldTimeFrame);
 
@@ -309,6 +320,22 @@ class _YieldsPageState extends State<YieldsPage> with DeviceInfoMixin, SingleTic
                         yieldTimeFrame: selectedYieldTimeFrame,
                         showHotestYieldAnimation: yieldItem.equals(poolsSortedByTimeframe.first),
                         expandWidth: isMobileSize(context),
+                        secondaryButton: ZupIconButton(
+                          key: Key("pool-stats-button-${yieldItem.poolAddress}"),
+                          icon: Assets.icons.chartBar.svg(
+                            height: 15,
+                            width: 15,
+                            colorFilter: const ColorFilter.mode(ZupColors.brand4, BlendMode.srcIn),
+                          ),
+                          onPressed: (_) => PoolInfoModal.show(
+                            context,
+                            showAsBottomSheet: isMobileSize(context),
+                            liquidityPool: yieldItem,
+                            selectedTimeframe: selectedYieldTimeFrame,
+                          ),
+                          backgroundColor: ZupThemeColors.tertiaryButtonBackground.themed(context.brightness),
+                          padding: const EdgeInsets.all(15),
+                        ),
                         mainButton: ZupPrimaryButton(
                           key: Key("deposit-button-${yieldItem.poolAddress}"),
                           title: S.of(context).yieldCardDeposit,

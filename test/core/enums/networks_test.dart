@@ -373,7 +373,6 @@ void main() {
       );
     },
   );
-  autoUpdateGoldenFiles = true;
   zGoldenTest(
     "Plasma network icon should be correct for dark mode (light icon)",
     goldenFileName: "plasma_network_icon_dark_mode",
@@ -403,6 +402,70 @@ void main() {
         network.chainInfo.blockExplorerUrls?.first.endsWith("/"),
         false,
         reason: "The ${network.label} block explorer url should not end with a slash",
+      );
+    }
+  });
+
+  test("websiteUrl extension should return the correct website for each network", () {
+    expect(AppNetworks.sepolia.websiteUrl, "https://ethereum.org", reason: "Sepolia website should match");
+    expect(AppNetworks.mainnet.websiteUrl, "https://ethereum.org", reason: "Mainnet website should match");
+    expect(AppNetworks.scroll.websiteUrl, "https://scroll.io", reason: "Scroll website should match");
+    expect(AppNetworks.base.websiteUrl, "https://base.org", reason: "Base website should match");
+    expect(AppNetworks.unichain.websiteUrl, "https://www.unichain.org", reason: "Unichain website should match");
+    expect(AppNetworks.hyperEvm.websiteUrl, "https://hyperfoundation.org", reason: "HyperEVM website should match");
+    expect(AppNetworks.plasma.websiteUrl, "https://www.plasma.to", reason: "Plasma website should match");
+  });
+
+  test("websiteUrl should throw an error for allNetworks", () {
+    expect(() => AppNetworks.allNetworks.websiteUrl, throwsA(isA<UnimplementedError>()));
+  });
+
+  test("dexscreenerUrl extension should return the correct dexscreener base URL for each network", () {
+    expect(AppNetworks.sepolia.dexscreenerUrl, null, reason: "Sepolia has no dexscreener URL");
+    expect(
+      AppNetworks.mainnet.dexscreenerUrl,
+      "https://dexscreener.com/ethereum",
+      reason: "Mainnet dexscreener should match",
+    );
+    expect(
+      AppNetworks.scroll.dexscreenerUrl,
+      "https://dexscreener.com/scroll",
+      reason: "Scroll dexscreener should match",
+    );
+    expect(AppNetworks.base.dexscreenerUrl, "https://dexscreener.com/base", reason: "Base dexscreener should match");
+    expect(
+      AppNetworks.unichain.dexscreenerUrl,
+      "https://dexscreener.com/unichain",
+      reason: "Unichain dexscreener should match",
+    );
+    expect(
+      AppNetworks.hyperEvm.dexscreenerUrl,
+      "https://dexscreener.com/hyperevm",
+      reason: "HyperEVM dexscreener should match",
+    );
+    expect(
+      AppNetworks.plasma.dexscreenerUrl,
+      "https://dexscreener.com/plasma",
+      reason: "Plasma dexscreener should match",
+    );
+  });
+
+  test("dexscreenerUrl should return null for allNetworks", () {
+    expect(AppNetworks.allNetworks.dexscreenerUrl, null);
+  });
+
+  test("openAddress should open the correct address url for each network", () async {
+    const address = "0x1234567890abcdef1234567890abcdef12345678";
+
+    for (final network in AppNetworks.values) {
+      if (network.isAllNetworks) continue;
+
+      await network.openAddress(address);
+
+      expect(
+        UrlLauncherPlatformCustomMock.lastLaunchedUrl,
+        "${network.chainInfo.blockExplorerUrls?.first}/address/$address",
+        reason: "${network.name} should open the correct address URL",
       );
     }
   });

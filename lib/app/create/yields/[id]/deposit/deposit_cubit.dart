@@ -7,8 +7,8 @@ import 'package:zup_app/core/cache.dart';
 import 'package:zup_app/core/concentrated_liquidity_utils/cl_pool_conversors_mixin.dart';
 import 'package:zup_app/core/dtos/deposit_page_arguments_dto.dart';
 import 'package:zup_app/core/dtos/deposit_settings_dto.dart';
+import 'package:zup_app/core/dtos/liquidity_pool_dto.dart';
 import 'package:zup_app/core/dtos/pool_search_settings_dto.dart';
-import 'package:zup_app/core/dtos/yield_dto.dart';
 import 'package:zup_app/core/enums/networks.dart';
 import 'package:zup_app/core/mixins/keys_mixin.dart';
 import 'package:zup_app/core/pool_service.dart';
@@ -57,7 +57,7 @@ class DepositCubit extends Cubit<DepositState> with KeysMixin, CLPoolConversorsM
   final Duration _poolSqrtPriceX96CacheExpiration = const Duration(seconds: 30);
 
   BigInt? _latestPoolSqrtPriceX96;
-  YieldDto? yieldPool;
+  LiquidityPoolDto? yieldPool;
 
   late final Stream<BigInt?> poolSqrtPriceX96Stream = _poolSqrtPriceX96StreamController.stream;
 

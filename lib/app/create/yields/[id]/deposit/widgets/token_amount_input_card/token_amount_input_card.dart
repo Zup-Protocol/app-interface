@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:web3kit/web3kit.dart';
 import 'package:zup_app/app/create/yields/%5Bid%5D/deposit/widgets/token_amount_input_card/token_amount_input_card_cubit.dart';
 import 'package:zup_app/app/create/yields/%5Bid%5D/deposit/widgets/token_amount_input_card/token_amount_input_card_user_balance_cubit.dart';
-import 'package:zup_app/core/dtos/token_dto.dart';
+import 'package:zup_app/core/dtos/single_chain_token_dto.dart';
 import 'package:zup_app/core/enums/networks.dart';
 import 'package:zup_app/core/extensions/num_extension.dart';
 import 'package:zup_app/core/extensions/widget_extension.dart';
@@ -11,7 +11,7 @@ import 'package:zup_app/core/injections.dart';
 import 'package:zup_app/core/repositories/tokens_repository.dart';
 import 'package:zup_app/core/token_amount_input_formatter.dart';
 import 'package:zup_app/gen/assets.gen.dart';
-import 'package:zup_app/widgets/position_token.dart';
+import 'package:zup_app/widgets/pool_token.dart';
 import 'package:zup_core/zup_core.dart';
 import 'package:zup_ui_kit/zup_ui_kit.dart';
 
@@ -27,7 +27,7 @@ class TokenAmountInputCard extends StatefulWidget {
     this.isNative = false,
   });
 
-  final TokenDto token;
+  final SingleChainTokenDto token;
   final AppNetworks network;
   final TextEditingController controller;
   final Function(double value) onInput;
@@ -51,7 +51,7 @@ class _TokenAmountInputCardState extends State<TokenAmountInputCard> with Single
 
   late TokenAmountCardUserBalanceCubit userBalanceCubit = TokenAmountCardUserBalanceCubit(
     wallet,
-    widget.token.addresses[widget.network.chainId]!,
+    widget.token.address,
     widget.network,
     zupSingletonCache,
     widget.onRefreshBalance,
@@ -74,7 +74,7 @@ class _TokenAmountInputCardState extends State<TokenAmountInputCard> with Single
   @override
   void didUpdateWidget(TokenAmountInputCard oldWidget) {
     if ((widget.isNative != oldWidget.isNative || widget.network != oldWidget.network) &&
-        (widget.token.addresses[widget.network.chainId] ?? "").lowercasedEquals(EthereumConstants.zeroAddress)) {
+        (widget.token.address).lowercasedEquals(EthereumConstants.zeroAddress)) {
       WidgetsBinding.instance.addPostFrameCallback(
         (_) => userBalanceCubit.updateNativeTokenAndFetch(isNative: widget.isNative, network: widget.network),
       );
@@ -84,11 +84,7 @@ class _TokenAmountInputCardState extends State<TokenAmountInputCard> with Single
 
     if (widget.token != oldWidget.token || widget.network != oldWidget.network) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        userBalanceCubit.updateTokenAndNetwork(
-          widget.token.addresses[widget.network.chainId]!,
-          widget.network,
-          asNativeToken: widget.isNative,
-        );
+        userBalanceCubit.updateTokenAndNetwork(widget.token.address, widget.network, asNativeToken: widget.isNative);
       });
 
       super.didUpdateWidget(oldWidget);
@@ -214,7 +210,7 @@ class _TokenAmountInputCardState extends State<TokenAmountInputCard> with Single
                                 color: ZupThemeColors.borderOnBackgroundSurface.themed(context.brightness),
                               ),
                             ),
-                            child: PositionToken(token: widget.token),
+                            child: PoolToken(token: widget.token),
                           ),
                         ],
                       ),

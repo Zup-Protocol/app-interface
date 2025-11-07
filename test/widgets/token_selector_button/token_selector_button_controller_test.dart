@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:zup_app/core/dtos/token_dto.dart';
+import 'package:zup_app/core/dtos/multi_chain_token_dto.dart';
 import 'package:zup_app/core/dtos/token_group_dto.dart';
 import 'package:zup_app/widgets/token_selector_button/token_selector_button_controller.dart';
 
@@ -11,7 +11,7 @@ void main() {
   });
 
   test("When changing the selected token by calling the function, it should set the variable", () {
-    final newSelectedToken = TokenDto.fixture();
+    final newSelectedToken = MultiChainTokenDto.fixture();
 
     /// make sure that the already selected token is not the new one
     expect(sut.selectedToken, null);
@@ -22,7 +22,7 @@ void main() {
   });
 
   test("When changing the selected token by calling the function, it should emit a event", () {
-    final newSelectedToken = TokenDto.fixture();
+    final newSelectedToken = MultiChainTokenDto.fixture();
 
     expectLater(sut.selectedTokenStream, emits(newSelectedToken));
 
@@ -30,7 +30,7 @@ void main() {
   });
 
   test("When changing the selected token to null, it should emit a null event", () {
-    sut.changeToken(TokenDto.fixture());
+    sut.changeToken(MultiChainTokenDto.fixture());
 
     expectLater(sut.selectedTokenStream, emits(null));
     sut.changeToken(null);
@@ -38,7 +38,7 @@ void main() {
 
   test("When there is a selected group, and a call to 'changeToken' is made, it should remove the selected group", () {
     sut.changeTokenGroup(TokenGroupDto.fixture());
-    sut.changeToken(TokenDto.fixture());
+    sut.changeToken(MultiChainTokenDto.fixture());
 
     expect(sut.selectedTokenGroup, null);
   });
@@ -47,18 +47,18 @@ void main() {
     sut.changeTokenGroup(TokenGroupDto.fixture());
 
     expectLater(sut.selectedTokenGroupStream, emits(null));
-    sut.changeToken(TokenDto.fixture());
+    sut.changeToken(MultiChainTokenDto.fixture());
   });
 
   test("When calling 'changeTokenGroup' with a previous selected token, it should remove the selected token", () {
-    sut.changeToken(TokenDto.fixture());
+    sut.changeToken(MultiChainTokenDto.fixture());
     sut.changeTokenGroup(TokenGroupDto.fixture());
 
     expect(sut.selectedToken, null);
   });
 
   test("When calling 'changeTokenGroup' with a previous selected token, it should emit null selected token", () {
-    sut.changeToken(TokenDto.fixture());
+    sut.changeToken(MultiChainTokenDto.fixture());
 
     expectLater(sut.selectedTokenStream, emits(null));
     sut.changeTokenGroup(TokenGroupDto.fixture());

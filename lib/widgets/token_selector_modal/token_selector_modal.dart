@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:zup_app/app/app_cubit/app_cubit.dart';
 import 'package:zup_app/core/debouncer.dart';
-import 'package:zup_app/core/dtos/token_dto.dart';
+import 'package:zup_app/core/dtos/multi_chain_token_dto.dart';
 import 'package:zup_app/core/dtos/token_group_dto.dart';
 import 'package:zup_app/core/injections.dart';
 import 'package:zup_app/gen/assets.gen.dart';
@@ -18,13 +18,13 @@ import 'package:zup_ui_kit/zup_ui_kit.dart';
 class TokenSelectorModal extends StatefulWidget {
   const TokenSelectorModal({super.key, required this.onSelectToken, required this.onSelectTokenGroup});
 
-  final Function(TokenDto token) onSelectToken;
+  final Function(MultiChainTokenDto token) onSelectToken;
   final Function(TokenGroupDto token) onSelectTokenGroup;
 
   static void show(
     BuildContext context, {
     required bool showAsBottomSheet,
-    required Function(TokenDto token) onSelectToken,
+    required Function(MultiChainTokenDto token) onSelectToken,
     required Function(TokenGroupDto token) onSelectTokenGroup,
   }) async {
     return ZupModal.show(
@@ -53,7 +53,7 @@ class _TokenSelectorModalState extends State<TokenSelectorModal> with DeviceInfo
   final _cubit = inject<TokenSelectorModalCubit>();
   final _appCubit = inject<AppCubit>();
 
-  void _selectToken(TokenDto token) {
+  void _selectToken(MultiChainTokenDto token) {
     widget.onSelectToken(token);
     Navigator.of(context).pop();
   }
@@ -253,7 +253,7 @@ class _TokenSelectorModalState extends State<TokenSelectorModal> with DeviceInfo
                 3,
                 (index) => Padding(
                   padding: _paddingBetweenListItems,
-                  child: TokenCard(asset: TokenDto.fixture(), onClick: () {}),
+                  child: TokenCard(asset: MultiChainTokenDto.fixture(), onClick: () {}),
                 ),
               ),
             ),
@@ -306,7 +306,7 @@ class _TokenSelectorModalState extends State<TokenSelectorModal> with DeviceInfo
                 4,
                 (index) => Padding(
                   padding: _paddingBetweenListItems,
-                  child: TokenCard(asset: TokenDto.fixture(), onClick: () {}),
+                  child: TokenCard(asset: MultiChainTokenDto.fixture(), onClick: () {}),
                 ),
               ),
             ),

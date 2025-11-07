@@ -1,15 +1,22 @@
 import 'package:flutter/cupertino.dart';
-import 'package:zup_app/core/enums/yield_timeframe.dart';
+import 'package:zup_app/core/enums/pool_data_timeframe.dart';
 import 'package:zup_app/gen/assets.gen.dart';
-import 'package:zup_app/l10n/gen/app_localizations.dart';
 import 'package:zup_core/extensions/build_context_extension.dart';
 import 'package:zup_ui_kit/zup_ui_kit.dart';
 
 class TimeframeSelector extends StatefulWidget {
-  const TimeframeSelector({super.key, required this.selectedTimeframe, required this.onTimeframeSelected});
+  const TimeframeSelector({
+    super.key,
+    required this.selectedTimeframe,
+    required this.onTimeframeSelected,
+    required this.title,
+    this.tooltipMessage,
+  });
 
-  final YieldTimeFrame selectedTimeframe;
-  final Function(YieldTimeFrame? newTimeframe) onTimeframeSelected;
+  final String title;
+  final String? tooltipMessage;
+  final PoolDataTimeframe selectedTimeframe;
+  final Function(PoolDataTimeframe newTimeframe) onTimeframeSelected;
 
   @override
   State<TimeframeSelector> createState() => _TimeframeSelectorState();
@@ -26,7 +33,7 @@ class _TimeframeSelectorState extends State<TimeframeSelector> {
         crossAxisAlignment: WrapCrossAlignment.center,
         children: [
           Text(
-            S.of(context).yieldsPageTimeframeSelectorTitle,
+            widget.title,
             style: TextStyle(
               color: ZupThemeColors.primaryText.themed(context.brightness),
               fontSize: 14,
@@ -37,14 +44,14 @@ class _TimeframeSelectorState extends State<TimeframeSelector> {
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              CupertinoSlidingSegmentedControl<YieldTimeFrame>(
+              CupertinoSlidingSegmentedControl<PoolDataTimeframe>(
                 proportionalWidth: true,
                 onValueChanged: (timeframe) async {
-                  widget.onTimeframeSelected(timeframe);
+                  widget.onTimeframeSelected(timeframe ?? PoolDataTimeframe.day);
                 },
                 groupValue: widget.selectedTimeframe,
                 children: Map.fromEntries(
-                  YieldTimeFrame.values.map(
+                  PoolDataTimeframe.values.map(
                     (timeframe) => MapEntry(
                       timeframe,
                       IgnorePointer(
@@ -64,14 +71,16 @@ class _TimeframeSelectorState extends State<TimeframeSelector> {
                   ),
                 ),
               ),
-              const SizedBox(width: 10),
-              ZupTooltip.text(
-                key: const Key("timeframe-tooltip"),
-                message: S.of(context).yieldsPageTimeframeExplanation,
-                child: Assets.icons.infoCircle.svg(
-                  colorFilter: const ColorFilter.mode(ZupColors.gray, BlendMode.srcIn),
+              if (widget.tooltipMessage != null) ...[
+                const SizedBox(width: 10),
+                ZupTooltip.text(
+                  key: const Key("timeframe-tooltip"),
+                  message: widget.tooltipMessage!,
+                  child: Assets.icons.infoCircle.svg(
+                    colorFilter: const ColorFilter.mode(ZupColors.gray, BlendMode.srcIn),
+                  ),
                 ),
-              ),
+              ],
             ],
           ),
         ],

@@ -44,10 +44,10 @@ extension NumExtension on num {
     final maxWithoutMoreThan = maxBeforeMoreThan ?? pow(10, 12) * 999;
 
     if (useMoreThan && this > maxWithoutMoreThan) {
-      return NumberFormat.compactCurrency(decimalDigits: decimals, name: ">").format(maxWithoutMoreThan);
+      return NumberFormat.compactCurrency(decimalDigits: 2, name: ">").format(maxWithoutMoreThan);
     }
 
-    return NumberFormat.compactCurrency(decimalDigits: decimals, name: isUSD ? "USD " : "").format(this);
+    return NumberFormat.compactCurrency(decimalDigits: 2, name: isUSD ? r"$" : "").format(this);
   }
 
   String maybeFormatCompactCurrency({
@@ -67,8 +67,9 @@ extension NumExtension on num {
     return formatCurrency(isUSD: isUSD, useLessThan: useLessThan);
   }
 
-  String get formatPercent {
+  String get formatRoundingPercent {
     int decimalsDigits = 0;
+
     if (decimals >= 1 && toString().split(".")[1] != "0") decimalsDigits = 1;
 
     return "${NumberFormat.decimalPatternDigits(decimalDigits: decimalsDigits).format(this)}%";

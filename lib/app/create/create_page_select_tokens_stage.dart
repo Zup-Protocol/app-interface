@@ -6,7 +6,7 @@ import 'package:zup_app/app/app_cubit/app_cubit.dart';
 import 'package:zup_app/app/create/widgets/create_page_settings_dropdown/create_page_settings_dropdown.dart';
 import 'package:zup_app/app/create/widgets/exchanges_filter_dropdown_button/exchanges_filter_dropdown_button.dart';
 import 'package:zup_app/core/cache.dart';
-import 'package:zup_app/core/dtos/token_dto.dart';
+import 'package:zup_app/core/dtos/multi_chain_token_dto.dart';
 import 'package:zup_app/core/injections.dart';
 import 'package:zup_app/core/zup_navigator.dart';
 import 'package:zup_app/gen/assets.gen.dart';
@@ -35,7 +35,7 @@ class _CreatePageState extends State<CreatePageSelectTokensStage> with DeviceInf
   StreamSubscription? _token1SelectorStreamSubscription;
   StreamSubscription? _selectedNetworkStreamSubscription;
 
-  bool areTokensEqual(TokenDto? token0, TokenDto? token1) {
+  bool areTokensEqual(MultiChainTokenDto? token0, MultiChainTokenDto? token1) {
     if (token0 == null || token1 == null) return false;
 
     if (appCubit.selectedNetwork.isAllNetworks) return token0.internalId == token1.internalId;

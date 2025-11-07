@@ -6,7 +6,6 @@ import 'package:zup_app/core/injections.dart';
 import 'package:zup_app/core/repositories/protocol_repository.dart';
 import 'package:zup_app/gen/assets.gen.dart';
 import 'package:zup_app/l10n/gen/app_localizations.dart';
-import 'package:zup_app/widgets/zup_cached_image.dart';
 import 'package:zup_core/extensions/extensions.dart';
 import 'package:zup_core/zup_singleton_cache.dart';
 import 'package:zup_ui_kit/zup_ui_kit.dart';
@@ -21,7 +20,7 @@ class ExchangesFilterDropdownButton extends StatefulWidget {
 class _ExchangesFilterDropdownButtonState extends State<ExchangesFilterDropdownButton> {
   final zupSingletonCache = inject<ZupSingletonCache>();
   final protocolRepository = inject<ProtocolRepository>();
-  final zupCachedImage = inject<ZupCachedImage>();
+  final zupNetworkImage = inject<ZupNetworkImage>();
   final cache = inject<Cache>();
 
   ExchangesFilterDropdownButtonCubit? cubit;
@@ -114,7 +113,7 @@ class _ExchangesFilterDropdownButtonState extends State<ExchangesFilterDropdownB
                           (protocol) => ZupCheckboxItem(
                             id: protocol.rawId,
                             title: protocol.name,
-                            icon: zupCachedImage.build(
+                            icon: zupNetworkImage.load(
                               context,
                               protocol.logo,
                               radius: 20,

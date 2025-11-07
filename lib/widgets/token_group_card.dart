@@ -3,14 +3,8 @@ import 'package:skeletonizer/skeletonizer.dart';
 import 'package:zup_app/core/dtos/token_group_dto.dart';
 import 'package:zup_app/core/injections.dart';
 import 'package:zup_app/gen/assets.gen.dart';
-import 'package:zup_app/widgets/token_avatar.dart';
-import 'package:zup_app/widgets/zup_cached_image.dart';
 import 'package:zup_core/extensions/extensions.dart';
-import 'package:zup_ui_kit/zup_circular_loading_indicator.dart';
-import 'package:zup_ui_kit/zup_colors.dart';
-import 'package:zup_ui_kit/zup_selectable_card.dart';
-import 'package:zup_ui_kit/zup_theme_colors.dart';
-import 'package:zup_ui_kit/zup_tooltip.dart';
+import 'package:zup_ui_kit/zup_ui_kit.dart';
 
 class TokenGroupCard extends StatefulWidget {
   const TokenGroupCard({super.key, required this.group, required this.onClick});
@@ -23,7 +17,7 @@ class TokenGroupCard extends StatefulWidget {
 }
 
 class _TokenGroupCardState extends State<TokenGroupCard> {
-  final ZupCachedImage zupCachedImage = inject<ZupCachedImage>();
+  final ZupNetworkImage zupNetworkImage = inject<ZupNetworkImage>();
   bool isHovering = false;
 
   @override
@@ -35,7 +29,7 @@ class _TokenGroupCardState extends State<TokenGroupCard> {
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          zupCachedImage.build(
+          zupNetworkImage.load(
             context,
             widget.group.logoUrl,
             height: 35,
@@ -52,7 +46,7 @@ class _TokenGroupCardState extends State<TokenGroupCard> {
             placeholder: const Skeleton.ignore(
               child: ZupCircularLoadingIndicator(
                 size: 35,
-                backgroundColor: ZupColors.brand5,
+                trackColor: ZupColors.brand5,
                 indicatorColor: ZupColors.brand,
               ),
             ),
@@ -96,7 +90,11 @@ class _TokenGroupCardState extends State<TokenGroupCard> {
                     child: Row(
                       spacing: 10,
                       children: [
-                        TokenAvatar(asset: widget.group.tokens[index], size: 20),
+                        ZupRemoteAvatar(
+                          avatarUrl: widget.group.tokens[index].logoUrl,
+                          errorPlaceholder: widget.group.tokens[index].name[0],
+                          size: 20,
+                        ),
                         Expanded(
                           child: Text(
                             overflow: TextOverflow.ellipsis,

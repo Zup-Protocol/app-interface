@@ -14,6 +14,8 @@ enum ProtocolId {
   gliquidV3,
   @JsonValue("kittenswap-v3")
   kittenswapV3,
+  @JsonValue("hx-finance-algebra")
+  hxFinanceAlgebra,
   unknown;
 
   bool get isPancakeSwapInfinityCL => this == ProtocolId.pancakeSwapInfinityCL;
@@ -21,7 +23,9 @@ enum ProtocolId {
       (this == ProtocolId.aerodromeSlipstream || this == ProtocolId.velodromeSlipstream);
   bool get isGLiquidV3 => this == ProtocolId.gliquidV3;
   bool get isKittenswapV3 => this == ProtocolId.kittenswapV3;
-  bool get isAlgebra1_2 => isGLiquidV3 || isKittenswapV3;
+  bool get isHxFinanceAlgebra => this == ProtocolId.hxFinanceAlgebra;
+
+  bool get isAlgebra1_2 => isGLiquidV3 || isKittenswapV3 || isHxFinanceAlgebra;
 
   String get toRawJsonValue => _$ProtocolIdEnumMap[this]!;
 }

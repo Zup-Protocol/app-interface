@@ -155,8 +155,37 @@ enum AppNetworks {
     // bnb => "https://bsc-rpc.publicnode.com"
   };
 
+  String get websiteUrl => switch (this) {
+    allNetworks => throw UnimplementedError("allNetworks is not a valid network"),
+    sepolia => "https://ethereum.org",
+    mainnet => "https://ethereum.org",
+    scroll => "https://scroll.io",
+    base => "https://base.org",
+    unichain => "https://www.unichain.org",
+    hyperEvm => "https://hyperfoundation.org",
+    plasma => "https://www.plasma.to",
+  };
+
+  String? get dexscreenerUrl => switch (this) {
+    allNetworks => null,
+    sepolia => null,
+    mainnet => "https://dexscreener.com/ethereum",
+    scroll => "https://dexscreener.com/scroll",
+    base => "https://dexscreener.com/base",
+    unichain => "https://dexscreener.com/unichain",
+    hyperEvm => "https://dexscreener.com/hyperevm",
+    plasma => "https://dexscreener.com/plasma",
+  };
+
   Future<void> openTx(String txHash) async {
     final url = "${chainInfo.blockExplorerUrls?.first}/tx/$txHash";
+    if (!await canLaunchUrl(Uri.parse(url))) return;
+
+    await launchUrl(Uri.parse(url));
+  }
+
+  Future<void> openAddress(String address) async {
+    final url = "${chainInfo.blockExplorerUrls?.first}/address/$address";
     if (!await canLaunchUrl(Uri.parse(url))) return;
 
     await launchUrl(Uri.parse(url));

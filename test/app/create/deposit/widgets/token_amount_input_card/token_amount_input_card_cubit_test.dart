@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:zup_app/app/create/yields/%5Bid%5D/deposit/widgets/token_amount_input_card/token_amount_input_card_cubit.dart';
-import 'package:zup_app/core/dtos/token_dto.dart';
+import 'package:zup_app/core/dtos/single_chain_token_dto.dart';
 import 'package:zup_app/core/dtos/token_price_dto.dart';
 import 'package:zup_app/core/enums/networks.dart';
 import 'package:zup_app/core/mixins/keys_mixin.dart';
@@ -36,14 +36,14 @@ void main() {
     when(() => zupHolder.hold<num>(any())).thenAnswer((_) async => 31);
     final sut0 = TokenAmountInputCardCubit(tokensRepository, zupSingletonCache, zupHolder);
 
-    await sut0.getTokenPrice(token: TokenDto.fixture(), network: AppNetworks.sepolia);
+    await sut0.getTokenPrice(token: SingleChainTokenDto.fixture(), network: AppNetworks.sepolia);
     verify(() => zupHolder.hold<num>(any())).called(1);
   });
 
   test("When calling `getTokenPrice` it should use ZupSingletonCache with a expiration of 1 minute", () async {
     zupSingletonCache = ZupSingletonCacheMock();
     final sut0 = TokenAmountInputCardCubit(tokensRepository, zupSingletonCache, zupHolder);
-    final token = TokenDto.fixture();
+    final token = SingleChainTokenDto.fixture();
     const network = AppNetworks.sepolia;
 
     when(
@@ -59,16 +59,16 @@ void main() {
       () => zupSingletonCache.run<num>(
         any(),
         expiration: const Duration(minutes: 1),
-        key: _KeysMixinWrapper().tokenPriceCacheKey(tokenAddress: token.addresses[network.chainId]!, network: network),
+        key: _KeysMixinWrapper().tokenPriceCacheKey(tokenAddress: token.address, network: network),
       ),
     ).called(1);
   });
 
   test("When calling `getTokenPrice` it should use tokensRepository to get the token price", () async {
-    final token = TokenDto.fixture();
+    final token = SingleChainTokenDto.fixture();
     const network = AppNetworks.sepolia;
 
     await sut.getTokenPrice(token: token, network: network);
-    verify(() => tokensRepository.getTokenPrice(token.addresses[network.chainId]!, network)).called(1);
+    verify(() => tokensRepository.getTokenPrice(token.address, network)).called(1);
   });
 }

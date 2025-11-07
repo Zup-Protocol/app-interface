@@ -9,8 +9,8 @@ import 'package:zup_app/app/app_cubit/app_cubit.dart';
 import 'package:zup_app/app/create/create_page_select_tokens_stage.dart';
 import 'package:zup_app/core/cache.dart';
 import 'package:zup_app/core/debouncer.dart';
+import 'package:zup_app/core/dtos/multi_chain_token_dto.dart';
 import 'package:zup_app/core/dtos/pool_search_settings_dto.dart';
-import 'package:zup_app/core/dtos/token_dto.dart';
 import 'package:zup_app/core/dtos/token_group_dto.dart';
 import 'package:zup_app/core/dtos/token_list_dto.dart';
 import 'package:zup_app/core/enums/networks.dart';
@@ -20,8 +20,8 @@ import 'package:zup_app/core/repositories/tokens_repository.dart';
 import 'package:zup_app/core/zup_navigator.dart';
 import 'package:zup_app/widgets/token_card.dart';
 import 'package:zup_app/widgets/token_selector_modal/token_selector_modal_cubit.dart';
-import 'package:zup_app/widgets/zup_cached_image.dart';
 import 'package:zup_core/zup_core.dart';
+import 'package:zup_ui_kit/zup_ui_kit.dart';
 
 import '../../golden_config.dart';
 import '../../mocks.dart';
@@ -47,7 +47,7 @@ void main() {
 
     cache = CacheMock();
     inject.registerFactory<AppCubit>(() => appCubit);
-    inject.registerFactory<ZupCachedImage>(() => mockZupCachedImage());
+    inject.registerFactory<ZupNetworkImage>(() => mockZupNetworkImage());
     inject.registerFactory<Debouncer>(() => Debouncer(milliseconds: 0));
     inject.registerFactory<ZupNavigator>(() => zupNavigator);
     inject.registerFactory<Cache>(() => cache);
@@ -171,8 +171,8 @@ void main() {
       when(() => tokensRepository.getTokenList(any())).thenAnswer(
         (_) async => (TokenListDto(
           popularTokens: [
-            TokenDto(addresses: {appCubit.selectedNetwork.chainId: token1Name}, name: token0Name),
-            TokenDto(addresses: {appCubit.selectedNetwork.chainId: token0Name}, name: token1Name),
+            MultiChainTokenDto(addresses: {appCubit.selectedNetwork.chainId: token1Name}, name: token0Name),
+            MultiChainTokenDto(addresses: {appCubit.selectedNetwork.chainId: token0Name}, name: token1Name),
           ],
         )),
       );
@@ -207,8 +207,8 @@ void main() {
       when(() => tokensRepository.getTokenList(any())).thenAnswer(
         (_) async => (TokenListDto(
           popularTokens: [
-            TokenDto(addresses: {appCubit.selectedNetwork.chainId: "token1"}, name: "Token1"),
-            TokenDto(addresses: {appCubit.selectedNetwork.chainId: "token2"}, name: "Token2"),
+            MultiChainTokenDto(addresses: {appCubit.selectedNetwork.chainId: "token1"}, name: "Token1"),
+            MultiChainTokenDto(addresses: {appCubit.selectedNetwork.chainId: "token2"}, name: "Token2"),
           ],
         )),
       );
@@ -298,12 +298,12 @@ void main() {
       const token1Id = "87";
 
       final tokens = [
-        TokenDto.fixture().copyWith(
+        MultiChainTokenDto.fixture().copyWith(
           name: "TokenA",
           internalId: token0Id,
           addresses: {appCubit.selectedNetwork.chainId: token0Id},
         ),
-        TokenDto.fixture().copyWith(
+        MultiChainTokenDto.fixture().copyWith(
           name: "TokenB",
           internalId: token1Id,
           addresses: {appCubit.selectedNetwork.chainId: token1Id},

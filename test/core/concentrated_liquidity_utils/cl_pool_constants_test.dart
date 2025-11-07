@@ -17,4 +17,8 @@ void main() {
   test("Q32 should be the correct value", () {
     expect(CLPoolConstants.q32, BigInt.from(2).pow(32));
   });
+
+  test("feeTierFactor should be the correct value", () {
+    expect(CLPoolConstants.feeTierFactor, 10000);
+  });
 }

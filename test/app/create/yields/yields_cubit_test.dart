@@ -3,9 +3,9 @@ import 'package:mocktail/mocktail.dart';
 import 'package:zup_app/app/app_cubit/app_cubit.dart';
 import 'package:zup_app/app/create/yields/yields_cubit.dart';
 import 'package:zup_app/core/cache.dart';
+import 'package:zup_app/core/dtos/liquidity_pools_search_result_dto.dart';
 import 'package:zup_app/core/dtos/pool_search_filters_dto.dart';
 import 'package:zup_app/core/dtos/pool_search_settings_dto.dart';
-import 'package:zup_app/core/dtos/yields_dto.dart';
 import 'package:zup_app/core/enums/networks.dart';
 import 'package:zup_app/core/repositories/yield_repository.dart';
 import 'package:zup_app/core/zup_analytics.dart';
@@ -98,11 +98,7 @@ void main() {
      all networks yields passing the correct ids and cached
      user preferences for the search""",
     () async {
-      final expectedPoolSearchSettings = PoolSearchSettingsDto(
-        allowV3Search: true,
-        allowV4Search: false,
-        minLiquidityUSD: 12618291,
-      );
+      final expectedPoolSearchSettings = PoolSearchSettingsDto(minLiquidityUSD: 12618291);
       final expectedBlockedProtocolsIds = ["xasb12", "xasb13", "xasb14"];
 
       const expectedToken0AddressOrId = "xabas1";
@@ -141,11 +137,7 @@ void main() {
      the selected network yields passing the correct ids and cached
      user preferences for the search""",
     () async {
-      final expectedPoolSearchSettings = PoolSearchSettingsDto(
-        allowV3Search: true,
-        allowV4Search: false,
-        minLiquidityUSD: 12618291,
-      );
+      final expectedPoolSearchSettings = PoolSearchSettingsDto(minLiquidityUSD: 12618291);
       final expectedBlockedProtocolsIds = ["xasb12", "xasb13", "xasb14"];
       const selectedNetwork = AppNetworks.mainnet;
       const expectedToken0AddressOrId = "xabas1";
@@ -184,11 +176,7 @@ void main() {
      it should ignore the cached min liquidity preference
      and pass 0 to the repository""",
     () async {
-      final savedPoolSearchSettings = PoolSearchSettingsDto(
-        allowV3Search: true,
-        allowV4Search: false,
-        minLiquidityUSD: 12618291,
-      );
+      final savedPoolSearchSettings = PoolSearchSettingsDto(minLiquidityUSD: 12618291);
 
       when(() => appCache.getPoolSearchSettings()).thenReturn(savedPoolSearchSettings);
       when(() => appCubit.selectedNetwork).thenReturn(AppNetworks.allNetworks);
@@ -221,11 +209,7 @@ void main() {
      it should ignore the cached min liquidity preference
      and pass 0 to the repository""",
     () async {
-      final savedPoolSearchSettings = PoolSearchSettingsDto(
-        allowV3Search: true,
-        allowV4Search: false,
-        minLiquidityUSD: 12618291,
-      );
+      final savedPoolSearchSettings = PoolSearchSettingsDto(minLiquidityUSD: 12618291);
 
       when(() => appCache.getPoolSearchSettings()).thenReturn(savedPoolSearchSettings);
       when(() => appCubit.selectedNetwork).thenReturn(AppNetworks.mainnet);
@@ -286,12 +270,7 @@ void main() {
     """When returning empty pools list for all networks search,
    it should emit empty state passing the returned filters applied""",
     () async {
-      const expectedFilters = PoolSearchFiltersDto(
-        allowedPoolTypes: ["xabasbab", "jajajajajajajajajaja"],
-        blockedProtocols: ["chaves", "kiko"],
-        minTvlUsd: 12618,
-        testnetMode: true,
-      );
+      const expectedFilters = PoolSearchFiltersDto(blockedProtocols: ["chaves", "kiko"], minTvlUsd: 12618);
 
       when(() => appCubit.selectedNetwork).thenReturn(AppNetworks.allNetworks);
 
@@ -304,7 +283,7 @@ void main() {
           searchSettings: any(named: "searchSettings"),
           blockedProtocolIds: any(named: "blockedProtocolIds"),
         ),
-      ).thenAnswer((_) async => const YieldsDto(pools: [], filters: expectedFilters));
+      ).thenAnswer((_) async => const LiquidityPoolsSearchResultDto(pools: [], filters: expectedFilters));
 
       await sut.fetchYields(
         token0AddressOrId: "token0AddressOrId",
@@ -321,12 +300,7 @@ void main() {
     """When returning empty pools list for single network search,
    it should emit empty state passing the returned filters applied""",
     () async {
-      const expectedFilters = PoolSearchFiltersDto(
-        allowedPoolTypes: ["xabasbab", "jajajajajajajajajaja"],
-        blockedProtocols: ["chaves", "kiko"],
-        minTvlUsd: 12618,
-        testnetMode: true,
-      );
+      const expectedFilters = PoolSearchFiltersDto(blockedProtocols: ["chaves", "kiko"], minTvlUsd: 12618);
 
       when(() => appCubit.selectedNetwork).thenReturn(AppNetworks.mainnet);
 
@@ -340,7 +314,7 @@ void main() {
           searchSettings: any(named: "searchSettings"),
           blockedProtocolIds: any(named: "blockedProtocolIds"),
         ),
-      ).thenAnswer((_) async => const YieldsDto(pools: [], filters: expectedFilters));
+      ).thenAnswer((_) async => const LiquidityPoolsSearchResultDto(pools: [], filters: expectedFilters));
 
       await sut.fetchYields(
         token0AddressOrId: "token0AddressOrId",
@@ -358,7 +332,7 @@ void main() {
     yield search, it should emit the success state,passing the
     whole DTO to the state""",
     () async {
-      final expectedYields = YieldsDto.fixture();
+      final expectedYields = LiquidityPoolsSearchResultDto.fixture();
 
       when(() => appCubit.selectedNetwork).thenReturn(AppNetworks.allNetworks);
 
@@ -390,7 +364,7 @@ void main() {
     yield search, it should emit the success state, passing the
     whole DTO to the state""",
     () async {
-      final expectedYields = YieldsDto.fixture();
+      final expectedYields = LiquidityPoolsSearchResultDto.fixture();
 
       when(() => appCubit.selectedNetwork).thenReturn(AppNetworks.mainnet);
 

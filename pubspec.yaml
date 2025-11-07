@@ -53,6 +53,7 @@ dependencies:
   firebase_analytics: ^11.4.5
   envied: ^1.1.1
   async: ^2.13.0
+  flex_list: ^1.2.0
 
 # dependency_overrides:
 #   zup_core:

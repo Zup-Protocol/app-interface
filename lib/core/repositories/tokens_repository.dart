@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
-import 'package:zup_app/core/dtos/token_dto.dart';
+import 'package:zup_app/core/dtos/multi_chain_token_dto.dart';
+import 'package:zup_app/core/dtos/single_chain_token_dto.dart';
 import 'package:zup_app/core/dtos/token_list_dto.dart';
 import 'package:zup_app/core/dtos/token_price_dto.dart';
 import 'package:zup_app/core/enums/networks.dart';
@@ -20,28 +21,44 @@ class TokensRepository {
     return TokenListDto.fromJson(request.data);
   }
 
-  Future<List<TokenDto>> searchToken(String query, AppNetworks network) async {
-    if (_searchTokenLastCancelToken != null) {
-      _searchTokenLastCancelToken!.cancel();
-    }
+  Future<List<MultiChainTokenDto>> searchToken(String query, AppNetworks network) async {
+    if (_searchTokenLastCancelToken != null) _searchTokenLastCancelToken!.cancel();
 
     _searchTokenLastCancelToken = CancelToken();
 
-    final response = await _zupAPIDio.get(
-      "/tokens/search",
+    if (network.isAllNetworks) {
+      final allNetworksResponse = await _zupAPIDio.get(
+        "/tokens/search/all",
+        cancelToken: _searchTokenLastCancelToken,
+        queryParameters: {"query": query},
+      );
+
+      _searchTokenLastCancelToken = null;
+      return (allNetworksResponse.data as List<dynamic>).map((token) => MultiChainTokenDto.fromJson(token)).toList();
+    }
+
+    final singleNetworkResponse = await _zupAPIDio.get(
+      "/tokens/search/${network.chainId}",
       cancelToken: _searchTokenLastCancelToken,
-      queryParameters: {if (!network.isAllNetworks) "chainId": network.chainId, "query": query},
+      queryParameters: {"query": query},
     );
 
     _searchTokenLastCancelToken = null;
-    return (response.data as List<dynamic>).map((token) => TokenDto.fromJson(token)).toList();
+    return (singleNetworkResponse.data as List<dynamic>).map((token) {
+      final singleChainToken = SingleChainTokenDto.fromJson(token);
+
+      return MultiChainTokenDto(
+        addresses: {network.chainId: singleChainToken.address},
+        decimals: {network.chainId: singleChainToken.decimals},
+        logoUrl: singleChainToken.logoUrl,
+        name: singleChainToken.name,
+        symbol: singleChainToken.symbol,
+      );
+    }).toList();
   }
 
   Future<TokenPriceDto> getTokenPrice(String address, AppNetworks network) async {
-    final response = await _zupAPIDio.get(
-      "/tokens/price",
-      queryParameters: {"address": address, "chainId": network.chainId},
-    );
+    final response = await _zupAPIDio.get("/tokens/$address/${network.chainId}/price");
 
     return TokenPriceDto.fromJson(response.data);
   }

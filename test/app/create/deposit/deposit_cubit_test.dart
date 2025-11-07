@@ -9,9 +9,9 @@ import 'package:zup_app/app/create/yields/%5Bid%5D/deposit/deposit_cubit.dart';
 import 'package:zup_app/core/cache.dart';
 import 'package:zup_app/core/dtos/deposit_page_arguments_dto.dart';
 import 'package:zup_app/core/dtos/deposit_settings_dto.dart';
+import 'package:zup_app/core/dtos/liquidity_pool_dto.dart';
+import 'package:zup_app/core/dtos/liquidity_pools_search_result_dto.dart';
 import 'package:zup_app/core/dtos/pool_search_settings_dto.dart';
-import 'package:zup_app/core/dtos/yield_dto.dart';
-import 'package:zup_app/core/dtos/yields_dto.dart';
 import 'package:zup_app/core/enums/networks.dart';
 import 'package:zup_app/core/pool_service.dart';
 import 'package:zup_app/core/repositories/yield_repository.dart';
@@ -38,7 +38,7 @@ void main() {
     registerFallbackValue(DepositSettingsDto.fixture());
     registerFallbackValue(AppNetworks.sepolia);
     registerFallbackValue(PoolSearchSettingsDto.fixture());
-    registerFallbackValue(YieldDto.fixture());
+    registerFallbackValue(LiquidityPoolDto.fixture());
     poolService = PoolServiceMock();
 
     yieldRepository = YieldRepositoryMock();
@@ -51,7 +51,7 @@ void main() {
 
     when(
       () => navigator.currentPageArguments,
-    ).thenReturn(const DepositPageArgumentsDto().copyWith(yieldPool: YieldDto.fixture()).toJson());
+    ).thenReturn(const DepositPageArgumentsDto().copyWith(yieldPool: LiquidityPoolDto.fixture()).toJson());
 
     sut = DepositCubit(yieldRepository, zupSingletonCache, wallet, cache, poolService, navigator);
 
@@ -66,7 +66,7 @@ void main() {
         group1Id: any(named: "group1Id"),
         testnetMode: any(named: "testnetMode"),
       ),
-    ).thenAnswer((_) async => YieldsDto.fixture());
+    ).thenAnswer((_) async => LiquidityPoolsSearchResultDto.fixture());
 
     when(() => cache.getPoolSearchSettings()).thenReturn(PoolSearchSettingsDto.fixture());
     when(
@@ -353,7 +353,7 @@ void main() {
     """When calling 'fetchCurrentPoolInfo', after fetching the pool data from the repository,
     it should get the pool sqrt price from the pool service, and emit the new sqrt price gotten""",
     () async {
-      final pool = YieldDto.fixture();
+      final pool = LiquidityPoolDto.fixture();
       final expectedSqrtPriceX96 = BigInt.from(126128912198);
 
       when(() => poolService.getSqrtPriceX96(pool)).thenAnswer((_) async => expectedSqrtPriceX96);
@@ -381,7 +381,7 @@ void main() {
     it should get the pool sqrt price from the pool service, and assign it to the latest
     poolSqrtPriceX96 variable""",
     () async {
-      final pool = YieldDto.fixture();
+      final pool = LiquidityPoolDto.fixture();
       final expectedSqrtPriceX96 = BigInt.from(1111);
 
       when(() => poolService.getSqrtPriceX96(pool)).thenAnswer((_) async => expectedSqrtPriceX96);
@@ -407,7 +407,7 @@ void main() {
     """When calling 'fetchCurrentPoolInfo', after fetching the pool data from the repository,
     it should emit the success state with the pool data""",
     () async {
-      final pool = YieldDto.fixture().copyWith(poolAddress: "pool for testing emit success");
+      final pool = LiquidityPoolDto.fixture().copyWith(poolAddress: "pool for testing emit success");
 
       when(() => navigator.getQueryParam(DepositRouteParamsNames().network)).thenReturn("sepolia");
       when(() => navigator.getIdFromPath).thenReturn("0xbas");
@@ -458,7 +458,7 @@ void main() {
     """When instaciating the cubit, and there is a pool coming from the arguments,
     it should assign it to the yieldpool variable and not fetch the pool info from the repository""",
     () {
-      final pool = YieldDto.fixture().copyWith(poolAddress: "jajajajaja");
+      final pool = LiquidityPoolDto.fixture().copyWith(poolAddress: "jajajajaja");
 
       when(() => navigator.currentPageArguments).thenReturn(DepositPageArgumentsDto(yieldPool: pool).toJson());
 
@@ -481,7 +481,7 @@ void main() {
     it should emit a new pool sqrt price got from the yield dto""",
     () async {
       final expectedSqrtPriceX96 = BigInt.from(989998899);
-      final pool = YieldDto.fixture().copyWith(
+      final pool = LiquidityPoolDto.fixture().copyWith(
         poolAddress: "jajajajaja",
         latestSqrtPriceX96: expectedSqrtPriceX96.toString(),
       );
@@ -500,7 +500,7 @@ void main() {
     it should assign the pool sqrt price to the latest pool sqrt price variable""",
     () async {
       final expectedSqrtPriceX96 = BigInt.from(5545529927344);
-      final pool = YieldDto.fixture().copyWith(
+      final pool = LiquidityPoolDto.fixture().copyWith(
         poolAddress: "jajajajaja",
         latestSqrtPriceX96: expectedSqrtPriceX96.toString(),
       );
@@ -517,7 +517,7 @@ void main() {
     """When instaciating the cubit, and there is a pool coming from the arguments,
     it should emit the success state passing the pool from the arguments""",
     () async {
-      final pool = YieldDto.fixture().copyWith(poolAddress: "someel cool pool idool");
+      final pool = LiquidityPoolDto.fixture().copyWith(poolAddress: "someel cool pool idool");
 
       when(() => navigator.currentPageArguments).thenReturn(DepositPageArgumentsDto(yieldPool: pool).toJson());
 

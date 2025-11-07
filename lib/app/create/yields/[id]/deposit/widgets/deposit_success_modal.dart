@@ -1,23 +1,21 @@
 import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:zup_app/core/dtos/yield_dto.dart';
+import 'package:zup_app/core/dtos/liquidity_pool_dto.dart';
 import 'package:zup_app/core/injections.dart';
 import 'package:zup_app/gen/assets.gen.dart';
 import 'package:zup_app/l10n/gen/app_localizations.dart';
-import 'package:zup_app/widgets/token_avatar.dart';
-import 'package:zup_app/widgets/zup_cached_image.dart';
 import 'package:zup_core/zup_core.dart';
 import 'package:zup_ui_kit/zup_ui_kit.dart';
 
 class DepositSuccessModal extends StatefulWidget {
   const DepositSuccessModal({super.key, required this.depositedYield});
 
-  final YieldDto depositedYield;
+  final LiquidityPoolDto depositedYield;
 
   static Future<void> show(
     BuildContext context, {
-    required YieldDto depositedYield,
+    required LiquidityPoolDto depositedYield,
     required showAsBottomSheet,
   }) async => ZupModal.show(
     context,
@@ -33,7 +31,7 @@ class DepositSuccessModal extends StatefulWidget {
 }
 
 class _DepositSuccessModalState extends State<DepositSuccessModal> {
-  final zupCachedImage = inject<ZupCachedImage>();
+  final zupNetworkImage = inject<ZupNetworkImage>();
   final confettiController = inject<ConfettiController>(instanceName: InjectInstanceNames.confettiController10s);
 
   @override
@@ -58,8 +56,18 @@ class _DepositSuccessModalState extends State<DepositSuccessModal> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             ZupMergedWidgets(
-              firstWidget: TokenAvatar(asset: widget.depositedYield.token0, size: 70),
-              secondWidget: TokenAvatar(asset: widget.depositedYield.token1, size: 70),
+              firstWidget: ZupRemoteAvatar(
+                zupNetworkImage: zupNetworkImage,
+                avatarUrl: widget.depositedYield.token0.logoUrl,
+                errorPlaceholder: widget.depositedYield.token0.name[0],
+                size: 70,
+              ),
+              secondWidget: ZupRemoteAvatar(
+                zupNetworkImage: zupNetworkImage,
+                avatarUrl: widget.depositedYield.token1.logoUrl,
+                errorPlaceholder: widget.depositedYield.token1.name[0],
+                size: 70,
+              ),
               spacing: 0,
             ),
             const SizedBox(width: 20),
@@ -79,7 +87,7 @@ class _DepositSuccessModalState extends State<DepositSuccessModal> {
               particleDrag: 0.03,
             ),
             const SizedBox(width: 20),
-            zupCachedImage.build(context, widget.depositedYield.protocol.logo, radius: 50, height: 70, width: 70),
+            zupNetworkImage.load(context, widget.depositedYield.protocol.logo, radius: 50, height: 70, width: 70),
           ],
         ),
         const SizedBox(height: 30),

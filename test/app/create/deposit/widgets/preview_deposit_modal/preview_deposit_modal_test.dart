@@ -15,17 +15,17 @@ import 'package:zup_app/abis/uniswap_v3_position_manager.abi.g.dart';
 import 'package:zup_app/app/create/yields/%5Bid%5D/deposit/widgets/preview_deposit_modal/preview_deposit_modal.dart';
 import 'package:zup_app/app/create/yields/%5Bid%5D/deposit/widgets/preview_deposit_modal/preview_deposit_modal_cubit.dart';
 import 'package:zup_app/core/concentrated_liquidity_utils/cl_pool_constants.dart';
-import 'package:zup_app/core/dtos/token_dto.dart';
-import 'package:zup_app/core/dtos/yield_dto.dart';
+import 'package:zup_app/core/dtos/liquidity_pool_dto.dart';
+import 'package:zup_app/core/dtos/multi_chain_token_dto.dart';
+import 'package:zup_app/core/dtos/single_chain_token_dto.dart';
 import 'package:zup_app/core/enums/networks.dart';
-import 'package:zup_app/core/enums/yield_timeframe.dart';
+import 'package:zup_app/core/enums/pool_data_timeframe.dart';
 import 'package:zup_app/core/injections.dart';
 import 'package:zup_app/core/pool_service.dart';
 import 'package:zup_app/core/slippage.dart';
 import 'package:zup_app/core/zup_analytics.dart';
 import 'package:zup_app/core/zup_links.dart';
 import 'package:zup_app/core/zup_navigator.dart';
-import 'package:zup_app/widgets/zup_cached_image.dart';
 import 'package:zup_ui_kit/zup_ui_kit.dart';
 
 import '../../../../../golden_config.dart';
@@ -40,7 +40,7 @@ void main() {
   late PoolService poolService;
   late UniswapPermit2 permit2;
   final scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
-  final currentYield = YieldDto.fixture();
+  final currentYield = LiquidityPoolDto.fixture();
 
   setUp(() {
     navigator = ZupNavigatorMock();
@@ -52,7 +52,8 @@ void main() {
 
     UrlLauncherPlatform.instance = urlLauncherPlatform;
 
-    registerFallbackValue(TokenDto.fixture());
+    registerFallbackValue(MultiChainTokenDto.fixture());
+    registerFallbackValue(SingleChainTokenDto.fixture());
     registerFallbackValue(BigInt.zero);
     registerFallbackValue(Duration.zero);
     registerFallbackValue(Slippage.fromValue(32));
@@ -68,7 +69,7 @@ void main() {
     inject.registerFactory<UniswapV3PositionManager>(() => UniswapV3PositionManagerMock());
     inject.registerFactory<Wallet>(() => WalletMock());
     inject.registerLazySingleton<PreviewDepositModalCubit>(() => cubit);
-    inject.registerFactory<ZupCachedImage>(() => mockZupCachedImage());
+    inject.registerFactory<ZupNetworkImage>(() => mockZupNetworkImage());
     inject.registerFactory<ZupNavigator>(() => navigator);
     inject.registerFactory<GlobalKey<ScaffoldMessengerState>>(() => scaffoldMessengerKey);
     inject.registerFactory<ScrollController>(
@@ -113,7 +114,7 @@ void main() {
   });
 
   Future<DeviceBuilder> goldenBuilder({
-    YieldDto? customYield,
+    LiquidityPoolDto? customYield,
     bool isReversed = false,
     ({bool isInfinity, double price}) minPrice = (isInfinity: false, price: 1200),
     ({bool isInfinity, double price}) maxPrice = (isInfinity: false, price: 3000),
@@ -133,7 +134,7 @@ void main() {
             content: BlocProvider.value(
               value: cubit,
               child: PreviewDepositModal(
-                yieldTimeFrame: YieldTimeFrame.day,
+                yieldTimeFrame: PoolDataTimeframe.day,
                 deadline: deadline,
                 maxSlippage: slippage,
                 currentYield: customYield ?? currentYield,
@@ -217,7 +218,7 @@ void main() {
       );
 
       await tester.pumpDeviceBuilder(
-        await goldenBuilder(customYield: YieldDto.fixture().copyWith(chainId: yieldNetwork.chainId)),
+        await goldenBuilder(customYield: LiquidityPoolDto.fixture().copyWith(chainId: yieldNetwork.chainId)),
         wrapper: GoldenConfig.localizationsWrapper(),
       );
       await tester.pumpAndSettle();
@@ -303,8 +304,8 @@ void main() {
 
       final currentPriceAsTick = CLPoolConversorsMixinWrapper().priceToTick(
         price: currentPrice,
-        poolToken0Decimals: currentYield.token0NetworkDecimals,
-        poolToken1Decimals: currentYield.token1NetworkDecimals,
+        poolToken0Decimals: currentYield.token0.decimals,
+        poolToken1Decimals: currentYield.token1.decimals,
       );
 
       when(() => cubit.latestPriceX96).thenReturn(currentPriceAsTick);
@@ -328,8 +329,8 @@ void main() {
       final currentPriceAsSqrtPrice = CLPoolLiquidityCalculationsMixinWrapper().getSqrtPriceAtTick(
         CLPoolConversorsMixinWrapper().priceToTick(
           price: currentPrice,
-          poolToken0Decimals: currentYield.token0NetworkDecimals,
-          poolToken1Decimals: currentYield.token1NetworkDecimals,
+          poolToken0Decimals: currentYield.token0.decimals,
+          poolToken1Decimals: currentYield.token1.decimals,
         ),
       );
 
@@ -357,8 +358,8 @@ void main() {
       final currentPriceAsSqrtPriceX96 = CLPoolLiquidityCalculationsMixinWrapper().getSqrtPriceAtTick(
         CLPoolConversorsMixinWrapper().priceToTick(
           price: currentPrice,
-          poolToken0Decimals: currentYield.token0NetworkDecimals,
-          poolToken1Decimals: currentYield.token1NetworkDecimals,
+          poolToken0Decimals: currentYield.token0.decimals,
+          poolToken1Decimals: currentYield.token1.decimals,
         ),
       );
 
@@ -536,7 +537,7 @@ void main() {
       verify(
         () => cubit.approveToken(
           currentYield.token0,
-          depositAmount.parseTokenAmount(decimals: currentYield.token0NetworkDecimals),
+          depositAmount.parseTokenAmount(decimals: currentYield.token0.decimals),
         ),
       ).called(1);
     },
@@ -553,7 +554,7 @@ void main() {
 
       when(() => cubit.state).thenReturn(
         PreviewDepositModalState.initial(
-          token0Allowance: depositAmount.parseTokenAmount(decimals: currentYield.token0NetworkDecimals),
+          token0Allowance: depositAmount.parseTokenAmount(decimals: currentYield.token0.decimals),
           token1Allowance: token1Allowance,
         ),
       );
@@ -561,7 +562,7 @@ void main() {
       when(() => cubit.stream).thenAnswer((_) {
         return Stream.value(
           PreviewDepositModalState.initial(
-            token0Allowance: depositAmount.parseTokenAmount(decimals: currentYield.token0NetworkDecimals),
+            token0Allowance: depositAmount.parseTokenAmount(decimals: currentYield.token0.decimals),
             token1Allowance: token1Allowance,
           ),
         );
@@ -593,7 +594,7 @@ void main() {
 
       when(() => cubit.state).thenReturn(
         PreviewDepositModalState.initial(
-          token0Allowance: depositAmount.parseTokenAmount(decimals: currentYield.token0NetworkDecimals),
+          token0Allowance: depositAmount.parseTokenAmount(decimals: currentYield.token0.decimals),
           token1Allowance: token1Allowance,
         ),
       );
@@ -601,7 +602,7 @@ void main() {
       when(() => cubit.stream).thenAnswer((_) {
         return Stream.value(
           PreviewDepositModalState.initial(
-            token0Allowance: depositAmount.parseTokenAmount(decimals: currentYield.token0NetworkDecimals),
+            token0Allowance: depositAmount.parseTokenAmount(decimals: currentYield.token0.decimals),
             token1Allowance: token1Allowance,
           ),
         );
@@ -622,7 +623,7 @@ void main() {
       verify(
         () => cubit.approveToken(
           currentYield.token1,
-          depositAmount.parseTokenAmount(decimals: currentYield.token1NetworkDecimals),
+          depositAmount.parseTokenAmount(decimals: currentYield.token1.decimals),
         ),
       ).called(1);
     },
@@ -634,8 +635,8 @@ void main() {
     in the deposit state""",
     goldenFileName: "preview_deposit_modal_deposit_state",
     (tester) async {
-      final token0Allowance = 400.parseTokenAmount(decimals: currentYield.token0NetworkDecimals);
-      final token1Allowance = 1200.parseTokenAmount(decimals: currentYield.token1NetworkDecimals);
+      final token0Allowance = 400.parseTokenAmount(decimals: currentYield.token0.decimals);
+      final token1Allowance = 1200.parseTokenAmount(decimals: currentYield.token1.decimals);
 
       const deposit0Amount = 100.2;
       const deposit1Amount = 110.2;
@@ -667,8 +668,8 @@ void main() {
     in the deposit state. Once the deposit button is clicked, it should call
     the deposit function in the cubit passing the correct params (got from the constructor)""",
     (tester) async {
-      final token0Allowance = 400.parseTokenAmount(decimals: currentYield.token0NetworkDecimals);
-      final token1Allowance = 1200.parseTokenAmount(decimals: currentYield.token1NetworkDecimals);
+      final token0Allowance = 400.parseTokenAmount(decimals: currentYield.token0.decimals);
+      final token1Allowance = 1200.parseTokenAmount(decimals: currentYield.token1.decimals);
 
       const deposit0Amount = 100.2;
       const deposit1Amount = 110.2;
@@ -716,8 +717,8 @@ void main() {
           maxPrice: maxPrice,
           minPrice: minPrice,
           slippage: slippage,
-          token0Amount: deposit0Amount.parseTokenAmount(decimals: currentYield.token0NetworkDecimals),
-          token1Amount: deposit1Amount.parseTokenAmount(decimals: currentYield.token1NetworkDecimals),
+          token0Amount: deposit0Amount.parseTokenAmount(decimals: currentYield.token0.decimals),
+          token1Amount: deposit1Amount.parseTokenAmount(decimals: currentYield.token1.decimals),
         ),
       ).called(1);
     },
@@ -730,8 +731,8 @@ void main() {
       when(() => cubit.latestPriceX96).thenReturn(
         CLPoolConversorsMixinWrapper().priceToTick(
           price: 0.01, // It should be shown in the card (or very close to it)
-          poolToken0Decimals: currentYield.token0NetworkDecimals,
-          poolToken1Decimals: currentYield.token1NetworkDecimals,
+          poolToken0Decimals: currentYield.token0.decimals,
+          poolToken1Decimals: currentYield.token1.decimals,
           isReversed: false,
         ),
       );
@@ -748,8 +749,8 @@ void main() {
       when(() => cubit.latestPriceX96).thenReturn(
         CLPoolConversorsMixinWrapper().priceToTick(
           price: 1200, // It should be shown in the card (or very close to it)
-          poolToken0Decimals: currentYield.token0NetworkDecimals,
-          poolToken1Decimals: currentYield.token1NetworkDecimals,
+          poolToken0Decimals: currentYield.token0.decimals,
+          poolToken1Decimals: currentYield.token1.decimals,
           isReversed: true,
         ),
       );
@@ -768,8 +769,8 @@ void main() {
       const newPrice = 0.02632; // It should be shown in the card (or very close to it)
       final newPriceAsTick = CLPoolConversorsMixinWrapper().priceToTick(
         price: newPrice,
-        poolToken0Decimals: currentYield.token0NetworkDecimals,
-        poolToken1Decimals: currentYield.token1NetworkDecimals,
+        poolToken0Decimals: currentYield.token0.decimals,
+        poolToken1Decimals: currentYield.token1.decimals,
         isReversed: false,
       );
 
@@ -910,7 +911,7 @@ void main() {
               builder: (context) {
                 WidgetsBinding.instance.addPostFrameCallback((_) async {
                   PreviewDepositModal(
-                    yieldTimeFrame: YieldTimeFrame.day,
+                    yieldTimeFrame: PoolDataTimeframe.day,
                     currentYield: currentYield,
                     isReversed: true,
                     minPrice: (isInfinity: true, price: 0),
@@ -945,7 +946,7 @@ void main() {
               builder: (context) {
                 WidgetsBinding.instance.addPostFrameCallback((_) async {
                   PreviewDepositModal(
-                    yieldTimeFrame: YieldTimeFrame.day,
+                    yieldTimeFrame: PoolDataTimeframe.day,
                     currentYield: currentYield,
                     isReversed: true,
                     minPrice: (isInfinity: true, price: 0),

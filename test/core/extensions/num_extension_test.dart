@@ -44,28 +44,36 @@ void main() {
     expect(number.toAmount(maxFixedDigits: 2), "123456789.12");
   });
 
-  test("if `useLessThan` is true on `toAmount` and the passed amount is less than 0.0001 it should return '<0.0001'",
-      () {
-    const number = 0.00001;
+  test(
+    "if `useLessThan` is true on `toAmount` and the passed amount is less than 0.0001 it should return '<0.0001'",
+    () {
+      const number = 0.00001;
 
-    expect(number.toAmount(useLessThan: true), "<0.0001");
-  });
+      expect(number.toAmount(useLessThan: true), "<0.0001");
+    },
+  );
 
-  test(""""if `useLessThan` is true on `toAmount` and the passed amount is not less than 0.0001
+  test(
+    """"if `useLessThan` is true on `toAmount` and the passed amount is not less than 0.0001
        it should return it with fixed decimals of 4 (if none is passed)
-       """, () {
-    const number = 0.0143124;
+       """,
+    () {
+      const number = 0.0143124;
 
-    expect(number.toAmount(useLessThan: true), "0.0143");
-  });
+      expect(number.toAmount(useLessThan: true), "0.0143");
+    },
+  );
 
-  test("""if `useLessThan` is true on `toAmount` and the passed amount
+  test(
+    """if `useLessThan` is true on `toAmount` and the passed amount
   is not less than 0.0001 it should return it with fixed decimals passed
-       """, () {
-    const number = 0.0143124;
+       """,
+    () {
+      const number = 0.0143124;
 
-    expect(number.toAmount(useLessThan: true, maxFixedDigits: 2), "0.01");
-  });
+      expect(number.toAmount(useLessThan: true, maxFixedDigits: 2), "0.01");
+    },
+  );
 
   test("if the amount passed to `toAmount` is 0 it should return 0", () {
     const number = 0;
@@ -73,20 +81,25 @@ void main() {
     expect(number.toAmount(), "0");
   });
 
-  test("When using `formatCompactCurrency`, it should return a string in the compact form (100k instead of 100,000)",
-      () {
-    const number = 123456;
+  test(
+    "When using `formatCompactCurrency`, it should return a string in the compact form (100k instead of 100,000)",
+    () {
+      const number = 123456;
 
-    expect(number.formatCompactCurrency(), "USD 123K");
-  });
+      expect(number.formatCompactCurrency(), "\$123K");
+    },
+  );
 
-  test("""When using `formatCompactCurrency` with `isUSD` false,
+  test(
+    """When using `formatCompactCurrency` with `isUSD` false,
   it should return a string in the compact form
-  (100k instead of 100,000), but without the currency symbol""", () {
-    const number = 123456;
+  (100k instead of 100,000), but without the currency symbol""",
+    () {
+      const number = 123456;
 
-    expect(number.formatCompactCurrency(isUSD: false), "123K");
-  });
+      expect(number.formatCompactCurrency(isUSD: false), "123K");
+    },
+  );
 
   test(
     """When passing `useMoreThan` true to `formatCompactCurrency`,
@@ -108,12 +121,7 @@ void main() {
     () {
       final number = pow(10, 13) * 999;
 
-      expect(
-          number.formatCompactCurrency(
-            useMoreThan: true,
-            maxBeforeMoreThan: 1000,
-          ),
-          ">1K");
+      expect(number.formatCompactCurrency(useMoreThan: true, maxBeforeMoreThan: 1000), ">1K");
     },
   );
 
@@ -123,14 +131,7 @@ void main() {
     it should return the passed number, but formated compactly
     """,
     () {
-      expect(
-        1000.formatCompactCurrency(
-          useMoreThan: true,
-          maxBeforeMoreThan: 200000,
-          isUSD: false,
-        ),
-        "1K",
-      );
+      expect(1000.formatCompactCurrency(useMoreThan: true, maxBeforeMoreThan: 200000, isUSD: false), "1K");
     },
   );
 
@@ -141,13 +142,7 @@ void main() {
     but formated compactly
     """,
     () {
-      expect(
-        1000.formatCompactCurrency(
-          useMoreThan: true,
-          isUSD: false,
-        ),
-        "1K",
-      );
+      expect(1000.formatCompactCurrency(useMoreThan: true, isUSD: false), "1K");
     },
   );
 
@@ -155,10 +150,7 @@ void main() {
     """`maybeFormatCompactCurrency` should format compact if
     the passed number is bigger than maxBeforeCompact""",
     () {
-      expect(
-        1000.maybeFormatCompactCurrency(maxBeforeCompact: 999),
-        "USD 1K",
-      );
+      expect(1000.maybeFormatCompactCurrency(maxBeforeCompact: 999), "\$1K");
     },
   );
 
@@ -166,13 +158,7 @@ void main() {
     """When `isUSD` is false in `maybeFormatCompactCurrency` should format compact if
     the passed number is bigger than maxBeforeCompact, but without the currency symbol""",
     () {
-      expect(
-        1000.maybeFormatCompactCurrency(
-          maxBeforeCompact: 999,
-          isUSD: false,
-        ),
-        "1K",
-      );
+      expect(1000.maybeFormatCompactCurrency(maxBeforeCompact: 999, isUSD: false), "1K");
     },
   );
 
@@ -180,14 +166,7 @@ void main() {
     """When `useMoreThan` is true in `maybeFormatCompactCurrency
      should format compact if the passed number is bigger than maxBeforeMoreThan`""",
     () {
-      expect(
-        1000.maybeFormatCompactCurrency(
-          maxBeforeMoreThan: 999,
-          useMoreThan: true,
-          isUSD: false,
-        ),
-        ">999",
-      );
+      expect(1000.maybeFormatCompactCurrency(maxBeforeMoreThan: 999, useMoreThan: true, isUSD: false), ">999");
     },
   );
 
@@ -196,10 +175,7 @@ void main() {
     and the passed number is less than 0.0001 should use `<`
     """,
     () {
-      expect(
-        0.00001.maybeFormatCompactCurrency(useLessThan: true),
-        "<0.0001",
-      );
+      expect(0.00001.maybeFormatCompactCurrency(useLessThan: true), "<0.0001");
     },
   );
 }

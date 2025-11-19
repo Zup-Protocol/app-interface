@@ -12,8 +12,8 @@ import 'package:zup_app/abis/uniswap_v3_position_manager.abi.g.dart';
 import 'package:zup_app/app/create/yields/%5Bid%5D/deposit/widgets/deposit_success_modal.dart';
 import 'package:zup_app/core/concentrated_liquidity_utils/cl_pool_constants.dart';
 import 'package:zup_app/core/concentrated_liquidity_utils/cl_pool_conversors_mixin.dart';
-import 'package:zup_app/core/dtos/token_dto.dart';
-import 'package:zup_app/core/dtos/yield_dto.dart';
+import 'package:zup_app/core/dtos/liquidity_pool_dto.dart';
+import 'package:zup_app/core/dtos/single_chain_token_dto.dart';
 import 'package:zup_app/core/pool_service.dart';
 import 'package:zup_app/core/slippage.dart';
 import 'package:zup_app/core/zup_analytics.dart';
@@ -28,7 +28,7 @@ class PreviewDepositModalCubit extends Cubit<PreviewDepositModalState> with CLPo
   PreviewDepositModalCubit({
     required BigInt currentPriceX96,
     required PoolService poolService,
-    required YieldDto currentYield,
+    required LiquidityPoolDto currentYield,
     required Erc20 erc20,
     required Wallet wallet,
     required UniswapV3PositionManager uniswapPositionManager,
@@ -47,7 +47,7 @@ class PreviewDepositModalCubit extends Cubit<PreviewDepositModalState> with CLPo
 
   final PoolService _poolRepository;
   final Erc20 _erc20;
-  final YieldDto _yield;
+  final LiquidityPoolDto _yield;
   final Wallet _wallet;
   final GlobalKey<NavigatorState> _navigatorKey;
 
@@ -79,10 +79,10 @@ class PreviewDepositModalCubit extends Cubit<PreviewDepositModalState> with CLPo
     emit(PreviewDepositModalState.initial(token0Allowance: _token0Allowance, token1Allowance: _token1Allowance));
   }
 
-  Future<void> approveToken(TokenDto token, BigInt value) async {
+  Future<void> approveToken(SingleChainTokenDto token, BigInt value) async {
     try {
       final spender = _yield.poolType.isV4 ? _yield.permit2! : _yield.positionManagerAddress;
-      final tokenAddressInNetwork = token.addresses[_yield.network.chainId]!;
+      final tokenAddressInNetwork = token.address;
       emit(PreviewDepositModalState.approvingToken(token.symbol));
 
       await _maybeSwitchNetwork();
@@ -100,8 +100,8 @@ class PreviewDepositModalCubit extends Cubit<PreviewDepositModalState> with CLPo
       try {
         await _getTokensAllowance(canThrow: true);
       } catch (e) {
-        if (_yield.token0.addresses[_yield.network.chainId] == tokenAddressInNetwork) _token0Allowance = value;
-        if (_yield.token1.addresses[_yield.network.chainId] == tokenAddressInNetwork) _token1Allowance = value;
+        if (_yield.token0.address == tokenAddressInNetwork) _token0Allowance = value;
+        if (_yield.token1.address == tokenAddressInNetwork) _token1Allowance = value;
       }
 
       emit(PreviewDepositModalState.approveSuccess(txId: tx.hash, symbol: token.symbol));
@@ -118,23 +118,21 @@ class PreviewDepositModalCubit extends Cubit<PreviewDepositModalState> with CLPo
     }
   }
 
-  Future<void> checkOrApprovePermit2ForV4Pool(BigInt approveValue, TokenDto token) async {
-    final tokenAddressInNetwork = token.addresses[_yield.network.chainId]!;
-
-    if (tokenAddressInNetwork == EthereumConstants.zeroAddress) return;
+  Future<void> checkOrApprovePermit2ForV4Pool(BigInt approveValue, SingleChainTokenDto token) async {
+    if (token.address == EthereumConstants.zeroAddress) return;
 
     final permit2Contract = _permit2.fromSigner(contractAddress: _yield.permit2!, signer: _wallet.signer!);
 
     final permit2CurrentAllowance = await permit2Contract.allowance(
       await _wallet.signer!.address,
-      tokenAddressInNetwork,
+      token.address,
       _yield.positionManagerAddress,
     );
 
     if (permit2CurrentAllowance.amount <= approveValue ||
         permit2CurrentAllowance.expiration < BigInt.from(DateTime.now().millisecondsSinceEpoch / 1000)) {
       final tx = await permit2Contract.approve(
-        token: tokenAddressInNetwork,
+        token: token.address,
         spender: _yield.positionManagerAddress,
         amount: EthereumConstants.uint160Max,
         expiration: EthereumConstants.uint48Max,
@@ -166,8 +164,8 @@ class PreviewDepositModalCubit extends Cubit<PreviewDepositModalState> with CLPo
 
           return priceToTick(
             price: isReversed ? maxPrice : minPrice,
-            poolToken0Decimals: _yield.token0NetworkDecimals,
-            poolToken1Decimals: _yield.token1NetworkDecimals,
+            poolToken0Decimals: _yield.token0.decimals,
+            poolToken1Decimals: _yield.token1.decimals,
             isReversed: isReversed,
           );
         }
@@ -182,8 +180,8 @@ class PreviewDepositModalCubit extends Cubit<PreviewDepositModalState> with CLPo
 
           return priceToTick(
             price: isReversed ? minPrice : maxPrice,
-            poolToken0Decimals: _yield.token0NetworkDecimals,
-            poolToken1Decimals: _yield.token1NetworkDecimals,
+            poolToken0Decimals: _yield.token0.decimals,
+            poolToken1Decimals: _yield.token1.decimals,
             isReversed: isReversed,
           );
         }
@@ -233,8 +231,8 @@ class PreviewDepositModalCubit extends Cubit<PreviewDepositModalState> with CLPo
       emit(PreviewDepositModalState.depositSuccess(txId: tx.hash));
       _zupAnalytics.logDeposit(
         depositedYield: _yield,
-        amount0Formatted: amount0Desired.parseTokenAmount(decimals: _yield.token0NetworkDecimals),
-        amount1Formatted: amount1Desired.parseTokenAmount(decimals: _yield.token1NetworkDecimals),
+        amount0Formatted: amount0Desired.parseTokenAmount(decimals: _yield.token0.decimals),
+        amount1Formatted: amount1Desired.parseTokenAmount(decimals: _yield.token1.decimals),
         walletAddress: recipient,
       );
     } catch (e) {
@@ -273,7 +271,7 @@ class PreviewDepositModalCubit extends Cubit<PreviewDepositModalState> with CLPo
 
       if (!_yield.isToken0Native) {
         final token0contract = _erc20.fromRpcProvider(
-          contractAddress: _yield.token0.addresses[_yield.network.chainId]!,
+          contractAddress: _yield.token0.address,
           rpcUrl: _yield.network.rpcUrl,
         );
 
@@ -282,7 +280,7 @@ class PreviewDepositModalCubit extends Cubit<PreviewDepositModalState> with CLPo
 
       if (!_yield.isToken1Native) {
         final token1contract = _erc20.fromRpcProvider(
-          contractAddress: _yield.token1.addresses[_yield.network.chainId]!,
+          contractAddress: _yield.token1.address,
           rpcUrl: _yield.network.rpcUrl,
         );
 

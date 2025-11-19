@@ -7,8 +7,8 @@ import 'package:zup_app/core/cache.dart';
 import 'package:zup_app/core/dtos/protocol_dto.dart';
 import 'package:zup_app/core/injections.dart';
 import 'package:zup_app/core/repositories/protocol_repository.dart';
-import 'package:zup_app/widgets/zup_cached_image.dart';
 import 'package:zup_core/zup_singleton_cache.dart';
+import 'package:zup_ui_kit/zup_ui_kit.dart';
 
 import '../../../../golden_config.dart';
 import '../../../../mocks.dart';
@@ -16,13 +16,13 @@ import '../../../../mocks.dart';
 void main() {
   late ZupSingletonCache zupSingletonCache;
   late ProtocolRepository protocolRepository;
-  late ZupCachedImage zupCachedImage;
+  late ZupNetworkImage zupCachedImage;
   late Cache cache;
 
   setUp(() {
     zupSingletonCache = ZupSingletonCache.shared;
     protocolRepository = ProtocolRepositoryMock();
-    zupCachedImage = mockZupCachedImage();
+    zupCachedImage = mockZupNetworkImage();
     cache = CacheMock();
 
     when(() => protocolRepository.getAllSupportedProtocols()).thenAnswer((_) => Future.value([]));
@@ -30,7 +30,7 @@ void main() {
 
     inject.registerFactory<ZupSingletonCache>(() => zupSingletonCache);
     inject.registerFactory<ProtocolRepository>(() => protocolRepository);
-    inject.registerFactory<ZupCachedImage>(() => zupCachedImage);
+    inject.registerFactory<ZupNetworkImage>(() => zupCachedImage);
     inject.registerFactory<Cache>(() => cache);
   });
 

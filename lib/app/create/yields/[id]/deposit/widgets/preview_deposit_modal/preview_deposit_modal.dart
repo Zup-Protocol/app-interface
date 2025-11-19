@@ -12,9 +12,9 @@ import 'package:zup_app/app/create/yields/%5Bid%5D/deposit/widgets/preview_depos
 import 'package:zup_app/core/concentrated_liquidity_utils/cl_pool_constants.dart';
 import 'package:zup_app/core/concentrated_liquidity_utils/cl_pool_conversors_mixin.dart';
 import 'package:zup_app/core/concentrated_liquidity_utils/cl_sqrt_price_math_mixin.dart';
-import 'package:zup_app/core/dtos/token_dto.dart';
-import 'package:zup_app/core/dtos/yield_dto.dart';
-import 'package:zup_app/core/enums/yield_timeframe.dart';
+import 'package:zup_app/core/dtos/liquidity_pool_dto.dart';
+import 'package:zup_app/core/dtos/single_chain_token_dto.dart';
+import 'package:zup_app/core/enums/pool_data_timeframe.dart';
 import 'package:zup_app/core/extensions/num_extension.dart';
 import 'package:zup_app/core/injections.dart';
 import 'package:zup_app/core/pool_service.dart';
@@ -24,8 +24,6 @@ import 'package:zup_app/core/zup_links.dart';
 import 'package:zup_app/core/zup_navigator.dart';
 import 'package:zup_app/gen/assets.gen.dart';
 import 'package:zup_app/l10n/gen/app_localizations.dart';
-import 'package:zup_app/widgets/token_avatar.dart';
-import 'package:zup_app/widgets/zup_cached_image.dart';
 import 'package:zup_core/extensions/text_edititing_controller_extension.dart';
 import 'package:zup_core/zup_core.dart';
 import 'package:zup_ui_kit/zup_ui_kit.dart';
@@ -44,8 +42,8 @@ class PreviewDepositModal extends StatefulWidget with DeviceInfoMixin {
     required this.yieldTimeFrame,
   });
 
-  final YieldDto currentYield;
-  final YieldTimeFrame yieldTimeFrame;
+  final LiquidityPoolDto currentYield;
+  final PoolDataTimeframe yieldTimeFrame;
   final bool isReversed;
   final ({double price, bool isInfinity}) minPrice;
   final ({double price, bool isInfinity}) maxPrice;
@@ -96,7 +94,7 @@ class PreviewDepositModal extends StatefulWidget with DeviceInfoMixin {
 
 class _PreviewDepositModalState extends State<PreviewDepositModal>
     with CLPoolConversorsMixin, CLSqrtPriceMath, DeviceInfoMixin {
-  final zupCachedImage = inject<ZupCachedImage>();
+  final zupNetworkImage = inject<ZupNetworkImage>();
   final navigator = inject<ZupNavigator>();
   final zupLinks = inject<ZupLinks>();
 
@@ -108,7 +106,7 @@ class _PreviewDepositModalState extends State<PreviewDepositModal>
     WidgetsBinding.instance.addPostFrameCallback((_) => setState(() {}));
   };
 
-  TokenDto get baseToken {
+  SingleChainTokenDto get baseToken {
     if (isReversedLocal) {
       return widget.currentYield.token1;
     }
@@ -116,7 +114,7 @@ class _PreviewDepositModalState extends State<PreviewDepositModal>
     return widget.currentYield.token0;
   }
 
-  TokenDto get quoteToken {
+  SingleChainTokenDto get quoteToken {
     if (isReversedLocal) {
       return widget.currentYield.token0;
     }
@@ -135,18 +133,18 @@ class _PreviewDepositModalState extends State<PreviewDepositModal>
       : widget.token1DepositAmountController.parseTextToDoubleOrZero;
 
   BigInt get token0DepositAmount => widget.token0DepositAmountController.parseTextToDoubleOrZero.parseTokenAmount(
-    decimals: widget.currentYield.token0NetworkDecimals,
+    decimals: widget.currentYield.token0.decimals,
   );
 
   BigInt get token1DepositAmount => widget.token1DepositAmountController.parseTextToDoubleOrZero.parseTokenAmount(
-    decimals: widget.currentYield.token1NetworkDecimals,
+    decimals: widget.currentYield.token1.decimals,
   );
 
   double get currentPrice {
     final price = sqrtPriceX96ToPrice(
       sqrtPriceX96: cubit.latestPriceX96,
-      poolToken0Decimals: widget.currentYield.token0NetworkDecimals,
-      poolToken1Decimals: widget.currentYield.token1NetworkDecimals,
+      poolToken0Decimals: widget.currentYield.token0.decimals,
+      poolToken1Decimals: widget.currentYield.token1.decimals,
     );
 
     return isReversedLocal ? price.token1PerToken0 : price.token0PerToken1;
@@ -158,16 +156,16 @@ class _PreviewDepositModalState extends State<PreviewDepositModal>
 
       return priceToTick(
         price: (widget.isReversed == !isReversedLocal) ? widget.maxPrice.price : widget.minPrice.price,
-        poolToken0Decimals: widget.currentYield.token0NetworkDecimals,
-        poolToken1Decimals: widget.currentYield.token1NetworkDecimals,
+        poolToken0Decimals: widget.currentYield.token0.decimals,
+        poolToken1Decimals: widget.currentYield.token1.decimals,
         isReversed: widget.isReversed,
       );
     }
 
     ({double priceAsBaseToken, double priceAsQuoteToken}) price() => tickToPrice(
       tick: tick(),
-      poolToken0Decimals: widget.currentYield.token0NetworkDecimals,
-      poolToken1Decimals: widget.currentYield.token1NetworkDecimals,
+      poolToken0Decimals: widget.currentYield.token0.decimals,
+      poolToken1Decimals: widget.currentYield.token1.decimals,
     );
 
     return isReversedLocal ? price().priceAsQuoteToken : price().priceAsBaseToken;
@@ -179,16 +177,16 @@ class _PreviewDepositModalState extends State<PreviewDepositModal>
 
       return priceToTick(
         price: (widget.isReversed == !isReversedLocal) ? widget.minPrice.price : widget.maxPrice.price,
-        poolToken0Decimals: widget.currentYield.token0NetworkDecimals,
-        poolToken1Decimals: widget.currentYield.token1NetworkDecimals,
+        poolToken0Decimals: widget.currentYield.token0.decimals,
+        poolToken1Decimals: widget.currentYield.token1.decimals,
         isReversed: widget.isReversed,
       );
     }
 
     ({double priceAsBaseToken, double priceAsQuoteToken}) price() => tickToPrice(
       tick: tick(),
-      poolToken0Decimals: widget.currentYield.token0NetworkDecimals,
-      poolToken1Decimals: widget.currentYield.token1NetworkDecimals,
+      poolToken0Decimals: widget.currentYield.token0.decimals,
+      poolToken1Decimals: widget.currentYield.token1.decimals,
     );
 
     return isReversedLocal ? price().priceAsQuoteToken : price().priceAsBaseToken;
@@ -405,8 +403,17 @@ class _PreviewDepositModalState extends State<PreviewDepositModal>
                       children: [
                         ZupMergedWidgets(
                           spacing: 0,
-                          firstWidget: TokenAvatar(asset: baseToken, size: 35),
-                          secondWidget: TokenAvatar(asset: quoteToken, size: 35),
+                          firstWidget: ZupRemoteAvatar(
+                            zupNetworkImage: zupNetworkImage,
+                            avatarUrl: baseToken.logoUrl,
+                            errorPlaceholder: baseToken.name[0],
+                            size: 35,
+                          ),
+                          secondWidget: ZupRemoteAvatar(
+                            avatarUrl: quoteToken.logoUrl,
+                            errorPlaceholder: quoteToken.name[0],
+                            size: 35,
+                          ),
                         ),
                         const SizedBox(width: 5),
                         Text(
@@ -417,7 +424,7 @@ class _PreviewDepositModalState extends State<PreviewDepositModal>
                         StreamBuilder(
                           stream: cubit.poolSqrtPriceX96Stream,
                           builder: (context, _) {
-                            return ZupTag(
+                            return ZupOutlinedTag(
                               title: isOutOfRange.any
                                   ? S.of(context).previewDepositModalOutOfRange
                                   : S.of(context).previewDepositModalInRange,
@@ -468,7 +475,7 @@ class _PreviewDepositModalState extends State<PreviewDepositModal>
                     const SizedBox(height: 10),
                     Row(
                       children: [
-                        zupCachedImage.build(
+                        zupNetworkImage.load(
                           context,
                           baseToken.logoUrl,
                           height: 30,
@@ -496,7 +503,7 @@ class _PreviewDepositModalState extends State<PreviewDepositModal>
                     const SizedBox(height: 15),
                     Row(
                       children: [
-                        zupCachedImage.build(
+                        zupNetworkImage.load(
                           context,
                           quoteToken.logoUrl,
                           height: 30,
@@ -532,7 +539,7 @@ class _PreviewDepositModalState extends State<PreviewDepositModal>
                           fit: FlexFit.loose,
                           child: _fieldColumn(
                             title: S.of(context).previewDepositModalProtocol,
-                            image: zupCachedImage.build(
+                            image: zupNetworkImage.load(
                               context,
                               widget.currentYield.protocol.logo,
                               width: 30,
@@ -572,7 +579,7 @@ class _PreviewDepositModalState extends State<PreviewDepositModal>
                       spacing: 0,
                       title:
                           "${S.of(context).previewDepositModalYearlyYield} (${widget.yieldTimeFrame.label(context)})",
-                      value: widget.currentYield.yieldTimeframed(widget.yieldTimeFrame).formatPercent,
+                      value: widget.currentYield.yieldTimeframed(widget.yieldTimeFrame).formatRoundingPercent,
                     ),
                     const SizedBox(height: 10),
                     const ZupDivider(),

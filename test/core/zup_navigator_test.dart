@@ -3,9 +3,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:routefly/routefly.dart';
 import 'package:web3kit/web3kit.dart';
 import 'package:zup_app/core/dtos/deposit_page_arguments_dto.dart';
-import 'package:zup_app/core/dtos/yield_dto.dart';
+import 'package:zup_app/core/dtos/liquidity_pool_dto.dart';
 import 'package:zup_app/core/enums/networks.dart';
-import 'package:zup_app/core/enums/yield_timeframe.dart';
+import 'package:zup_app/core/enums/pool_data_timeframe.dart';
 import 'package:zup_app/core/enums/zup_navigator_paths.dart';
 import 'package:zup_app/core/zup_navigator.dart';
 import 'package:zup_app/core/zup_route_params_names.dart';
@@ -233,8 +233,8 @@ void main() {
       runApp(material);
 
       const network = AppNetworks.mainnet;
-      final yieldPool = YieldDto.fixture().copyWith(chainId: network.chainId);
-      const yieldTimeFrame = YieldTimeFrame.month;
+      final yieldPool = LiquidityPoolDto.fixture().copyWith(chainId: network.chainId);
+      const yieldTimeFrame = PoolDataTimeframe.month;
       const parseWrappedToNative = true;
 
       await ZupNavigator().navigateToDeposit(
@@ -255,8 +255,8 @@ void main() {
     runApp(material);
 
     const network = AppNetworks.mainnet;
-    final yieldPool = YieldDto.fixture().copyWith(chainId: network.chainId, poolAddress: "xabasRAaa");
-    const yieldTimeFrame = YieldTimeFrame.month;
+    final yieldPool = LiquidityPoolDto.fixture().copyWith(chainId: network.chainId, poolAddress: "xabasRAaa");
+    const yieldTimeFrame = PoolDataTimeframe.month;
     const parseWrappedToNative = true;
 
     await ZupNavigator().navigateToDeposit(
@@ -271,8 +271,11 @@ void main() {
   testWidgets("When calling `navigateToDeposit` it should pass the pool dto as argument", (tester) async {
     await tester.pumpWidget(material);
 
-    final yieldPool = YieldDto.fixture().copyWith(chainId: AppNetworks.mainnet.chainId, poolAddress: "Pull Address");
-    const yieldTimeFrame = YieldTimeFrame.month;
+    final yieldPool = LiquidityPoolDto.fixture().copyWith(
+      chainId: AppNetworks.mainnet.chainId,
+      poolAddress: "Pull Address",
+    );
+    const yieldTimeFrame = PoolDataTimeframe.month;
     const parseWrappedToNative = true;
 
     await ZupNavigator().navigateToDeposit(

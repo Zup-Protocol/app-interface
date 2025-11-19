@@ -30,7 +30,6 @@ import 'package:zup_app/app/create/yields/yields_cubit.dart';
 import 'package:zup_app/core/cache.dart';
 import 'package:zup_app/core/debouncer.dart';
 import 'package:zup_app/core/pool_service.dart';
-import 'package:zup_app/core/repositories/positions_repository.dart';
 import 'package:zup_app/core/repositories/protocol_repository.dart';
 import 'package:zup_app/core/repositories/tokens_repository.dart';
 import 'package:zup_app/core/repositories/yield_repository.dart';
@@ -39,8 +38,8 @@ import 'package:zup_app/core/zup_links.dart';
 import 'package:zup_app/core/zup_navigator.dart';
 import 'package:zup_app/gen/assets.gen.dart';
 import 'package:zup_app/widgets/token_selector_modal/token_selector_modal_cubit.dart';
-import 'package:zup_app/widgets/zup_cached_image.dart';
 import 'package:zup_core/zup_core.dart';
+import 'package:zup_ui_kit/zup_ui_kit.dart';
 
 class $AssetsLottiesGenMock extends Mock implements $AssetsLottiesGen {}
 
@@ -61,8 +60,6 @@ class Erc20Mock extends Mock implements Erc20 {}
 class ImageProviderMock extends Mock implements ImageProvider {}
 
 class ListenableMock extends Mock implements Listenable {}
-
-class PositionsRepositoryMock extends Mock implements PositionsRepository {}
 
 class SharedPreferencesWithCacheMock extends Mock implements SharedPreferencesWithCache {}
 
@@ -118,7 +115,7 @@ class WalletMock extends Mock implements Wallet {}
 
 class YieldRepositoryMock extends Mock implements YieldRepository {}
 
-class ZupCachedImageMock extends Mock implements ZupCachedImage {}
+class ZupNetworkImageMock extends Mock implements ZupNetworkImage {}
 
 class ZupNavigatorMock extends Mock implements ZupNavigator {}
 
@@ -156,6 +153,10 @@ class ZupAnalyticsMock extends Mock implements ZupAnalytics {}
 
 class UrlLauncherPlatformCustomMock extends UrlLauncherPlatform {
   static String? lastLaunchedUrl;
+
+  UrlLauncherPlatformCustomMock() {
+    lastLaunchedUrl = null;
+  }
 
   @override
   LinkDelegate? get linkDelegate => null;
@@ -198,23 +199,22 @@ T mockHttpImage<T>(T Function() on, {Uint8List? overrideImage}) {
   return mockNetworkImages(on, imageBytes: overrideImage);
 }
 
-ZupCachedImage mockZupCachedImage() {
-  final zupCachedImage = ZupCachedImageMock();
-  final context = BuildContextMock();
-  registerFallbackValue(context);
+ZupNetworkImage mockZupNetworkImage() {
+  final zupNetworkImage = ZupNetworkImageMock();
+  registerFallbackValue(BuildContextMock());
 
   when(
-    () => zupCachedImage.build(
+    () => zupNetworkImage.load(
       any(),
       any(),
       height: any(named: "height"),
       width: any(named: "width"),
-      radius: any(named: "radius"),
+      backgroundColor: any(named: "backgroundColor"),
       errorWidget: any(named: "errorWidget"),
       placeholder: any(named: "placeholder"),
-      backgroundColor: any(named: "backgroundColor"),
+      radius: any(named: "radius"),
     ),
-  ).thenReturn(const SizedBox(child: Text("IMAGE")));
+  ).thenReturn(const Text("IMAGE"));
 
-  return zupCachedImage;
+  return zupNetworkImage;
 }

@@ -15,7 +15,7 @@ import 'package:zup_app/core/concentrated_liquidity_utils/cl_pool_conversors_mix
 import 'package:zup_app/core/concentrated_liquidity_utils/cl_pool_liquidity_calculations_mixin.dart';
 import 'package:zup_app/core/concentrated_liquidity_utils/cl_sqrt_price_math_mixin.dart';
 import 'package:zup_app/core/concentrated_liquidity_utils/v4_pool_constants.dart';
-import 'package:zup_app/core/dtos/yield_dto.dart';
+import 'package:zup_app/core/dtos/liquidity_pool_dto.dart';
 import 'package:zup_app/core/slippage.dart';
 
 class PoolService with CLPoolLiquidityCalculationsMixin, CLPoolConversorsMixin, CLSqrtPriceMath {
@@ -45,7 +45,7 @@ class PoolService with CLPoolLiquidityCalculationsMixin, CLPoolConversorsMixin, 
     this._algebra121PositionManager,
   );
 
-  Future<BigInt> getPoolTick(YieldDto forYield) async {
+  Future<BigInt> getPoolTick(LiquidityPoolDto forYield) async {
     if (forYield.protocol.id.isAlgebra1_2) {
       final algebraPool = _algebra121Pool.fromRpcProvider(
         contractAddress: forYield.poolAddress,
@@ -90,7 +90,7 @@ class PoolService with CLPoolLiquidityCalculationsMixin, CLPoolConversorsMixin, 
     return (await uniswapV3Pool.slot0()).tick;
   }
 
-  Future<BigInt> getSqrtPriceX96(YieldDto forYield) async {
+  Future<BigInt> getSqrtPriceX96(LiquidityPoolDto forYield) async {
     if (forYield.protocol.id.isPancakeSwapInfinityCL) {
       final pancakeSwapInfinityCLPoolManagerContract = _pancakeSwapInfinityClPoolManager.fromRpcProvider(
         contractAddress: forYield.v4PoolManager!,
@@ -140,7 +140,7 @@ class PoolService with CLPoolLiquidityCalculationsMixin, CLPoolConversorsMixin, 
   }
 
   Future<TransactionResponse> sendV3PoolDepositTransaction(
-    YieldDto depositOnYield,
+    LiquidityPoolDto depositOnYield,
     Signer signer, {
     required BigInt amount0Desired,
     required BigInt amount1Desired,
@@ -250,8 +250,8 @@ class PoolService with CLPoolLiquidityCalculationsMixin, CLPoolConversorsMixin, 
           tickLower: tickLower,
           tickUpper: tickUpper,
           fee: BigInt.from(depositOnYield.initialFeeTier),
-          token0: depositOnYield.token0.addresses[depositOnYield.network.chainId]!,
-          token1: depositOnYield.token1.addresses[depositOnYield.network.chainId]!,
+          token0: depositOnYield.token0.address,
+          token1: depositOnYield.token1.address,
         ),
       );
     }.call();
@@ -260,7 +260,7 @@ class PoolService with CLPoolLiquidityCalculationsMixin, CLPoolConversorsMixin, 
   }
 
   Future<TransactionResponse> sendV4PoolDepositTransaction(
-    YieldDto depositOnYield,
+    LiquidityPoolDto depositOnYield,
     Signer signer, {
     required Duration deadline,
     required BigInt tickLower,
@@ -337,11 +337,11 @@ class PoolService with CLPoolLiquidityCalculationsMixin, CLPoolConversorsMixin, 
       ],
       [
         [
-          depositOnYield.token0.addresses[depositOnYield.network.chainId]!,
-          depositOnYield.token1.addresses[depositOnYield.network.chainId]!,
+          depositOnYield.token0.address,
+          depositOnYield.token1.address,
           BigInt.from(depositOnYield.initialFeeTier),
           BigInt.from(depositOnYield.tickSpacing),
-          depositOnYield.v4Hooks,
+          depositOnYield.hook?.address ?? EthereumConstants.zeroAddress,
         ],
         tickLower,
         tickUpper,
@@ -355,10 +355,7 @@ class PoolService with CLPoolLiquidityCalculationsMixin, CLPoolConversorsMixin, 
 
     final settlePairActionParams = _ethereumAbiCoder.encode(
       ["address", "address"],
-      [
-        depositOnYield.token0.addresses[depositOnYield.network.chainId]!,
-        depositOnYield.token1.addresses[depositOnYield.network.chainId]!,
-      ],
+      [depositOnYield.token0.address, depositOnYield.token1.address],
     );
 
     final sweepActionParams = isNativeDeposit
@@ -387,7 +384,7 @@ class PoolService with CLPoolLiquidityCalculationsMixin, CLPoolConversorsMixin, 
   }
 
   Future<TransactionResponse> _sendV4PoolDepositTransactionForPancakeSwap(
-    YieldDto depositOnYield,
+    LiquidityPoolDto depositOnYield,
     Signer signer, {
     required Duration deadline,
     required BigInt tickLower,
@@ -425,9 +422,9 @@ class PoolService with CLPoolLiquidityCalculationsMixin, CLPoolConversorsMixin, 
       ],
       [
         [
-          depositOnYield.token0.addresses[depositOnYield.network.chainId]!,
-          depositOnYield.token1.addresses[depositOnYield.network.chainId]!,
-          depositOnYield.v4Hooks,
+          depositOnYield.token0.address,
+          depositOnYield.token1.address,
+          depositOnYield.hook?.address ?? EthereumConstants.zeroAddress,
           depositOnYield.v4PoolManager,
           depositOnYield.initialFeeTier,
           await _getPancakeSwapInfinityPoolBytesParameters(depositOnYield),
@@ -442,15 +439,9 @@ class PoolService with CLPoolLiquidityCalculationsMixin, CLPoolConversorsMixin, 
       ],
     );
 
-    final closeCurrency0ActionParams = _ethereumAbiCoder.encode(
-      ["address"],
-      [depositOnYield.token0.addresses[depositOnYield.network.chainId]!],
-    );
+    final closeCurrency0ActionParams = _ethereumAbiCoder.encode(["address"], [depositOnYield.token0.address]);
 
-    final closeCurrency1ActionParams = _ethereumAbiCoder.encode(
-      ["address"],
-      [depositOnYield.token1.addresses[depositOnYield.network.chainId]!],
-    );
+    final closeCurrency1ActionParams = _ethereumAbiCoder.encode(["address"], [depositOnYield.token1.address]);
 
     final pancakeSwapV4PositionManagerContract = _pancakeSwapInfinityClPositionManager.fromSigner(
       contractAddress: depositOnYield.positionManagerAddress,
@@ -473,7 +464,7 @@ class PoolService with CLPoolLiquidityCalculationsMixin, CLPoolConversorsMixin, 
   }
 
   Future<TransactionResponse> _sendV3DepositTransactionForAlgebra121(
-    YieldDto depositOnYield,
+    LiquidityPoolDto depositOnYield,
     Signer signer, {
     required BigInt amount0Desired,
     required BigInt amount1Desired,
@@ -527,8 +518,8 @@ class PoolService with CLPoolLiquidityCalculationsMixin, CLPoolConversorsMixin, 
           tickLower: tickLower,
           tickUpper: tickUpper,
           deployer: depositOnYield.deployerAddress,
-          token0: depositOnYield.token0.addresses[depositOnYield.network.chainId]!,
-          token1: depositOnYield.token1.addresses[depositOnYield.network.chainId]!,
+          token0: depositOnYield.token0.address,
+          token1: depositOnYield.token1.address,
         ),
       );
     }.call();
@@ -537,7 +528,7 @@ class PoolService with CLPoolLiquidityCalculationsMixin, CLPoolConversorsMixin, 
   }
 
   Future<TransactionResponse> _sendV3DepositTransactionForSlipstream(
-    YieldDto depositOnYield,
+    LiquidityPoolDto depositOnYield,
     Signer signer, {
     required BigInt amount0Desired,
     required BigInt amount1Desired,
@@ -593,8 +584,8 @@ class PoolService with CLPoolLiquidityCalculationsMixin, CLPoolConversorsMixin, 
           tickUpper: tickUpper,
           tickSpacing: BigInt.from(depositOnYield.tickSpacing),
           sqrtPriceX96: BigInt.from(0),
-          token0: depositOnYield.token0.addresses[depositOnYield.network.chainId]!,
-          token1: depositOnYield.token1.addresses[depositOnYield.network.chainId]!,
+          token0: depositOnYield.token0.address,
+          token1: depositOnYield.token1.address,
         ),
       );
     }.call();
@@ -602,17 +593,17 @@ class PoolService with CLPoolLiquidityCalculationsMixin, CLPoolConversorsMixin, 
     return tx;
   }
 
-  String _getNativeV3PoolToken0Address(YieldDto forYield) {
+  String _getNativeV3PoolToken0Address(LiquidityPoolDto forYield) {
     if (forYield.isToken0Native) return forYield.network.wrappedNativeTokenAddress;
-    return forYield.token0.addresses[forYield.network.chainId]!;
+    return forYield.token0.address;
   }
 
-  String _getNativeV3PoolToken1Address(YieldDto forYield) {
+  String _getNativeV3PoolToken1Address(LiquidityPoolDto forYield) {
     if (forYield.isToken1Native) return forYield.network.wrappedNativeTokenAddress;
-    return forYield.token1.addresses[forYield.network.chainId]!;
+    return forYield.token1.address;
   }
 
-  Future<String> _getPancakeSwapInfinityPoolBytesParameters(YieldDto forYield) async {
+  Future<String> _getPancakeSwapInfinityPoolBytesParameters(LiquidityPoolDto forYield) async {
     final contract = _pancakeSwapInfinityClPoolManager.fromRpcProvider(
       contractAddress: forYield.v4PoolManager!,
       rpcUrl: forYield.network.rpcUrl,

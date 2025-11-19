@@ -4,7 +4,7 @@ import 'package:golden_toolkit/golden_toolkit.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:zup_app/app/app_cubit/app_cubit.dart';
 import 'package:zup_app/core/debouncer.dart';
-import 'package:zup_app/core/dtos/token_dto.dart';
+import 'package:zup_app/core/dtos/multi_chain_token_dto.dart';
 import 'package:zup_app/core/dtos/token_group_dto.dart';
 import 'package:zup_app/core/dtos/token_list_dto.dart';
 import 'package:zup_app/core/enums/networks.dart';
@@ -13,8 +13,7 @@ import 'package:zup_app/core/repositories/tokens_repository.dart';
 import 'package:zup_app/widgets/token_group_card.dart';
 import 'package:zup_app/widgets/token_selector_modal/token_selector_modal.dart';
 import 'package:zup_app/widgets/token_selector_modal/token_selector_modal_cubit.dart';
-import 'package:zup_app/widgets/zup_cached_image.dart';
-import 'package:zup_core/zup_core.dart';
+import 'package:zup_core/test_utils.dart';
 import 'package:zup_ui_kit/zup_ui_kit.dart';
 
 import '../../golden_config.dart';
@@ -32,7 +31,7 @@ void main() {
     cubit = TokenSelectorModalCubitMock();
 
     inject.registerFactory<TokenSelectorModalCubit>(() => cubit);
-    inject.registerFactory<ZupCachedImage>(() => mockZupCachedImage());
+    inject.registerFactory<ZupNetworkImage>(() => mockZupNetworkImage());
     inject.registerFactory<Debouncer>(() => Debouncer(milliseconds: 0));
     inject.registerFactory<AppCubit>(() => appCubit);
 
@@ -47,7 +46,7 @@ void main() {
   tearDown(() => inject.reset());
 
   Future<DeviceBuilder> goldenBuilder({
-    Function(TokenDto)? onSelectToken,
+    Function(MultiChainTokenDto)? onSelectToken,
     Function(TokenGroupDto)? onSelectTokenGroup,
   }) async => await goldenDeviceBuilder(
     Builder(
@@ -200,7 +199,7 @@ void main() {
     "When the state is search success, it should show the search success state",
     goldenFileName: "token_selector_modal_search_success",
     (tester) async {
-      final tokenList = List.generate(10, (_) => TokenDto.fixture());
+      final tokenList = List.generate(10, (_) => MultiChainTokenDto.fixture());
 
       when(() => cubit.state).thenReturn(TokenSelectorModalState.searchSuccess(tokenList));
 
@@ -237,7 +236,7 @@ void main() {
     tester,
   ) async {
     final tokenList = TokenListDto.fixture();
-    TokenDto? selectedToken;
+    MultiChainTokenDto? selectedToken;
 
     when(() => cubit.state).thenReturn(TokenSelectorModalState.success(tokenList));
 

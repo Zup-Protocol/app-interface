@@ -1,6 +1,6 @@
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
-import 'package:zup_app/core/dtos/yield_dto.dart';
+import 'package:zup_app/core/dtos/liquidity_pool_dto.dart';
 import 'package:zup_app/core/repositories/tokens_repository.dart';
 
 class ZupAnalytics {
@@ -11,12 +11,7 @@ class ZupAnalytics {
 
   Future<void> _log(String name, Map<String, dynamic>? parameters) async {
     try {
-      await firebaseAnalytics.logEvent(
-        name: name,
-        parameters: {
-          ...?parameters,
-        },
-      );
+      await firebaseAnalytics.logEvent(name: name, parameters: {...?parameters});
 
       debugPrint("ZupAnalytics: Event $name logged with parameters $parameters");
     } catch (e, stacktraces) {
@@ -27,41 +22,32 @@ class ZupAnalytics {
   }
 
   Future<void> logDeposit({
-    required YieldDto depositedYield,
+    required LiquidityPoolDto depositedYield,
     required num amount0Formatted,
     required num amount1Formatted,
     required String walletAddress,
   }) async {
     try {
       final tokensPrice = await Future.wait([
-        tokensRepository.getTokenPrice(
-          depositedYield.token0.addresses[depositedYield.network.chainId]!,
-          depositedYield.network,
-        ),
-        tokensRepository.getTokenPrice(
-          depositedYield.token1.addresses[depositedYield.network.chainId]!,
-          depositedYield.network,
-        )
+        tokensRepository.getTokenPrice(depositedYield.token0.address, depositedYield.network),
+        tokensRepository.getTokenPrice(depositedYield.token1.address, depositedYield.network),
       ]);
 
       final amount0UsdDeposited = amount0Formatted * tokensPrice[0].usdPrice;
       final amount1UsdDeposited = amount1Formatted * tokensPrice[1].usdPrice;
       final usdAmountDeposited = amount0UsdDeposited + amount1UsdDeposited;
 
-      await _log(
-        "user_deposited",
-        {
-          "token0_address": "hex:${depositedYield.token0.addresses[depositedYield.network.chainId]!}",
-          "token1_address": "hex:${depositedYield.token1.addresses[depositedYield.network.chainId]!}",
-          "amount0": amount0Formatted,
-          "amount1": amount1Formatted,
-          "amount_usd": usdAmountDeposited,
-          "network": depositedYield.network.label,
-          "wallet_address": "hex:$walletAddress",
-          "pool_address": "hex:${depositedYield.poolAddress}",
-          "protocol_name": depositedYield.protocol.name,
-        },
-      );
+      await _log("user_deposited", {
+        "token0_address": "hex:${depositedYield.token0.address}",
+        "token1_address": "hex:${depositedYield.token1.address}",
+        "amount0": amount0Formatted,
+        "amount1": amount1Formatted,
+        "amount_usd": usdAmountDeposited,
+        "network": depositedYield.network.label,
+        "wallet_address": "hex:$walletAddress",
+        "pool_address": "hex:${depositedYield.poolAddress}",
+        "protocol_name": depositedYield.protocol.name,
+      });
     } catch (e) {
       // ignore
     }
@@ -74,15 +60,12 @@ class ZupAnalytics {
     required String? group1,
     required String network,
   }) async {
-    await _log(
-      "user_searched_yields",
-      {
-        "token0": "id:$token0",
-        "token1": "id:$token1",
-        "group0": "id:$group0",
-        "group1": "id:$group1",
-        "network": network,
-      },
-    );
+    await _log("user_searched_yields", {
+      "token0": "id:$token0",
+      "token1": "id:$token1",
+      "group0": "id:$group0",
+      "group1": "id:$group1",
+      "network": network,
+    });
   }
 }

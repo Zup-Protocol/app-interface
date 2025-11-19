@@ -17,9 +17,10 @@ import 'package:zup_app/abis/uniswap_v4_state_view.abi.g.dart';
 import 'package:zup_app/core/concentrated_liquidity_utils/cl_pool_constants.dart';
 import 'package:zup_app/core/concentrated_liquidity_utils/cl_pool_liquidity_calculations_mixin.dart';
 import 'package:zup_app/core/concentrated_liquidity_utils/v4_pool_constants.dart';
+import 'package:zup_app/core/dtos/hook_dto.dart';
+import 'package:zup_app/core/dtos/liquidity_pool_dto.dart';
 import 'package:zup_app/core/dtos/protocol_dto.dart';
-import 'package:zup_app/core/dtos/token_dto.dart';
-import 'package:zup_app/core/dtos/yield_dto.dart';
+import 'package:zup_app/core/dtos/single_chain_token_dto.dart';
 import 'package:zup_app/core/enums/networks.dart';
 import 'package:zup_app/core/enums/pool_type.dart';
 import 'package:zup_app/core/enums/protocol_id.dart';
@@ -39,7 +40,7 @@ void main() {
   late UniswapV4PositionManager positionManagerV4;
   late PancakeSwapInfinityClPoolManager pancakeSwapInfinityCLPoolManager;
   late Signer signer;
-  late YieldDto currentYield;
+  late LiquidityPoolDto currentYield;
   late TransactionResponse transactionResponse;
   late AerodromeV3PositionManager aerodromePositionManagerV3;
   late AerodromeV3Pool aerodromeV3Pool;
@@ -101,7 +102,7 @@ void main() {
     aerodromeV3PoolImpl = AerodromeV3PoolImplMock();
     pancakeSwapInfinityCLPositionManagerImpl = PancakeSwapInfinityCLPositionManagerImplMock();
 
-    currentYield = YieldDto.fixture().copyWith(
+    currentYield = LiquidityPoolDto.fixture().copyWith(
       protocol: ProtocolDto.fixture().copyWith(id: ProtocolId.unknown, rawId: "1"),
     );
 
@@ -261,8 +262,8 @@ void main() {
       final currentYield0 = currentYield.copyWith(
         poolType: PoolType.v3,
         chainId: network.chainId,
-        token0: TokenDto.fixture().copyWith(addresses: {network.chainId: EthereumConstants.zeroAddress}),
-        token1: TokenDto.fixture().copyWith(addresses: {network.chainId: "0x123"}),
+        token0: SingleChainTokenDto.fixture().copyWith(address: EthereumConstants.zeroAddress),
+        token1: SingleChainTokenDto.fixture().copyWith(address: "0x123"),
       );
 
       when(() => positionManagerV3.getMintCalldata(params: any(named: "params"))).thenReturn(mintCalldata);
@@ -317,8 +318,8 @@ void main() {
         final currentYield0 = currentYield.copyWith(
           poolType: PoolType.v3,
           chainId: network.chainId,
-          token0: TokenDto.fixture().copyWith(addresses: {network.chainId: token0Address}),
-          token1: TokenDto.fixture().copyWith(addresses: {network.chainId: token1Address}),
+          token0: SingleChainTokenDto.fixture().copyWith(address: token0Address),
+          token1: SingleChainTokenDto.fixture().copyWith(address: token1Address),
         );
 
         when(() => positionManagerV3.getMintCalldata(params: any(named: "params"))).thenReturn(mintCalldata);
@@ -385,8 +386,8 @@ void main() {
         final currentYield0 = currentYield.copyWith(
           poolType: PoolType.v3,
           chainId: network.chainId,
-          token0: TokenDto.fixture().copyWith(addresses: {network.chainId: token0Address}),
-          token1: TokenDto.fixture().copyWith(addresses: {network.chainId: token1Address}),
+          token0: SingleChainTokenDto.fixture().copyWith(address: token0Address),
+          token1: SingleChainTokenDto.fixture().copyWith(address: token1Address),
         );
 
         when(() => positionManagerV3.getMintCalldata(params: any(named: "params"))).thenReturn(mintCalldata);
@@ -453,8 +454,8 @@ void main() {
         final currentYield0 = currentYield.copyWith(
           poolType: PoolType.v3,
           chainId: network.chainId,
-          token0: TokenDto.fixture().copyWith(addresses: {network.chainId: token0Address}),
-          token1: TokenDto.fixture().copyWith(addresses: {network.chainId: token1Address}),
+          token0: SingleChainTokenDto.fixture().copyWith(address: token0Address),
+          token1: SingleChainTokenDto.fixture().copyWith(address: token1Address),
         );
 
         when(() => positionManagerV3.getMintCalldata(params: any(named: "params"))).thenReturn(mintCalldata);
@@ -509,8 +510,8 @@ void main() {
         final currentYield0 = currentYield.copyWith(
           poolType: PoolType.v3,
           chainId: network.chainId,
-          token0: TokenDto.fixture().copyWith(addresses: {network.chainId: token0Address}),
-          token1: TokenDto.fixture().copyWith(addresses: {network.chainId: token1Address}),
+          token0: SingleChainTokenDto.fixture().copyWith(address: token0Address),
+          token1: SingleChainTokenDto.fixture().copyWith(address: token1Address),
         );
 
         when(() => positionManagerV3.getMintCalldata(params: any(named: "params"))).thenReturn(mintCalldata);
@@ -571,8 +572,8 @@ void main() {
           initialFeeTier: 3982,
           poolType: PoolType.v3,
           chainId: network.chainId,
-          token0: TokenDto.fixture().copyWith(addresses: {network.chainId: token0Address}),
-          token1: TokenDto.fixture().copyWith(addresses: {network.chainId: token1Address}),
+          token0: SingleChainTokenDto.fixture().copyWith(address: token0Address),
+          token1: SingleChainTokenDto.fixture().copyWith(address: token1Address),
         );
 
         final amount0Desired = BigInt.from(4311);
@@ -642,8 +643,8 @@ void main() {
         chainId: network.chainId,
         poolType: PoolType.v4,
         v4StateView: "0x1",
-        token0: TokenDto.fixture().copyWith(addresses: {network.chainId: EthereumConstants.zeroAddress}),
-        token1: TokenDto.fixture().copyWith(addresses: {network.chainId: "0x1"}),
+        token0: SingleChainTokenDto.fixture().copyWith(address: EthereumConstants.zeroAddress),
+        token1: SingleChainTokenDto.fixture().copyWith(address: "0x1"),
       );
 
       await sut.sendV4PoolDepositTransaction(
@@ -696,8 +697,8 @@ void main() {
         chainId: network.chainId,
         v4StateView: "0x1",
         poolType: PoolType.v4,
-        token1: TokenDto.fixture().copyWith(addresses: {network.chainId: EthereumConstants.zeroAddress}),
-        token0: TokenDto.fixture().copyWith(addresses: {network.chainId: "0x1"}),
+        token1: SingleChainTokenDto.fixture().copyWith(address: EthereumConstants.zeroAddress),
+        token0: SingleChainTokenDto.fixture().copyWith(address: "0x1"),
       );
 
       await sut.sendV4PoolDepositTransaction(
@@ -750,8 +751,8 @@ void main() {
         chainId: network.chainId,
         v4StateView: "0x1",
         poolType: PoolType.v4,
-        token0: TokenDto.fixture().copyWith(addresses: {network.chainId: "0x2"}),
-        token1: TokenDto.fixture().copyWith(addresses: {network.chainId: "0x1"}),
+        token0: SingleChainTokenDto.fixture().copyWith(address: "0x2"),
+        token1: SingleChainTokenDto.fixture().copyWith(address: "0x1"),
       );
 
       await sut.sendV4PoolDepositTransaction(
@@ -807,8 +808,8 @@ void main() {
       chainId: network.chainId,
       v4StateView: "0x1",
       poolType: PoolType.v4,
-      token1: TokenDto.fixture().copyWith(addresses: {network.chainId: token1Address}),
-      token0: TokenDto.fixture().copyWith(addresses: {network.chainId: token0Address}),
+      token1: SingleChainTokenDto.fixture().copyWith(address: token1Address),
+      token0: SingleChainTokenDto.fixture().copyWith(address: token0Address),
     );
 
     await sut.sendV4PoolDepositTransaction(
@@ -841,7 +842,7 @@ void main() {
             token1Address,
             BigInt.from(currentYield0.initialFeeTier),
             BigInt.from(currentYield0.tickSpacing),
-            currentYield0.v4Hooks,
+            EthereumConstants.zeroAddress,
           ],
           tickLower,
           tickUpper,
@@ -909,11 +910,11 @@ void main() {
       final currentYield0 = currentYield.copyWith(
         chainId: network.chainId,
         v4PoolManager: poolManager,
-        v4Hooks: hooks,
+        hook: HookDto.fixture().copyWith(address: hooks),
         poolType: PoolType.v4,
         protocol: ProtocolDto.fixture().copyWith(id: ProtocolId.pancakeSwapInfinityCL),
-        token1: TokenDto.fixture().copyWith(addresses: {network.chainId: token1Address}),
-        token0: TokenDto.fixture().copyWith(addresses: {network.chainId: token0Address}),
+        token1: SingleChainTokenDto.fixture().copyWith(address: token1Address),
+        token0: SingleChainTokenDto.fixture().copyWith(address: token0Address),
       );
 
       await sut.sendV4PoolDepositTransaction(
@@ -1009,11 +1010,11 @@ void main() {
       final currentYield0 = currentYield.copyWith(
         chainId: network.chainId,
         v4PoolManager: poolManager,
-        v4Hooks: hooks,
+        hook: HookDto.fixture().copyWith(address: hooks),
         poolType: PoolType.v4,
         protocol: ProtocolDto.fixture().copyWith(id: ProtocolId.pancakeSwapInfinityCL),
-        token1: TokenDto.fixture().copyWith(addresses: {network.chainId: token1Address}),
-        token0: TokenDto.fixture().copyWith(addresses: {network.chainId: token0Address}),
+        token1: SingleChainTokenDto.fixture().copyWith(address: token1Address),
+        token0: SingleChainTokenDto.fixture().copyWith(address: token0Address),
       );
 
       await sut.sendV4PoolDepositTransaction(
@@ -1090,11 +1091,11 @@ void main() {
       final currentYield0 = currentYield.copyWith(
         chainId: network.chainId,
         v4PoolManager: poolManager,
-        v4Hooks: hooks,
+        hook: HookDto.fixture().copyWith(address: hooks),
         poolType: PoolType.v4,
         protocol: ProtocolDto.fixture().copyWith(id: ProtocolId.pancakeSwapInfinityCL),
-        token1: TokenDto.fixture().copyWith(addresses: {network.chainId: token1Address}),
-        token0: TokenDto.fixture().copyWith(addresses: {network.chainId: token0Address}),
+        token1: SingleChainTokenDto.fixture().copyWith(address: token1Address),
+        token0: SingleChainTokenDto.fixture().copyWith(address: token0Address),
       );
 
       await sut.sendV4PoolDepositTransaction(
@@ -1169,11 +1170,11 @@ void main() {
       final currentYield0 = currentYield.copyWith(
         chainId: network.chainId,
         v4PoolManager: poolManager,
-        v4Hooks: hooks,
+        hook: HookDto.fixture().copyWith(address: hooks),
         poolType: PoolType.v4,
         protocol: ProtocolDto.fixture().copyWith(id: ProtocolId.pancakeSwapInfinityCL),
-        token1: TokenDto.fixture().copyWith(addresses: {network.chainId: token1Address}),
-        token0: TokenDto.fixture().copyWith(addresses: {network.chainId: token0Address}),
+        token1: SingleChainTokenDto.fixture().copyWith(address: token1Address),
+        token0: SingleChainTokenDto.fixture().copyWith(address: token0Address),
       );
 
       await sut.sendV4PoolDepositTransaction(
@@ -1220,8 +1221,8 @@ void main() {
         chainId: network.chainId,
         v4StateView: "0x1",
         poolType: PoolType.v4,
-        token1: TokenDto.fixture().copyWith(addresses: {network.chainId: token1Address}),
-        token0: TokenDto.fixture().copyWith(addresses: {network.chainId: token0Address}),
+        token1: SingleChainTokenDto.fixture().copyWith(address: token1Address),
+        token0: SingleChainTokenDto.fixture().copyWith(address: token0Address),
       );
 
       await sut.sendV4PoolDepositTransaction(
@@ -1267,8 +1268,8 @@ void main() {
         chainId: network.chainId,
         v4StateView: "0x1",
         poolType: PoolType.v4,
-        token1: TokenDto.fixture().copyWith(addresses: {network.chainId: token1Address}),
-        token0: TokenDto.fixture().copyWith(addresses: {network.chainId: token0Address}),
+        token1: SingleChainTokenDto.fixture().copyWith(address: token1Address),
+        token0: SingleChainTokenDto.fixture().copyWith(address: token0Address),
       );
 
       await sut.sendV4PoolDepositTransaction(
@@ -1316,8 +1317,8 @@ void main() {
         chainId: network.chainId,
         v4StateView: "0x1",
         poolType: PoolType.v4,
-        token0: TokenDto.fixture().copyWith(addresses: {network.chainId: token0Address}),
-        token1: TokenDto.fixture().copyWith(addresses: {network.chainId: token1Address}),
+        token0: SingleChainTokenDto.fixture().copyWith(address: token0Address),
+        token1: SingleChainTokenDto.fixture().copyWith(address: token1Address),
       );
 
       await sut.sendV4PoolDepositTransaction(
@@ -1362,8 +1363,8 @@ void main() {
         chainId: network.chainId,
         v4StateView: "0x1",
         poolType: PoolType.v4,
-        token0: TokenDto.fixture().copyWith(addresses: {network.chainId: token0Address}),
-        token1: TokenDto.fixture().copyWith(addresses: {network.chainId: token1Address}),
+        token0: SingleChainTokenDto.fixture().copyWith(address: token0Address),
+        token1: SingleChainTokenDto.fixture().copyWith(address: token1Address),
       );
 
       when(() => ethereumAbiCoder.encodePacked(["uint8", "uint8", "uint8"], any())).thenReturn(actionsEncoded);
@@ -1473,8 +1474,8 @@ void main() {
         poolType: PoolType.v4,
         v4PoolManager: "0xbvv",
         protocol: ProtocolDto.fixture().copyWith(id: ProtocolId.pancakeSwapInfinityCL),
-        token0: TokenDto.fixture().copyWith(addresses: {network.chainId: token0Address}),
-        token1: TokenDto.fixture().copyWith(addresses: {network.chainId: token1Address}),
+        token0: SingleChainTokenDto.fixture().copyWith(address: token0Address),
+        token1: SingleChainTokenDto.fixture().copyWith(address: token1Address),
       );
 
       when(() => ethereumAbiCoder.encodePacked(["uint8", "uint8", "uint8"], any())).thenReturn(actionsEncoded);
@@ -1580,8 +1581,8 @@ void main() {
         poolType: PoolType.v4,
         v4PoolManager: "0xbvv",
         protocol: ProtocolDto.fixture().copyWith(id: ProtocolId.pancakeSwapInfinityCL),
-        token0: TokenDto.fixture().copyWith(addresses: {network.chainId: token0Address}),
-        token1: TokenDto.fixture().copyWith(addresses: {network.chainId: token1Address}),
+        token0: SingleChainTokenDto.fixture().copyWith(address: token0Address),
+        token1: SingleChainTokenDto.fixture().copyWith(address: token1Address),
       );
 
       when(() => ethereumAbiCoder.encodePacked(["uint8", "uint8", "uint8"], any())).thenReturn(actionsEncoded);
@@ -1665,8 +1666,8 @@ void main() {
         chainId: network.chainId,
         v4StateView: "0x1",
         poolType: PoolType.v4,
-        token0: TokenDto.fixture().copyWith(addresses: {network.chainId: token0Address}),
-        token1: TokenDto.fixture().copyWith(addresses: {network.chainId: token1Address}),
+        token0: SingleChainTokenDto.fixture().copyWith(address: token0Address),
+        token1: SingleChainTokenDto.fixture().copyWith(address: token1Address),
       );
 
       when(() => ethereumAbiCoder.encodePacked(["uint8", "uint8", "uint8"], any())).thenReturn(actionsEncoded);
@@ -1753,8 +1754,8 @@ void main() {
         chainId: network.chainId,
         v4StateView: "0x1",
         poolType: PoolType.v4,
-        token0: TokenDto.fixture().copyWith(addresses: {network.chainId: token0Address}),
-        token1: TokenDto.fixture().copyWith(addresses: {network.chainId: token1Address}),
+        token0: SingleChainTokenDto.fixture().copyWith(address: token0Address),
+        token1: SingleChainTokenDto.fixture().copyWith(address: token1Address),
       );
 
       when(() => ethereumAbiCoder.encodePacked(["uint8", "uint8"], any())).thenReturn(actionsEncoded);
@@ -1833,8 +1834,8 @@ void main() {
           chainId: network.chainId,
           v4StateView: "0x1",
           poolType: PoolType.v4,
-          token0: TokenDto.fixture().copyWith(addresses: {network.chainId: token0Address}),
-          token1: TokenDto.fixture().copyWith(addresses: {network.chainId: token1Address}),
+          token0: SingleChainTokenDto.fixture().copyWith(address: token0Address),
+          token1: SingleChainTokenDto.fixture().copyWith(address: token1Address),
         );
 
         when(() => ethereumAbiCoder.encodePacked(any(), any())).thenReturn("0x");
@@ -1888,8 +1889,8 @@ void main() {
         chainId: network.chainId,
         v4StateView: "0x1",
         poolType: PoolType.v4,
-        token0: TokenDto.fixture().copyWith(addresses: {network.chainId: token0Address}),
-        token1: TokenDto.fixture().copyWith(addresses: {network.chainId: token1Address}),
+        token0: SingleChainTokenDto.fixture().copyWith(address: token0Address),
+        token1: SingleChainTokenDto.fixture().copyWith(address: token1Address),
       );
 
       when(() => ethereumAbiCoder.encodePacked(any(), any())).thenReturn("0x");
@@ -1943,8 +1944,8 @@ void main() {
         chainId: network.chainId,
         v4StateView: "0x1",
         poolType: PoolType.v4,
-        token0: TokenDto.fixture().copyWith(addresses: {network.chainId: token0Address}),
-        token1: TokenDto.fixture().copyWith(addresses: {network.chainId: token1Address}),
+        token0: SingleChainTokenDto.fixture().copyWith(address: token0Address),
+        token1: SingleChainTokenDto.fixture().copyWith(address: token1Address),
       );
 
       when(() => ethereumAbiCoder.encodePacked(any(), any())).thenReturn("0x");
@@ -1998,8 +1999,8 @@ void main() {
         chainId: network.chainId,
         v4StateView: "0x1",
         poolType: PoolType.v4,
-        token0: TokenDto.fixture().copyWith(addresses: {network.chainId: token0Address}),
-        token1: TokenDto.fixture().copyWith(addresses: {network.chainId: token1Address}),
+        token0: SingleChainTokenDto.fixture().copyWith(address: token0Address),
+        token1: SingleChainTokenDto.fixture().copyWith(address: token1Address),
       );
 
       when(() => ethereumAbiCoder.encodePacked(any(), any())).thenReturn("0x");
@@ -2193,7 +2194,7 @@ void main() {
           token1: "",
         ));
 
-        registerFallbackValue(YieldDto.fixture());
+        registerFallbackValue(LiquidityPoolDto.fixture());
 
         when(
           () => aerodromePositionManagerV3.fromSigner(
@@ -2414,8 +2415,8 @@ void main() {
             protocol: ProtocolDto.fixture().copyWith(id: ProtocolId.aerodromeSlipstream),
             poolType: PoolType.v3,
             chainId: network.chainId,
-            token0: TokenDto.fixture().copyWith(addresses: {network.chainId: EthereumConstants.zeroAddress}),
-            token1: TokenDto.fixture().copyWith(addresses: {network.chainId: "0x123"}),
+            token0: SingleChainTokenDto.fixture().copyWith(address: EthereumConstants.zeroAddress),
+            token1: SingleChainTokenDto.fixture().copyWith(address: "0x123"),
           );
 
           when(() => aerodromePositionManagerV3.getMintCalldata(params: any(named: "params"))).thenReturn(mintCalldata);
@@ -2469,8 +2470,8 @@ void main() {
               protocol: ProtocolDto.fixture().copyWith(id: ProtocolId.aerodromeSlipstream),
               poolType: PoolType.v3,
               chainId: network.chainId,
-              token0: TokenDto.fixture().copyWith(addresses: {network.chainId: token0Address}),
-              token1: TokenDto.fixture().copyWith(addresses: {network.chainId: token1Address}),
+              token0: SingleChainTokenDto.fixture().copyWith(address: token0Address),
+              token1: SingleChainTokenDto.fixture().copyWith(address: token1Address),
             );
 
             when(
@@ -2540,8 +2541,8 @@ void main() {
               protocol: ProtocolDto.fixture().copyWith(id: ProtocolId.aerodromeSlipstream),
               poolType: PoolType.v3,
               chainId: network.chainId,
-              token0: TokenDto.fixture().copyWith(addresses: {network.chainId: token0Address}),
-              token1: TokenDto.fixture().copyWith(addresses: {network.chainId: token1Address}),
+              token0: SingleChainTokenDto.fixture().copyWith(address: token0Address),
+              token1: SingleChainTokenDto.fixture().copyWith(address: token1Address),
             );
 
             when(
@@ -2609,8 +2610,8 @@ void main() {
             protocol: ProtocolDto.fixture().copyWith(id: ProtocolId.aerodromeSlipstream),
             poolType: PoolType.v3,
             chainId: network.chainId,
-            token0: TokenDto.fixture().copyWith(addresses: {network.chainId: token0Address}),
-            token1: TokenDto.fixture().copyWith(addresses: {network.chainId: token1Address}),
+            token0: SingleChainTokenDto.fixture().copyWith(address: token0Address),
+            token1: SingleChainTokenDto.fixture().copyWith(address: token1Address),
           );
 
           when(() => aerodromePositionManagerV3.getMintCalldata(params: any(named: "params"))).thenReturn(mintCalldata);
@@ -2663,8 +2664,8 @@ void main() {
             protocol: ProtocolDto.fixture().copyWith(id: ProtocolId.aerodromeSlipstream),
             poolType: PoolType.v3,
             chainId: network.chainId,
-            token0: TokenDto.fixture().copyWith(addresses: {network.chainId: token0Address}),
-            token1: TokenDto.fixture().copyWith(addresses: {network.chainId: token1Address}),
+            token0: SingleChainTokenDto.fixture().copyWith(address: token0Address),
+            token1: SingleChainTokenDto.fixture().copyWith(address: token1Address),
           );
 
           when(() => aerodromePositionManagerV3.getMintCalldata(params: any(named: "params"))).thenReturn(mintCalldata);
@@ -2725,8 +2726,8 @@ void main() {
               initialFeeTier: 3982,
               poolType: PoolType.v3,
               chainId: network.chainId,
-              token0: TokenDto.fixture().copyWith(addresses: {network.chainId: token0Address}),
-              token1: TokenDto.fixture().copyWith(addresses: {network.chainId: token1Address}),
+              token0: SingleChainTokenDto.fixture().copyWith(address: token0Address),
+              token1: SingleChainTokenDto.fixture().copyWith(address: token1Address),
             );
 
             final amount0Desired = BigInt.from(4311);
@@ -2805,8 +2806,8 @@ void main() {
               initialFeeTier: 3982,
               poolType: PoolType.v3,
               chainId: network.chainId,
-              token0: TokenDto.fixture().copyWith(addresses: {network.chainId: token0Address}),
-              token1: TokenDto.fixture().copyWith(addresses: {network.chainId: token1Address}),
+              token0: SingleChainTokenDto.fixture().copyWith(address: token0Address),
+              token1: SingleChainTokenDto.fixture().copyWith(address: token1Address),
             );
 
             final amount0Desired = BigInt.from(4311);
@@ -2874,8 +2875,8 @@ void main() {
               initialFeeTier: 3982,
               poolType: PoolType.v3,
               chainId: network.chainId,
-              token0: TokenDto.fixture().copyWith(addresses: {network.chainId: token0Address}),
-              token1: TokenDto.fixture().copyWith(addresses: {network.chainId: token1Address}),
+              token0: SingleChainTokenDto.fixture().copyWith(address: token0Address),
+              token1: SingleChainTokenDto.fixture().copyWith(address: token1Address),
             );
 
             final amount0Desired = BigInt.from(4311);
@@ -3123,8 +3124,8 @@ void main() {
           protocol: ProtocolDto.fixture().copyWith(id: ProtocolId.gliquidV3),
           poolType: PoolType.v3,
           chainId: network.chainId,
-          token0: TokenDto.fixture().copyWith(addresses: {network.chainId: EthereumConstants.zeroAddress}),
-          token1: TokenDto.fixture().copyWith(addresses: {network.chainId: "0x123"}),
+          token0: SingleChainTokenDto.fixture().copyWith(address: EthereumConstants.zeroAddress),
+          token1: SingleChainTokenDto.fixture().copyWith(address: "0x123"),
         );
 
         when(() => algebra121PositionManager.getMintCalldata(params: any(named: "params"))).thenReturn(mintCalldata);
@@ -3178,8 +3179,8 @@ void main() {
             protocol: ProtocolDto.fixture().copyWith(id: ProtocolId.gliquidV3),
             poolType: PoolType.v3,
             chainId: network.chainId,
-            token0: TokenDto.fixture().copyWith(addresses: {network.chainId: token0Address}),
-            token1: TokenDto.fixture().copyWith(addresses: {network.chainId: token1Address}),
+            token0: SingleChainTokenDto.fixture().copyWith(address: token0Address),
+            token1: SingleChainTokenDto.fixture().copyWith(address: token1Address),
           );
 
           when(() => algebra121PositionManager.getMintCalldata(params: any(named: "params"))).thenReturn(mintCalldata);
@@ -3247,8 +3248,8 @@ void main() {
             protocol: ProtocolDto.fixture().copyWith(id: ProtocolId.gliquidV3),
             poolType: PoolType.v3,
             chainId: network.chainId,
-            token0: TokenDto.fixture().copyWith(addresses: {network.chainId: token0Address}),
-            token1: TokenDto.fixture().copyWith(addresses: {network.chainId: token1Address}),
+            token0: SingleChainTokenDto.fixture().copyWith(address: token0Address),
+            token1: SingleChainTokenDto.fixture().copyWith(address: token1Address),
           );
 
           when(() => algebra121PositionManager.getMintCalldata(params: any(named: "params"))).thenReturn(mintCalldata);
@@ -3313,8 +3314,8 @@ void main() {
           protocol: ProtocolDto.fixture().copyWith(id: ProtocolId.gliquidV3),
           poolType: PoolType.v3,
           chainId: network.chainId,
-          token0: TokenDto.fixture().copyWith(addresses: {network.chainId: token0Address}),
-          token1: TokenDto.fixture().copyWith(addresses: {network.chainId: token1Address}),
+          token0: SingleChainTokenDto.fixture().copyWith(address: token0Address),
+          token1: SingleChainTokenDto.fixture().copyWith(address: token1Address),
         );
 
         when(() => algebra121PositionManager.getMintCalldata(params: any(named: "params"))).thenReturn(mintCalldata);
@@ -3369,8 +3370,8 @@ void main() {
             protocol: ProtocolDto.fixture().copyWith(id: ProtocolId.gliquidV3),
             poolType: PoolType.v3,
             chainId: network.chainId,
-            token0: TokenDto.fixture().copyWith(addresses: {network.chainId: token0Address}),
-            token1: TokenDto.fixture().copyWith(addresses: {network.chainId: token1Address}),
+            token0: SingleChainTokenDto.fixture().copyWith(address: token0Address),
+            token1: SingleChainTokenDto.fixture().copyWith(address: token1Address),
             deployerAddress: expectedDeployer,
           );
 
@@ -3425,8 +3426,8 @@ void main() {
             protocol: ProtocolDto.fixture().copyWith(id: ProtocolId.gliquidV3),
             poolType: PoolType.v3,
             chainId: network.chainId,
-            token0: TokenDto.fixture().copyWith(addresses: {network.chainId: token0Address}),
-            token1: TokenDto.fixture().copyWith(addresses: {network.chainId: token1Address}),
+            token0: SingleChainTokenDto.fixture().copyWith(address: token0Address),
+            token1: SingleChainTokenDto.fixture().copyWith(address: token1Address),
             deployerAddress: expectedDeployer,
           );
 
@@ -3476,8 +3477,8 @@ void main() {
             protocol: ProtocolDto.fixture().copyWith(id: ProtocolId.gliquidV3),
             poolType: PoolType.v3,
             chainId: network.chainId,
-            token0: TokenDto.fixture().copyWith(addresses: {network.chainId: token0Address}),
-            token1: TokenDto.fixture().copyWith(addresses: {network.chainId: token1Address}),
+            token0: SingleChainTokenDto.fixture().copyWith(address: token0Address),
+            token1: SingleChainTokenDto.fixture().copyWith(address: token1Address),
             deployerAddress: expectedDeployer,
           );
 
@@ -3531,8 +3532,8 @@ void main() {
             protocol: ProtocolDto.fixture().copyWith(id: ProtocolId.gliquidV3),
             poolType: PoolType.v3,
             chainId: network.chainId,
-            token0: TokenDto.fixture().copyWith(addresses: {network.chainId: token0Address}),
-            token1: TokenDto.fixture().copyWith(addresses: {network.chainId: token1Address}),
+            token0: SingleChainTokenDto.fixture().copyWith(address: token0Address),
+            token1: SingleChainTokenDto.fixture().copyWith(address: token1Address),
             deployerAddress: EthereumConstants.zeroAddress,
           );
 
@@ -3696,11 +3697,11 @@ void main() {
           ],
           [
             [
-              currentYield.token0.addresses[currentYield.network.chainId]!,
-              currentYield.token1.addresses[currentYield.network.chainId]!,
+              currentYield.token0.address,
+              currentYield.token1.address,
               BigInt.from(currentYield.initialFeeTier),
               BigInt.from(currentYield.tickSpacing),
-              currentYield.v4Hooks,
+              EthereumConstants.zeroAddress,
             ],
             tickLower,
             tickUpper,
@@ -3770,7 +3771,7 @@ void main() {
         currentYield.copyWith(
           protocol: ProtocolDto.fixture().copyWith(id: ProtocolId.pancakeSwapInfinityCL),
           poolType: PoolType.v4,
-          v4Hooks: hooks,
+          hook: HookDto.fixture().copyWith(address: hooks),
           v4PoolManager: "0x",
           v4StateView: "0x",
         ),
@@ -3798,8 +3799,8 @@ void main() {
           ],
           [
             [
-              currentYield.token0.addresses[currentYield.network.chainId]!,
-              currentYield.token1.addresses[currentYield.network.chainId]!,
+              currentYield.token0.address,
+              currentYield.token1.address,
               hooks,
               poolManager,
               currentYield.initialFeeTier,

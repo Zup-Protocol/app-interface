@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:web3kit/web3kit.dart';
 import 'package:zup_app/app/app_cubit/app_cubit.dart';
-import 'package:zup_app/core/dtos/token_dto.dart';
+import 'package:zup_app/core/dtos/multi_chain_token_dto.dart';
 import 'package:zup_app/core/dtos/token_list_dto.dart';
 import 'package:zup_app/core/enums/networks.dart';
 import 'package:zup_app/core/repositories/tokens_repository.dart';
@@ -187,7 +187,7 @@ void main() {
   it should not emit the searchSuccess state when it completes""",
     () async {
       const requestDuration = Duration(milliseconds: 1);
-      final futureResult = <TokenDto>[];
+      final futureResult = <MultiChainTokenDto>[];
 
       when(
         () => tokensRepository.searchToken(any(), any()),
@@ -228,7 +228,7 @@ void main() {
   test(
     "When calling `searchTokens` and the repository returns success it should emit the searchSuccess state",
     () async {
-      final searchResult = [TokenDto.fixture(), TokenDto.fixture()];
+      final searchResult = [MultiChainTokenDto.fixture(), MultiChainTokenDto.fixture()];
       when(() => tokensRepository.searchToken(any(), any())).thenAnswer((_) async => searchResult);
 
       await sut.searchToken("dale");
@@ -314,8 +314,8 @@ void main() {
   it should emit the search not found state""",
     () async {
       final returnedList = [
-        TokenDto.fixture().copyWith(name: "", symbol: "", logoUrl: "", addresses: {}),
-        TokenDto.fixture().copyWith(name: "", symbol: "", decimals: {}, logoUrl: "", addresses: {}),
+        MultiChainTokenDto.fixture().copyWith(name: "", symbol: "", logoUrl: "", addresses: {}),
+        MultiChainTokenDto.fixture().copyWith(name: "", symbol: "", decimals: {}, logoUrl: "", addresses: {}),
       ];
 
       when(() => tokensRepository.searchToken(any(), any())).thenAnswer((_) async => returnedList);
@@ -330,10 +330,10 @@ void main() {
     """When calling 'searchToken' and one token in the list returned has symbol and name,
   it should emit the search sucesss state, without the tokens without name and symbol""",
     () async {
-      final namedToken = TokenDto.fixture();
+      final namedToken = MultiChainTokenDto.fixture();
       final returnedList = [
-        TokenDto.fixture().copyWith(name: "", symbol: "", logoUrl: "", addresses: {}),
-        TokenDto.fixture().copyWith(name: "", symbol: "", logoUrl: "", addresses: {}),
+        MultiChainTokenDto.fixture().copyWith(name: "", symbol: "", logoUrl: "", addresses: {}),
+        MultiChainTokenDto.fixture().copyWith(name: "", symbol: "", logoUrl: "", addresses: {}),
         namedToken,
       ];
 

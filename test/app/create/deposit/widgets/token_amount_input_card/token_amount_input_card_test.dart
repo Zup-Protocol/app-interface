@@ -6,13 +6,13 @@ import 'package:golden_toolkit/golden_toolkit.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:web3kit/web3kit.dart';
 import 'package:zup_app/app/create/yields/%5Bid%5D/deposit/widgets/token_amount_input_card/token_amount_input_card.dart';
-import 'package:zup_app/core/dtos/token_dto.dart';
+import 'package:zup_app/core/dtos/single_chain_token_dto.dart';
 import 'package:zup_app/core/dtos/token_price_dto.dart';
 import 'package:zup_app/core/enums/networks.dart';
 import 'package:zup_app/core/injections.dart';
 import 'package:zup_app/core/repositories/tokens_repository.dart';
-import 'package:zup_app/widgets/zup_cached_image.dart';
 import 'package:zup_core/zup_core.dart';
+import 'package:zup_ui_kit/zup_network_image.dart';
 
 import '../../../../../golden_config.dart';
 import '../../../../../mocks.dart';
@@ -31,7 +31,7 @@ void main() {
 
     inject.registerFactory<Wallet>(() => wallet);
     inject.registerFactory<ZupSingletonCache>(() => ZupSingletonCache.shared);
-    inject.registerFactory<ZupCachedImage>(() => mockZupCachedImage());
+    inject.registerFactory<ZupNetworkImage>(() => mockZupNetworkImage());
     inject.registerFactory<TokensRepository>(() => tokensRepository);
     inject.registerFactory<ZupHolder>(() => ZupHolder());
 
@@ -55,7 +55,7 @@ void main() {
     TextEditingController? controller,
     AppNetworks network = AppNetworks.sepolia,
     Function(double)? onInput,
-    TokenDto? token,
+    SingleChainTokenDto? token,
     String? disabledText,
     bool isNative = false,
   }) async => await goldenDeviceBuilder(
@@ -71,7 +71,7 @@ void main() {
               controller: controller ?? TextEditingController(),
               network: network,
               onInput: (value) => onInput?.call(value),
-              token: token ?? TokenDto.fixture(),
+              token: token ?? SingleChainTokenDto.fixture(),
               disabledText: disabledText,
             ),
           ),
@@ -268,10 +268,7 @@ void main() {
       await tester.runAsync(() async {
         const key = Key("token-amount-card");
         const newTokenAddress = "0xN3W_T0K3N";
-        final newToken = TokenDto.fixture().copyWith(
-          addresses: {AppNetworks.sepolia.chainId: newTokenAddress},
-          symbol: "NEW_TOKEN",
-        );
+        final newToken = SingleChainTokenDto.fixture().copyWith(address: newTokenAddress, symbol: "NEW_TOKEN");
 
         await tester.pumpDeviceBuilder(await goldenBuilder(key: key));
         await tester.pumpDeviceBuilder(await goldenBuilder(key: key, token: newToken));
@@ -291,20 +288,13 @@ void main() {
         const key = Key("token-amount-card");
         const oldNetwork = AppNetworks.sepolia;
         const newNetwork = AppNetworks.mainnet;
-        final token = TokenDto.fixture().copyWith(
-          addresses: {
-            oldNetwork.chainId: EthereumConstants.zeroAddress,
-            newNetwork.chainId: EthereumConstants.zeroAddress,
-          },
-        );
+        final token = SingleChainTokenDto.fixture().copyWith(address: EthereumConstants.zeroAddress);
 
         await tester.pumpDeviceBuilder(await goldenBuilder(key: key, network: oldNetwork, token: token));
         await tester.pumpDeviceBuilder(await goldenBuilder(key: key, network: newNetwork, token: token));
         await tester.pumpAndSettle();
 
-        verify(
-          () => wallet.nativeOrTokenBalance(token.addresses[newNetwork.chainId]!, rpcUrl: newNetwork.rpcUrl),
-        ).called(1);
+        verify(() => wallet.nativeOrTokenBalance(token.address, rpcUrl: newNetwork.rpcUrl)).called(1);
       });
     },
   );
@@ -319,16 +309,10 @@ void main() {
         const newTokenNetwork = AppNetworks.sepolia;
 
         final oldTokenAddress = AppNetworks.scroll.wrappedNativeTokenAddress;
-        final oldToken = TokenDto.fixture().copyWith(
-          addresses: {AppNetworks.scroll.chainId: oldTokenAddress},
-          symbol: "OLD_TOKEN",
-        );
+        final oldToken = SingleChainTokenDto.fixture().copyWith(address: oldTokenAddress, symbol: "OLD_TOKEN");
 
         final newTokenAddress = AppNetworks.sepolia.wrappedNativeTokenAddress;
-        final newToken = TokenDto.fixture().copyWith(
-          addresses: {AppNetworks.sepolia.chainId: newTokenAddress},
-          symbol: "NEW_TOKEN",
-        );
+        final newToken = SingleChainTokenDto.fixture().copyWith(address: newTokenAddress, symbol: "NEW_TOKEN");
 
         await tester.pumpDeviceBuilder(
           await goldenBuilder(key: key, token: oldToken, isNative: true, network: oldTokenNetwork),
@@ -356,16 +340,10 @@ void main() {
         const newTokenNetwork = AppNetworks.sepolia;
 
         final oldTokenAddress = AppNetworks.scroll.wrappedNativeTokenAddress;
-        final oldToken = TokenDto.fixture().copyWith(
-          addresses: {AppNetworks.scroll.chainId: oldTokenAddress},
-          symbol: "OLD_TOKEN",
-        );
+        final oldToken = SingleChainTokenDto.fixture().copyWith(address: oldTokenAddress, symbol: "OLD_TOKEN");
 
         final newTokenAddress = AppNetworks.sepolia.wrappedNativeTokenAddress;
-        final newToken = TokenDto.fixture().copyWith(
-          addresses: {AppNetworks.sepolia.chainId: newTokenAddress},
-          symbol: "NEW_TOKEN",
-        );
+        final newToken = SingleChainTokenDto.fixture().copyWith(address: newTokenAddress, symbol: "NEW_TOKEN");
 
         await tester.pumpDeviceBuilder(
           await goldenBuilder(key: key, token: oldToken, isNative: false, network: oldTokenNetwork),
@@ -390,25 +368,26 @@ void main() {
         const oldTokenNetwork = AppNetworks.scroll;
         const newTokenNetwork = AppNetworks.sepolia;
 
-        final token = TokenDto.fixture().copyWith(
-          addresses: {
-            AppNetworks.scroll.chainId: AppNetworks.scroll.wrappedNativeTokenAddress,
-            AppNetworks.sepolia.chainId: AppNetworks.sepolia.wrappedNativeTokenAddress,
-          },
+        final oldToken = SingleChainTokenDto.fixture().copyWith(
+          address: AppNetworks.scroll.wrappedNativeTokenAddress,
+
           symbol: "OLD_TOKEN",
         );
 
+        final newToken = SingleChainTokenDto.fixture().copyWith(
+          address: AppNetworks.sepolia.wrappedNativeTokenAddress,
+          symbol: "NEW_TOKO",
+        );
+
         await tester.pumpDeviceBuilder(
-          await goldenBuilder(key: key, token: token, isNative: false, network: oldTokenNetwork),
+          await goldenBuilder(key: key, token: oldToken, isNative: false, network: oldTokenNetwork),
         );
         await tester.pumpDeviceBuilder(
-          await goldenBuilder(key: key, token: token, isNative: false, network: newTokenNetwork),
+          await goldenBuilder(key: key, token: newToken, isNative: false, network: newTokenNetwork),
         );
         await tester.pumpAndSettle();
 
-        verify(
-          () => wallet.nativeOrTokenBalance(token.addresses[newTokenNetwork.chainId]!, rpcUrl: newTokenNetwork.rpcUrl),
-        ).called(1);
+        verify(() => wallet.nativeOrTokenBalance(newToken.address, rpcUrl: newTokenNetwork.rpcUrl)).called(1);
       });
     },
   );
@@ -482,14 +461,14 @@ void main() {
     "When the wallet emits a new signer, and the current token is not native, it should fetch the non-native balance",
     (tester) async {
       await tester.runAsync(() async {
-        final token = TokenDto.fixture();
+        final token = SingleChainTokenDto.fixture();
         const network = AppNetworks.scroll;
 
         final signerStreamController = StreamController<Signer?>.broadcast();
         when(() => wallet.signer).thenReturn(null);
         when(() => wallet.signerStream).thenAnswer((_) => signerStreamController.stream);
 
-        await tester.pumpDeviceBuilder(await goldenBuilder(isNative: false));
+        await tester.pumpDeviceBuilder(await goldenBuilder(isNative: false, token: token, network: network));
         await tester.pumpAndSettle();
 
         when(() => wallet.signer).thenReturn(signer);
@@ -497,9 +476,7 @@ void main() {
         signerStreamController.add(SignerMock());
         await tester.pumpAndSettle();
 
-        verify(
-          () => wallet.nativeOrTokenBalance(token.addresses[network.chainId]!, rpcUrl: any(named: "rpcUrl")),
-        ).called(1);
+        verify(() => wallet.nativeOrTokenBalance(token.address, rpcUrl: any(named: "rpcUrl"))).called(1);
         verifyNever(() => wallet.nativeOrTokenBalance(EthereumConstants.zeroAddress, rpcUrl: any(named: "rpcUrl")));
       });
     },

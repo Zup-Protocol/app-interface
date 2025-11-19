@@ -9,8 +9,8 @@ import 'package:zup_app/core/enums/networks.dart';
 import 'package:zup_app/core/injections.dart';
 import 'package:zup_app/core/repositories/protocol_repository.dart';
 import 'package:zup_app/core/zup_navigator.dart';
-import 'package:zup_app/widgets/zup_cached_image.dart';
 import 'package:zup_core/zup_core.dart';
+import 'package:zup_ui_kit/zup_ui_kit.dart';
 
 import '../../golden_config.dart';
 import '../../mocks.dart';
@@ -24,7 +24,7 @@ void main() {
     cache = CacheMock();
 
     inject.registerFactory<Cache>(() => cache);
-    inject.registerFactory<ZupCachedImage>(() => mockZupCachedImage());
+    inject.registerFactory<ZupNetworkImage>(() => mockZupNetworkImage());
     inject.registerFactory<AppCubit>(() => appCubit);
     inject.registerFactory<ZupNavigator>(() => ZupNavigatorMock());
     inject.registerFactory<ZupSingletonCache>(() => ZupSingletonCache.shared);
@@ -38,9 +38,12 @@ void main() {
   tearDown(() => inject.reset());
   Future<DeviceBuilder> goldenBuilder() async => await goldenDeviceBuilder(const CreatePage());
 
-  zGoldenTest("When loading the create page, it should show the token selection stage",
-      goldenFileName: "create_page_initial_stage", (tester) async {
-    await tester.pumpDeviceBuilder(await goldenBuilder());
-    await tester.pumpAndSettle();
-  });
+  zGoldenTest(
+    "When loading the create page, it should show the token selection stage",
+    goldenFileName: "create_page_initial_stage",
+    (tester) async {
+      await tester.pumpDeviceBuilder(await goldenBuilder());
+      await tester.pumpAndSettle();
+    },
+  );
 }

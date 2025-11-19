@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:golden_toolkit/golden_toolkit.dart';
-import 'package:zup_app/core/dtos/token_dto.dart';
+import 'package:zup_app/core/dtos/multi_chain_token_dto.dart';
 import 'package:zup_app/core/dtos/token_group_dto.dart';
 import 'package:zup_app/core/injections.dart';
 import 'package:zup_app/widgets/token_group_card.dart';
-import 'package:zup_app/widgets/zup_cached_image.dart';
-import 'package:zup_core/zup_core.dart';
+import 'package:zup_core/test_utils.dart';
+import 'package:zup_ui_kit/zup_network_image.dart';
 import 'package:zup_ui_kit/zup_tooltip.dart';
 
 import '../golden_config.dart';
@@ -14,7 +14,7 @@ import '../mocks.dart';
 
 void main() {
   setUp(() {
-    inject.registerFactory<ZupCachedImage>(() => mockZupCachedImage());
+    inject.registerFactory<ZupNetworkImage>(() => mockZupNetworkImage());
   });
 
   tearDown(() => inject.reset());
@@ -52,7 +52,7 @@ void main() {
     goldenFileName: "token_group_card_hover_info",
     (tester) async {
       final group = TokenGroupDto.fixture().copyWith(
-        tokens: List.generate(20, (index) => TokenDto.fixture().copyWith(symbol: "Token$index")),
+        tokens: List.generate(20, (index) => MultiChainTokenDto.fixture().copyWith(symbol: "Token$index")),
       );
       await tester.pumpDeviceBuilder(await goldenBuilder(group: group));
 

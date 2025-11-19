@@ -362,11 +362,15 @@ class _RangeSelectorState extends State<RangeSelector> with CLPoolConversorsMixi
               const SizedBox(width: 8),
               ZupIconButton(
                 key: const Key("increase-button"),
-                icon: Assets.icons.plus.svg(),
+                icon: Assets.icons.plus.svg(
+                  colorFilter: ColorFilter.mode(
+                    widget.state.type.adjustmentIconForegroundColor(context),
+                    BlendMode.srcIn,
+                  ),
+                ),
                 circle: false,
                 minimumHeight: 40,
                 padding: const EdgeInsets.all(12),
-                iconColor: widget.state.type.adjustmentIconForegroundColor(context),
                 backgroundColor: widget.state.type.adjustmentIconBackgroundColor(context),
                 onPressed: (_) => increaseOrDecrease(increasing: true),
               ),
@@ -376,9 +380,13 @@ class _RangeSelectorState extends State<RangeSelector> with CLPoolConversorsMixi
                 circle: false,
                 padding: const EdgeInsets.all(12),
                 minimumHeight: 40,
-                icon: Assets.icons.minus.svg(),
+                icon: Assets.icons.minus.svg(
+                  colorFilter: ColorFilter.mode(
+                    widget.state.type.adjustmentIconForegroundColor(context),
+                    BlendMode.srcIn,
+                  ),
+                ),
                 backgroundColor: widget.state.type.adjustmentIconBackgroundColor(context),
-                iconColor: widget.state.type.adjustmentIconForegroundColor(context),
                 onPressed: (_) => increaseOrDecrease(increasing: false),
               ),
             ],

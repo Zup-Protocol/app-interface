@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:routefly/routefly.dart';
 import 'package:zup_app/core/dtos/deposit_page_arguments_dto.dart';
-import 'package:zup_app/core/dtos/yield_dto.dart';
+import 'package:zup_app/core/dtos/liquidity_pool_dto.dart';
 import 'package:zup_app/core/enums/networks.dart';
-import 'package:zup_app/core/enums/yield_timeframe.dart';
+import 'package:zup_app/core/enums/pool_data_timeframe.dart';
 import 'package:zup_app/core/enums/zup_navigator_paths.dart';
 import 'package:zup_app/core/zup_route_params_names.dart';
 
@@ -50,8 +50,8 @@ class ZupNavigator {
   Future<void> navigateToInitial() async => await Routefly.navigate(ZupNavigatorPaths.initial.path);
 
   Future<void> navigateToDeposit({
-    required YieldDto yieldPool,
-    required YieldTimeFrame selectedTimeframe,
+    required LiquidityPoolDto yieldPool,
+    required PoolDataTimeframe selectedTimeframe,
     required bool parseWrappedToNative,
   }) async {
     final depositPathParamNames = ZupNavigatorPaths.deposit.routeParamsNames<DepositRouteParamsNames>();

@@ -48,25 +48,24 @@ class _AppPageState extends State<AppPage> with DeviceInfoMixin {
 
       if (cache.getCookiesConsentStatus() == null) Overlay.of(context).insert(overlayEntry);
 
-      ScaffoldMessenger.of(context).showMaterialBanner(
-        MaterialBanner(
-          backgroundColor: ZupColors.orange6,
-          padding: const EdgeInsets.only(left: 20, right: 10, bottom: 5, top: 5),
-          dividerColor: Colors.transparent,
-          content: const Text(
-            "⚠️ 24h and 7d Yields on Base Network are temporarily delayed, we’re on it! 🚧 30d, and 90d Yields are still running fine.",
-            style: TextStyle(color: ZupColors.orange),
-          ),
-          actions: [
-            ZupIconButton(
-              iconColor: ZupColors.orange,
-              backgroundColor: ZupColors.orange5,
-              icon: const Icon(Icons.close),
-              onPressed: (context) => ScaffoldMessenger.of(context).clearMaterialBanners(),
-            ),
-          ],
-        ),
-      );
+      // ScaffoldMessenger.of(context).showMaterialBanner(
+      //   MaterialBanner(
+      //     backgroundColor: ZupColors.orange6,
+      //     padding: const EdgeInsets.only(left: 20, right: 10, bottom: 5, top: 5),
+      //     dividerColor: Colors.transparent,
+      //     content: const Text(
+      //       "⚠️ 24h Yields on Base Network are temporarily delayed, we’re on it! 🚧 7d, 30d, and 90d Yields are still running fine.",
+      //       style: TextStyle(color: ZupColors.orange),
+      //     ),
+      //     actions: [
+      //       ZupIconButton(
+      //         backgroundColor: ZupColors.orange5,
+      //         icon: const Icon(Icons.close, color: ZupColors.orange),
+      //         onPressed: (context) => ScaffoldMessenger.of(context).clearMaterialBanners(),
+      //       ),
+      //     ],
+      //   ),
+      // );
     });
   }
 
@@ -77,27 +76,29 @@ class _AppPageState extends State<AppPage> with DeviceInfoMixin {
         backgroundColor: ZupThemeColors.background.themed(context.brightness),
         bottomNavigationBar: shouldShowBottomNavigationBar ? const AppBottomNavigationBar() : null,
         extendBody: shouldShowBottomNavigationBar,
-        body: CustomScrollView(
+        body: PrimaryScrollController(
           controller: appScrollController,
-          shrinkWrap: true,
-          physics: const ClampingScrollPhysics(),
-          slivers: [
-            SliverAppBar(
-              clipBehavior: Clip.none,
-              forceMaterialTransparency: true,
-              pinned: true,
-              titleSpacing: 0,
-              title: AppHeader(height: appBarHeight),
-              toolbarHeight: appBarHeight,
-            ),
-            const SliverFillRemaining(hasScrollBody: false, child: RouterOutlet(key: Key("screen"))),
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: EdgeInsets.only(bottom: shouldShowBottomNavigationBar ? AppBottomNavigationBar.height : 0),
-                child: const AppFooter(),
+          child: CustomScrollView(
+            primary: true,
+            physics: const ClampingScrollPhysics(),
+            slivers: [
+              SliverAppBar(
+                clipBehavior: Clip.none,
+                forceMaterialTransparency: true,
+                pinned: true,
+                titleSpacing: 0,
+                title: AppHeader(height: appBarHeight),
+                toolbarHeight: appBarHeight,
               ),
-            ),
-          ],
+              const SliverFillRemaining(hasScrollBody: false, child: RouterOutlet(key: Key("screen"))),
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: EdgeInsets.only(bottom: shouldShowBottomNavigationBar ? AppBottomNavigationBar.height : 0),
+                  child: const AppFooter(),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

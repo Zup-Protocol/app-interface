@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:zup_app/core/dtos/token_dto.dart';
+import 'package:zup_app/core/dtos/multi_chain_token_dto.dart';
 import 'package:zup_app/core/injections.dart';
-import 'package:zup_app/widgets/token_avatar.dart';
-import 'package:zup_app/widgets/zup_cached_image.dart';
 import 'package:zup_core/extensions/extensions.dart';
 import 'package:zup_ui_kit/zup_ui_kit.dart';
 
 class TokenCard extends StatefulWidget {
   const TokenCard({super.key, required this.asset, required this.onClick});
 
-  final TokenDto asset;
+  final MultiChainTokenDto asset;
   final Function() onClick;
 
   @override
@@ -19,7 +17,7 @@ class TokenCard extends StatefulWidget {
 class _TokenCardState extends State<TokenCard> {
   bool isHovering = false;
 
-  final zupCachedImage = inject<ZupCachedImage>();
+  final zupNetworkImage = inject<ZupNetworkImage>();
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +30,12 @@ class _TokenCardState extends State<TokenCard> {
       },
       child: Row(
         children: [
-          TokenAvatar(asset: widget.asset, size: 35),
+          ZupRemoteAvatar(
+            avatarUrl: widget.asset.logoUrl,
+            errorPlaceholder: widget.asset.name[0],
+            size: 35,
+            zupNetworkImage: zupNetworkImage,
+          ),
           const SizedBox(width: 10),
           Expanded(
             child: Column(

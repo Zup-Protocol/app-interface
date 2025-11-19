@@ -144,9 +144,16 @@ class _AppHeaderState extends State<AppHeader> with DeviceInfoMixin {
               ConnectButton(compact: isMobileSize(context)),
               const SizedBox(width: 12),
               ZupIconButton(
-                iconColor: context.brightness.isLight ? ZupColors.brand : ZupColors.white,
-
-                icon: Transform.rotate(angle: pi / 2, child: Assets.icons.ellipsis.svg(height: 3.5)),
+                icon: Transform.rotate(
+                  angle: pi / 2,
+                  child: Assets.icons.ellipsis.svg(
+                    height: 3.5,
+                    colorFilter: ColorFilter.mode(
+                      context.brightness.isLight ? ZupColors.brand : ZupColors.white,
+                      BlendMode.srcIn,
+                    ),
+                  ),
+                ),
                 onPressed: (context) {
                   AppSettingsDropdown.show(context);
                 },
